@@ -1,11 +1,12 @@
 "use client"
 
-import { Heart, Users, MessageCircle, Calendar, Clock, MapPin, Eye, BookmarkPlus } from "lucide-react"
+import { Heart, Users, MessageCircle, Calendar, Clock, Eye, BookmarkPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { Link } from "react-router-dom"
 
 interface ProjectCardProps {
   project: {
@@ -35,10 +36,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case "Beginner": return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
-      case "Intermediate": return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"
-      case "Advanced": return "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
-      default: return "bg-muted text-muted-foreground border-border"
+      case "Beginner":
+        return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+      case "Intermediate":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"
+      case "Advanced":
+        return "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+      default:
+        return "bg-muted text-muted-foreground border-border"
     }
   }
 
@@ -50,7 +55,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <Avatar className="h-12 w-12 border-2 border-background shadow-md">
               <AvatarImage src={project.creatorAvatar || "/placeholder.svg"} />
               <AvatarFallback className="font-semibold">
-                {project.creatorName.split(' ').map(n => n[0]).join('')}
+                {project.creatorName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
@@ -76,13 +84,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="flex flex-col gap-2 items-end">
-            <Badge className={getDifficultyColor(difficulty)}>
-              {difficulty}
-            </Badge>
+            <Badge className={getDifficultyColor(difficulty)}>{difficulty}</Badge>
             {isRemote && (
-              <Badge variant="outline" className="text-xs border-green-200 text-green-700 dark:border-green-800 dark:text-green-400">
+              <Badge
+                variant="outline"
+                className="text-xs border-green-200 text-green-700 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950"
+              >
                 Remote
               </Badge>
             )}
@@ -98,23 +107,19 @@ export function ProjectCard({ project }: ProjectCardProps) {
               <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">{project.description}</p>
             )}
           </div>
-          
+
           <div className="space-y-3">
             <div>
               <h4 className="text-sm font-medium text-muted-foreground mb-2">Required Skills</h4>
               <div className="flex flex-wrap gap-1.5">
                 {project.skills.map((skill) => (
-                  <Badge 
-                    key={skill} 
-                    variant="outline" 
-                    className="text-xs"
-                  >
+                  <Badge key={skill} variant="outline" className="text-xs">
                     {skill}
                   </Badge>
                 ))}
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
@@ -133,33 +138,27 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
       <CardFooter className="pt-4">
         <div className="flex items-center justify-between w-full gap-3">
-          <Button 
-            variant="default" 
-            size="sm" 
-            className="flex-1 gap-2"
-          >
-            <Eye className="h-4 w-4" />
-            View Details
-          </Button>
-          
+          <Link to={`/post/${project.id}`} className="flex-1">
+            <Button variant="default" size="sm" className="w-full gap-2">
+              <Eye className="h-4 w-4" />
+              View Details
+            </Button>
+          </Link>
+
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="gap-1 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
             >
               <Heart className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="gap-1"
-            >
+            <Button variant="ghost" size="sm" className="gap-1">
               <BookmarkPlus className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="gap-1 border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950"
             >
               <Users className="h-4 w-4" />

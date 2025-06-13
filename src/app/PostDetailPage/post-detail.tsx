@@ -1,0 +1,338 @@
+"use client"
+
+import { useState } from "react"
+import { useParams, Link } from "react-router-dom"
+import { ArrowLeft, Calendar, Users, MapPin, Heart, BookmarkPlus, Send } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
+
+// Mock data for post detail
+const mockPost = {
+  id: "1",
+  title: "AI-Powered Study Assistant",
+  description:
+    "Building an intelligent study companion that helps students with personalized learning paths and doubt resolution using NLP. The system will analyze student performance, identify weak areas, and provide customized study materials and practice questions. We're looking for passionate developers who want to make education more accessible and effective.",
+  creatorName: "Rahul Sharma",
+  creatorYear: "TE",
+  creatorAvatar: "/placeholder.svg",
+  creatorBio: "Full Stack Developer passionate about AI and education technology",
+  skills: ["Python", "Machine Learning", "React", "FastAPI", "NLP", "TensorFlow"],
+  roles: ["ML Engineer", "Frontend Developer", "Backend Developer"],
+  techStack: ["Python", "React", "FastAPI", "PostgreSQL", "TensorFlow", "Docker"],
+  projectType: "Academic",
+  projectPhase: "Development",
+  teamSize: 4,
+  currentTeamSize: 2,
+  workMode: "Hybrid",
+  duration: "4 months",
+  experienceLevel: "Intermediate",
+  datePosted: "2 days ago",
+  location: "Mumbai, India",
+  additionalInfo:
+    "We meet twice a week for in-person collaboration and work remotely for the rest. Looking for committed team members who can dedicate 10-15 hours per week.",
+  isLiked: false,
+  isSaved: false,
+  likesCount: 12,
+  applicantsCount: 8,
+}
+
+export default function PostDetailPage() {
+  const { postId } = useParams()
+  const [post] = useState(mockPost)
+  const [isLiked, setIsLiked] = useState(post.isLiked)
+  const [isSaved, setIsSaved] = useState(post.isSaved)
+  const [applicationMessage, setApplicationMessage] = useState("")
+  const [showApplicationForm, setShowApplicationForm] = useState(false)
+
+  const handleLike = () => {
+    setIsLiked(!isLiked)
+  }
+
+  const handleSave = () => {
+    setIsSaved(!isSaved)
+  }
+
+  const handleApply = () => {
+    if (showApplicationForm && applicationMessage.trim()) {
+      // Handle application submission
+      console.log("Applying to post:", postId, "with message:", applicationMessage)
+      setShowApplicationForm(false)
+      setApplicationMessage("")
+    } else {
+      setShowApplicationForm(true)
+    }
+  }
+
+  const getDifficultyColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case "beginner":
+        return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+      case "intermediate":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"
+      case "advanced":
+        return "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+      default:
+        return "bg-muted text-muted-foreground border-border"
+    }
+  }
+
+  const getPhaseColor = (phase: string) => {
+    switch (phase.toLowerCase()) {
+      case "idea stage":
+        return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
+      case "planning":
+        return "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800"
+      case "development":
+        return "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
+      case "testing":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"
+      case "near completion":
+        return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+      default:
+        return "bg-muted text-muted-foreground border-border"
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto p-4 lg:p-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <Link to="/">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div className="flex-1">
+            <h1 className="text-2xl lg:text-3xl font-bold">{post.title}</h1>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Creator Info */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
+                    <AvatarImage src={post.creatorAvatar || "/placeholder.svg"} />
+                    <AvatarFallback className="text-lg font-semibold">
+                      {post.creatorName
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg">{post.creatorName}</h3>
+                    <p className="text-primary font-medium">{post.creatorYear}</p>
+                    <p className="text-sm text-muted-foreground">{post.creatorBio}</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Link to={`/profile/${post.creatorName}`}>
+                      <Button variant="outline" size="sm">
+                        View Profile
+                      </Button>
+                    </Link>
+                    <Button variant="outline" size="sm">
+                      Message
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    Posted {post.datePosted}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-4 w-4" />
+                    {post.location}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    {post.applicantsCount} applicants
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Project Description */}
+            <Card>
+              <CardHeader>
+                <CardTitle>About This Project</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground leading-relaxed mb-4">{post.description}</p>
+                {post.additionalInfo && (
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <h4 className="font-medium mb-2">Additional Information</h4>
+                    <p className="text-sm text-muted-foreground">{post.additionalInfo}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Requirements */}
+            <Card>
+              <CardHeader>
+                <CardTitle>What We're Looking For</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <h4 className="font-medium mb-3">Required Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {post.skills.map((skill) => (
+                      <Badge key={skill} variant="outline">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium mb-3">Desired Roles</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {post.roles.map((role) => (
+                      <Badge key={role} variant="secondary">
+                        {role}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium mb-3">Tech Stack</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {post.techStack.map((tech) => (
+                      <Badge key={tech} variant="outline" className="border-primary/20 text-primary">
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Application Form */}
+            {showApplicationForm && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Apply to Join This Project</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Tell the team why you're interested and what you can contribute
+                      </label>
+                      <textarea
+                        value={applicationMessage}
+                        onChange={(e) => setApplicationMessage(e.target.value)}
+                        placeholder="Share your relevant experience, skills, and why you want to join this project..."
+                        className="w-full min-h-[120px] px-3 py-2 border border-input rounded-md bg-transparent text-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none resize-none"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleApply} className="gap-2">
+                        <Send className="h-4 w-4" />
+                        Send Application
+                      </Button>
+                      <Button variant="outline" onClick={() => setShowApplicationForm(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Actions */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-3">
+                  <Button onClick={handleApply} className="w-full gap-2" disabled={showApplicationForm}>
+                    <Send className="h-4 w-4" />
+                    {showApplicationForm ? "Fill Application Below" : "Apply to Join"}
+                  </Button>
+
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={handleLike}>
+                      <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                      {isLiked ? "Liked" : "Like"}
+                    </Button>
+                    <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={handleSave}>
+                      <BookmarkPlus className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
+                      {isSaved ? "Saved" : "Save"}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Project Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Project Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Project Type</span>
+                  <Badge variant="secondary">{post.projectType}</Badge>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Phase</span>
+                  <Badge className={getPhaseColor(post.projectPhase)}>{post.projectPhase}</Badge>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Experience Level</span>
+                  <Badge className={getDifficultyColor(post.experienceLevel)}>{post.experienceLevel}</Badge>
+                </div>
+
+                <Separator />
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Team Size</span>
+                  <span className="text-sm font-medium">
+                    {post.currentTeamSize}/{post.teamSize} members
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Work Mode</span>
+                  <Badge variant="outline">{post.workMode}</Badge>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Duration</span>
+                  <span className="text-sm font-medium">{post.duration}</span>
+                </div>
+
+                <Separator />
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Likes</span>
+                  <span className="text-sm font-medium">{post.likesCount + (isLiked ? 1 : 0)}</span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Applications</span>
+                  <span className="text-sm font-medium">{post.applicantsCount}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

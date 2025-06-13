@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { MessageSquare, Bell, Menu, X } from "lucide-react"
@@ -33,8 +35,8 @@ export function Navbar() {
           {/* Middle: Navigation links (hidden on mobile) */}
           <div className="hidden md:block">
             <div className="flex items-center space-x-4">
-              <Link to="/projects" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted">
-                Projects
+              <Link to="/myposts" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted">
+                My Posts
               </Link>
               <Link to="/people" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted">
                 People
@@ -44,9 +46,11 @@ export function Navbar() {
 
           {/* Right: Action icons and profile (hidden on mobile) */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              <MessageSquare className="h-5 w-5" />
-            </Button>
+            <Link to="/chat">
+              <Button variant="ghost" size="icon">
+                <MessageSquare className="h-5 w-5" />
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon">
               <Bell className="h-5 w-5" />
             </Button>
@@ -68,11 +72,11 @@ export function Navbar() {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link
-              to="/projects"
+              to="/myposts"
               className="block px-3 py-2 rounded-md text-base font-medium hover:bg-muted"
               onClick={() => setIsMenuOpen(false)}
             >
-              Projects
+              My Posts
             </Link>
             <Link
               to="/people"
@@ -84,9 +88,11 @@ export function Navbar() {
           </div>
           <div className="pt-4 pb-3 border-t border-muted">
             <div className="flex items-center px-5 space-x-3">
-              <Button variant="ghost" size="icon">
-                <MessageSquare className="h-5 w-5" />
-              </Button>
+              <Link to="/chat">
+                <Button variant="ghost" size="icon">
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+              </Link>
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>
