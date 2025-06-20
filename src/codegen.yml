@@ -1,0 +1,13 @@
+# codegen.yml
+schema: http://localhost:3000/graphql  # or your backend URL
+documents: src/graphql/**/*.ts          # your queries/mutations
+generates:
+  src/graphql/generated/index.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false

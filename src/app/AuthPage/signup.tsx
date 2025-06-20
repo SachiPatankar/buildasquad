@@ -1,10 +1,13 @@
-import React, { type FormEvent, useState } from 'react'
+import { type FormEvent, useState } from 'react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Link, useNavigate } from 'react-router-dom'
+import { signupUser } from '@/api'
+import type { User } from '@/stores/userAuthStore'
+import useAuthStore from '@/stores/userAuthStore'
 
 export default function SignupPage() {
   const navigate = useNavigate()
@@ -17,16 +20,44 @@ export default function SignupPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
+    setError(undefined)
+  
     if (password !== confirm) {
       setError('Passwords do not match')
       return
     }
-    setError(undefined)
-    // TODO: POST /auth/signup { first_name, last_name, email, password }
-    console.log('signup', { firstName, lastName, email, password })
-    // on success:
-    navigate('/login')
+  
+    if (!firstName || !email || !password) {
+      setError('All fields are required')
+      return
+    }
+  
+    try {
+      const response = await signupUser({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+      })
+  
+      const { token, email: userEmail } = response.data
+  
+      const user: User = {
+        _id: '', // You may want to fetch full user info later via /me
+        email: userEmail,
+        first_name: firstName,
+        last_name: lastName,
+      }
+  
+      useAuthStore.getState().setAuth(token, user)
+  
+      navigate('/') // Or wherever you want after signup
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Signup failed'
+      setError(msg)
+    }
   }
+  
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

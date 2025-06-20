@@ -13,15 +13,23 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { githubLogin, googleLogin, loginUser } from '@/api'
+import useAuthStore from '@/stores/userAuthStore'
 
 export default function LoginPage() {
+  const navigate = useNavigate()
   const [step, setStep] = useState<'email' | 'password'>('email')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  function handleOAuth(provider: 'google' | 'github') {
-    window.location.href = `/auth/${provider}`
+  const handleOAuth = async (provider: 'google' | 'github') => {
+    if (provider === 'google') {
+      googleLogin()
+    } else if (provider === 'github') {
+      githubLogin()
+    }
   }
 
   function onEmailSubmit(e: FormEvent) {
@@ -37,26 +45,24 @@ export default function LoginPage() {
   async function onPasswordSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
+  
     if (!password) {
       setError('Password cannot be empty.')
       return
     }
+  
     try {
-      const res = await fetch('/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        setError(data.error || 'Login failed')
-        return
-      }
-      const { token } = await res.json()
-      // TODO: save token in context/localStorage, then redirect
-      console.log('Logged in!', token)
-    } catch {
-      setError('Network error')
+      const response = await loginUser({ email, password })
+      const { token, user } = response.data
+  
+      // Store both token and user data directly
+      const store = useAuthStore.getState()
+      store.setAuth(token, user)
+  
+      navigate('/projects')
+    } catch (err: any) {
+      const message = err.response?.data?.error || 'Login failed'
+      setError(message)
     }
   }
 
@@ -165,7 +171,7 @@ export default function LoginPage() {
         <CardFooter className="flex justify-center">
           {step === 'email' && (
             <p className="text-sm">
-              Don’t have an account?{' '}
+              Don't have an account?{' '}
               <Link to="/signup" className="font-medium hover:underline">
                 Sign up
               </Link>

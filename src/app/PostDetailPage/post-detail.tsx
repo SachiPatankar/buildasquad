@@ -1,73 +1,71 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
-import { ArrowLeft, Calendar, Users, MapPin, Heart, BookmarkPlus, Send } from "lucide-react"
+import { useQuery, useMutation } from "@apollo/client"
+import { ArrowLeft, Calendar, Users, MapPin, BookmarkPlus, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
-
-// Mock data for post detail
-const mockPost = {
-  id: "1",
-  title: "AI-Powered Study Assistant",
-  description:
-    "Building an intelligent study companion that helps students with personalized learning paths and doubt resolution using NLP. The system will analyze student performance, identify weak areas, and provide customized study materials and practice questions. We're looking for passionate developers who want to make education more accessible and effective.",
-  creatorName: "Rahul Sharma",
-  creatorYear: "TE",
-  creatorAvatar: "/placeholder.svg",
-  creatorBio: "Full Stack Developer passionate about AI and education technology",
-  skills: ["Python", "Machine Learning", "React", "FastAPI", "NLP", "TensorFlow"],
-  roles: ["ML Engineer", "Frontend Developer", "Backend Developer"],
-  techStack: ["Python", "React", "FastAPI", "PostgreSQL", "TensorFlow", "Docker"],
-  projectType: "Academic",
-  projectPhase: "Development",
-  teamSize: 4,
-  currentTeamSize: 2,
-  workMode: "Hybrid",
-  duration: "4 months",
-  experienceLevel: "Intermediate",
-  datePosted: "2 days ago",
-  location: "Mumbai, India",
-  additionalInfo:
-    "We meet twice a week for in-person collaboration and work remotely for the rest. Looking for committed team members who can dedicate 10-15 hours per week.",
-  isLiked: false,
-  isSaved: false,
-  likesCount: 12,
-  applicantsCount: 8,
-}
+import { LOAD_POST_BY_ID, SAVE_POST, UNSAVE_POST, APPLY_TO_POST } from "@/graphql"
+import { toast } from "react-toastify"
 
 export default function PostDetailPage() {
-  const { postId } = useParams()
-  const [post] = useState(mockPost)
-  const [isLiked, setIsLiked] = useState(post.isLiked)
-  const [isSaved, setIsSaved] = useState(post.isSaved)
+  const { postId } = useParams<{ postId: string }>()
+  const { data, loading, error } = useQuery(LOAD_POST_BY_ID, {
+    variables: { postId },
+    skip: !postId,
+  })
+
+  const [savePost] = useMutation(SAVE_POST)
+  const [unsavePost] = useMutation(UNSAVE_POST)
+  const [applyToPost] = useMutation(APPLY_TO_POST)
+
+  const [isSaved, setIsSaved] = useState(false)
+  const [isApplied, setIsApplied] = useState(false)
   const [applicationMessage, setApplicationMessage] = useState("")
   const [showApplicationForm, setShowApplicationForm] = useState(false)
 
-  const handleLike = () => {
-    setIsLiked(!isLiked)
-  }
+  const handleApply = async () => {
+    if (!postId) {
+      alert("Invalid post.")
+      return
+    }
 
-  const handleSave = () => {
-    setIsSaved(!isSaved)
-  }
-
-  const handleApply = () => {
-    if (showApplicationForm && applicationMessage.trim()) {
-      // Handle application submission
-      console.log("Applying to post:", postId, "with message:", applicationMessage)
+    try {
+      await applyToPost({
+        variables: { postId, message: applicationMessage },
+      })
+      toast("Application sent successfully!")
+      setIsApplied(true) // Update state to applied
       setShowApplicationForm(false)
-      setApplicationMessage("")
-    } else {
-      setShowApplicationForm(true)
+      setApplicationMessage("") // Reset application message
+    } catch (e) {
+      console.error("Error applying to post:", e)
+      alert("An error occurred while sending your application. Please try again.")
+    }
+  }
+
+  const handleSave = async () => {
+    if (!postId) return
+    try {
+      if (isSaved) {
+        await unsavePost({ variables: { postId } })
+        setIsSaved(false)
+      } else {
+        await savePost({ variables: { postId } })
+        setIsSaved(true)
+      }
+    } catch (e) {
+      console.error("Error saving post:", e)
+      alert("An error occurred while saving the post. Please try again.")
     }
   }
 
   const getDifficultyColor = (level: string) => {
-    switch (level.toLowerCase()) {
+    switch (level?.toLowerCase()) {
       case "beginner":
         return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
       case "intermediate":
@@ -80,7 +78,7 @@ export default function PostDetailPage() {
   }
 
   const getPhaseColor = (phase: string) => {
-    switch (phase.toLowerCase()) {
+    switch (phase?.toLowerCase()) {
       case "idea stage":
         return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
       case "planning":
@@ -94,6 +92,36 @@ export default function PostDetailPage() {
       default:
         return "bg-muted text-muted-foreground border-border"
     }
+  }
+
+  useEffect(() => {
+    if (data?.loadPostById) {
+      setIsSaved(data.loadPostById.is_saved ?? false)
+      setIsApplied(data.loadPostById.is_applied ?? false)
+    }
+  }, [data])
+
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error loading post.</div>
+  if (!data?.loadPostById) return <div>Post not found.</div>
+
+  const post = {
+    title: data?.loadPostById?.title || 'Unknown Title',
+    description: data?.loadPostById?.description || 'No description available.',
+    creatorName: data?.loadPostById?.first_name + " " + data?.loadPostById?.last_name || "Unknown", // Replace with actual data if available
+    creatorAvatar: data?.loadPostById?.photo || "",
+    datePosted: data?.loadPostById?.created_at || "Unknown Date",
+    location: data?.loadPostById?.location_id || "Unknown Location",
+    applicantsCount: data?.loadPostById?.applications_count || 0,
+    skills: data?.loadPostById?.requirements?.desired_skills || [],
+    roles: data?.loadPostById?.requirements?.desired_roles || [],
+    techStack: data?.loadPostById?.tech_stack || [],
+    projectType: data?.loadPostById?.project_type || "Unknown",
+    projectPhase: data?.loadPostById?.project_phase || "Unknown",
+    experienceLevel: data?.loadPostById?.experience_level || "Unknown",
+    workMode: data?.loadPostById?.work_mode || "Unknown",
+    isSaved: data?.loadPostById?.is_saved ?? false,
+    isApplied: data?.loadPostById?.is_applied ?? false,
   }
 
   return (
@@ -129,10 +157,8 @@ export default function PostDetailPage() {
                   </Avatar>
                   <div className="flex-1">
                     <h3 className="font-bold text-lg">{post.creatorName}</h3>
-                    <p className="text-primary font-medium">{post.creatorYear}</p>
-                    <p className="text-sm text-muted-foreground">{post.creatorBio}</p>
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
                     <Link to={`/profile/${post.creatorName}`}>
                       <Button variant="outline" size="sm">
                         View Profile
@@ -168,12 +194,6 @@ export default function PostDetailPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed mb-4">{post.description}</p>
-                {post.additionalInfo && (
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Additional Information</h4>
-                    <p className="text-sm text-muted-foreground">{post.additionalInfo}</p>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
@@ -186,18 +206,22 @@ export default function PostDetailPage() {
                 <div>
                   <h4 className="font-medium mb-3">Required Skills</h4>
                   <div className="flex flex-wrap gap-2">
-                    {post.skills.map((skill) => (
-                      <Badge key={skill} variant="outline">
-                        {skill}
-                      </Badge>
-                    ))}
+                    {post.skills.length ? (
+                      post.skills.map((skill: string) => (
+                        <Badge key={skill} variant="outline">
+                          {skill}
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-muted-foreground">No skills listed.</span>
+                    )}
                   </div>
                 </div>
 
                 <div>
                   <h4 className="font-medium mb-3">Desired Roles</h4>
                   <div className="flex flex-wrap gap-2">
-                    {post.roles.map((role) => (
+                    {post.roles.map((role: string) => (
                       <Badge key={role} variant="secondary">
                         {role}
                       </Badge>
@@ -208,7 +232,7 @@ export default function PostDetailPage() {
                 <div>
                   <h4 className="font-medium mb-3">Tech Stack</h4>
                   <div className="flex flex-wrap gap-2">
-                    {post.techStack.map((tech) => (
+                    {post.techStack.map((tech: string) => (
                       <Badge key={tech} variant="outline" className="border-primary/20 text-primary">
                         {tech}
                       </Badge>
@@ -258,16 +282,22 @@ export default function PostDetailPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="space-y-3">
-                  <Button onClick={handleApply} className="w-full gap-2" disabled={showApplicationForm}>
+                  <Button
+                    onClick={() => {
+                      if (!isApplied) setShowApplicationForm(true)
+                    }}
+                    className="w-full gap-2"
+                    disabled={isApplied || showApplicationForm}
+                  >
                     <Send className="h-4 w-4" />
-                    {showApplicationForm ? "Fill Application Below" : "Apply to Join"}
+                    {isApplied
+                      ? "Applied"
+                      : showApplicationForm
+                      ? "Fill Application Below"
+                      : "Apply to Join"}
                   </Button>
 
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={handleLike}>
-                      <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
-                      {isLiked ? "Liked" : "Like"}
-                    </Button>
                     <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={handleSave}>
                       <BookmarkPlus className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
                       {isSaved ? "Saved" : "Save"}
@@ -298,31 +328,12 @@ export default function PostDetailPage() {
                   <Badge className={getDifficultyColor(post.experienceLevel)}>{post.experienceLevel}</Badge>
                 </div>
 
-                <Separator />
-
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Team Size</span>
-                  <span className="text-sm font-medium">
-                    {post.currentTeamSize}/{post.teamSize} members
-                  </span>
-                </div>
-
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Work Mode</span>
                   <Badge variant="outline">{post.workMode}</Badge>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Duration</span>
-                  <span className="text-sm font-medium">{post.duration}</span>
-                </div>
-
                 <Separator />
-
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Likes</span>
-                  <span className="text-sm font-medium">{post.likesCount + (isLiked ? 1 : 0)}</span>
-                </div>
 
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Applications</span>

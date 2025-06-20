@@ -1,18 +1,22 @@
 import React, { type FormEvent, useState, useEffect } from 'react'
-import { useSearchParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { resetPassword } from '@/api'
+
 
 export default function ResetPasswordPage() {
-  const [params] = useSearchParams()
+  const { id = '', token = '' } = useParams<{ id: string; token: string }>()
   const navigate = useNavigate()
-  const token    = params.get('token') || ''
   const [password, setPassword] = useState('')
   const [confirm, setConfirm]   = useState('')
   const [error, setError]       = useState<string>()
   const [done, setDone]         = useState(false)
+  const [loading, setLoading] = useState(false)
+
+
 
   useEffect(() => {
     if (!token) setError('No reset token provided')
@@ -20,15 +24,31 @@ export default function ResetPasswordPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
+    setError(undefined)
+  
+    if (!token || !id) {
+      setError('Missing token or user ID')
+      return
+    }
+  
     if (password !== confirm) {
       setError('Passwords do not match')
       return
     }
-    // TODO: POST to `/auth/reset-password?token=${token}` with { password }
-    console.log('reset', { token, password })
-    setDone(true)
-    setTimeout(() => navigate('/login'), 2000)
+  
+    try {
+      setLoading(true)
+      await resetPassword(id, token, { password })
+      setDone(true)
+      setTimeout(() => navigate('/login'), 2000)
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Reset failed. Please try again.'
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
+  
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -67,9 +87,10 @@ export default function ResetPasswordPage() {
                   onChange={(e) => setConfirm(e.target.value)}
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Reset password
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Resetting...' : 'Reset password'}
               </Button>
+
             </form>
           )}
         </CardContent>

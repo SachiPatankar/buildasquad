@@ -4,16 +4,32 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
+import { forgotPassword } from '@/api'
+
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    console.log('send reset to', email)
-    setSent(true)
+    setError(null)
+    setLoading(true)
+  
+    try {
+      await forgotPassword({ email })
+      setSent(true)
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to send reset link.'
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
+  
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -40,9 +56,10 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Send reset link
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Sending...' : 'Send reset link'}
               </Button>
+
             </form>
           </CardContent>
         )}
