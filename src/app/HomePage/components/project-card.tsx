@@ -1,12 +1,20 @@
 "use client"
-
-import { Heart, Users, MessageCircle, Calendar, Clock, Eye, BookmarkPlus } from "lucide-react"
+import {
+  MessageCircle,
+  Calendar,
+  Eye,
+  BookmarkPlus,
+  BookmarkCheck,
+} from "lucide-react"
+import { gql, useMutation } from "@apollo/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Link } from "react-router-dom"
+import { useState } from "react"
+import { APPLY_TO_POST, SAVE_POST, UNSAVE_POST } from "@/graphql"
 
 interface ProjectCardProps {
   project: {
@@ -22,7 +30,7 @@ interface ProjectCardProps {
     views_count?: number
     created_at: string
     description?: string
-    is_applied?: boolean
+    is_applied?: "pending" | "accepted" | "rejected" | "withdrawn" | null
     is_saved?: boolean
   }
 }
@@ -36,8 +44,45 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const difficulty = project.experience_level || "Beginner"
   const isRemote = project.work_mode?.toLowerCase() === "remote"
   const datePosted = new Date(project.created_at).toLocaleDateString()
-  const isSaved = project.is_saved || false
-  const isApplied = project.is_applied || false
+
+  // ✅ Local state for UI updates after mutation
+  const [isSaved, setIsSaved] = useState(project.is_saved || false)
+  const [applicationStatus, setApplicationStatus] = useState<
+    "pending" | "accepted" | "rejected" | "withdrawn" | null
+  >(project.is_applied ?? null)
+
+  // ✅ Mutations
+  const [savePost] = useMutation(SAVE_POST, {
+    variables: { postId: project._id },
+    onCompleted: () => setIsSaved(true),
+  })
+
+  const [unsavePost] = useMutation(UNSAVE_POST, {
+    variables: { postId: project._id },
+    onCompleted: () => setIsSaved(false),
+  })
+
+  const [applyToPost, { loading: applying }] = useMutation(APPLY_TO_POST, {
+    variables: {
+      postId: project._id,
+      message: "Looking forward to this opportunity!", // You could make this dynamic later
+    },
+    onCompleted: (data) => setApplicationStatus(data.applyToPost.status),
+  })
+
+  const handleSaveToggle = () => {
+    if (isSaved) {
+      unsavePost()
+    } else {
+      savePost()
+    }
+  }
+
+  const handleApply = () => {
+    if (!applicationStatus) {
+      applyToPost()
+    }
+  }
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
@@ -50,6 +95,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
       default:
         return "bg-muted text-muted-foreground border-border"
     }
+  }
+
+  const getApplyButtonLabel = () => {
+    if (!applicationStatus) return "Apply"
+    return applicationStatus.charAt(0).toUpperCase() + applicationStatus.slice(1)
   }
 
   return (
@@ -143,20 +193,22 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <Button
               variant={isSaved ? "secondary" : "ghost"}
               size="sm"
+              onClick={handleSaveToggle}
               className={`gap-1 ${isSaved ? "text-blue-600" : ""}`}
-              aria-pressed={isSaved}
-              title={isSaved ? "Saved" : "Save"}
+              title={isSaved ? "Unsave Post" : "Save Post"}
             >
-              <BookmarkPlus className="h-4 w-4" />
+              {isSaved ? <BookmarkCheck className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
               {isSaved ? "Saved" : "Save"}
             </Button>
+
             <Button
-              variant={isApplied ? "secondary" : "outline"}
+              variant={applicationStatus ? "secondary" : "outline"}
               size="sm"
-              className={`gap-1 px-6 py-2 border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950 ${isApplied ? "opacity-60 cursor-not-allowed" : ""}`}
-              disabled={isApplied}
+              className={`gap-1 px-6 py-2 border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950 ${applicationStatus ? "opacity-60 cursor-not-allowed" : ""}`}
+              disabled={!!applicationStatus || applying}
+              onClick={handleApply}
             >
-              {isApplied ? "Applied" : "Apply"}
+              {getApplyButtonLabel()}
             </Button>
           </div>
         </div>

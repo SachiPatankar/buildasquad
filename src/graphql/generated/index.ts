@@ -275,19 +275,19 @@ export type MutationClosePostArgs = {
 
 export type MutationCreateAchievementArgs = {
   input: CreateAchievementInput;
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type MutationCreateEducationArgs = {
   input: CreateEducationInput;
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type MutationCreateExperienceArgs = {
   input: CreateExperienceInput;
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -298,7 +298,7 @@ export type MutationCreatePostArgs = {
 
 export type MutationCreateProjectArgs = {
   input: CreateProjectInput;
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -309,7 +309,7 @@ export type MutationCreateUserArgs = {
 
 export type MutationCreateUserSkillArgs = {
   input: CreateUserSkillInput;
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -475,7 +475,33 @@ export type Post = {
   applications_count: Scalars['Int']['output'];
   created_at: Scalars['Date']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  experience_level?: Maybe<Scalars['String']['output']>;
   location_id?: Maybe<Scalars['String']['output']>;
+  posted_by: Scalars['String']['output'];
+  project_phase?: Maybe<Scalars['String']['output']>;
+  project_type?: Maybe<Scalars['String']['output']>;
+  requirements?: Maybe<Requirement>;
+  status: Scalars['String']['output'];
+  tech_stack?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  title: Scalars['String']['output'];
+  updated_at: Scalars['Date']['output'];
+  views_count: Scalars['Int']['output'];
+  work_mode?: Maybe<Scalars['String']['output']>;
+};
+
+export type PostDetails = {
+  __typename?: 'PostDetails';
+  _id: Scalars['String']['output'];
+  applications_count: Scalars['Int']['output'];
+  created_at: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  experience_level?: Maybe<Scalars['String']['output']>;
+  first_name: Scalars['String']['output'];
+  is_applied?: Maybe<Scalars['String']['output']>;
+  is_saved: Scalars['Boolean']['output'];
+  last_name?: Maybe<Scalars['String']['output']>;
+  location_id?: Maybe<Scalars['String']['output']>;
+  photo?: Maybe<Scalars['String']['output']>;
   posted_by: Scalars['String']['output'];
   project_phase?: Maybe<Scalars['String']['output']>;
   project_type?: Maybe<Scalars['String']['output']>;
@@ -494,6 +520,28 @@ export type PostFilterInput = {
   status?: InputMaybe<Scalars['String']['input']>;
   tech_stack?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   work_mode?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostSummary = {
+  __typename?: 'PostSummary';
+  _id: Scalars['String']['output'];
+  applications_count: Scalars['Int']['output'];
+  created_at: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  experience_level?: Maybe<Scalars['String']['output']>;
+  first_name: Scalars['String']['output'];
+  is_applied?: Maybe<Scalars['String']['output']>;
+  is_saved: Scalars['Boolean']['output'];
+  last_name?: Maybe<Scalars['String']['output']>;
+  location_id?: Maybe<Scalars['String']['output']>;
+  photo?: Maybe<Scalars['String']['output']>;
+  posted_by: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+  tech_stack?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  title: Scalars['String']['output'];
+  updated_at: Scalars['Date']['output'];
+  views_count: Scalars['Int']['output'];
+  work_mode?: Maybe<Scalars['String']['output']>;
 };
 
 export type PresignedUrlResult = {
@@ -538,9 +586,9 @@ export type Query = {
   loadPendingFriendRequests: Array<Maybe<Connection>>;
   loadPeople: Array<Maybe<Person>>;
   loadPeopleByFilter: Array<Maybe<Person>>;
-  loadPostByFilter: Array<Maybe<Post>>;
-  loadPostById?: Maybe<Post>;
-  loadPosts: Array<Maybe<Post>>;
+  loadPostByFilter: Array<Maybe<PostSummary>>;
+  loadPostById?: Maybe<PostDetails>;
+  loadPosts: Array<Maybe<PostSummary>>;
   loadSentFriendRequests: Array<Maybe<Connection>>;
   loadUserById?: Maybe<User>;
 };
@@ -553,7 +601,7 @@ export type QueryCheckConnectionStatusArgs = {
 
 
 export type QueryGetAchievementsByUserArgs = {
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -563,12 +611,12 @@ export type QueryGetChatListForUserArgs = {
 
 
 export type QueryGetEducationByUserArgs = {
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryGetExperienceByUserArgs = {
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -586,12 +634,12 @@ export type QueryGetPresignedUrlArgs = {
 
 
 export type QueryGetProjectsByUserArgs = {
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryGetSkillsByUserArgs = {
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -650,7 +698,7 @@ export type QueryLoadSentFriendRequestsArgs = {
 
 
 export type QueryLoadUserByIdArgs = {
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ReadStatus = {
@@ -663,7 +711,6 @@ export type Requirement = {
   __typename?: 'Requirement';
   desired_roles?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   desired_skills?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  preferred_experience?: Maybe<Scalars['String']['output']>;
 };
 
 export type RequirementInput = {
@@ -798,21 +845,21 @@ export type LoadPostsQueryVariables = Exact<{
 }>;
 
 
-export type LoadPostsQuery = { __typename?: 'Query', loadPosts: Array<{ __typename?: 'Post', _id: string, title: string, description?: string | null, posted_by: string, tech_stack?: Array<string | null> | null, project_phase?: string | null, project_type?: string | null, work_mode?: string | null, location_id?: string | null, status: string, views_count: number, applications_count: number, created_at: any, updated_at: any, requirements?: { __typename?: 'Requirement', desired_skills?: Array<string | null> | null, desired_roles?: Array<string | null> | null, preferred_experience?: string | null } | null } | null> };
+export type LoadPostsQuery = { __typename?: 'Query', loadPosts: Array<{ __typename?: 'PostSummary', _id: string, title: string, description?: string | null, posted_by: string, first_name: string, last_name?: string | null, photo?: string | null, tech_stack?: Array<string | null> | null, work_mode?: string | null, experience_level?: string | null, location_id?: string | null, status: string, views_count: number, applications_count: number, is_saved: boolean, is_applied?: string | null, created_at: any, updated_at: any } | null> };
 
 export type LoadPostByIdQueryVariables = Exact<{
   postId: Scalars['String']['input'];
 }>;
 
 
-export type LoadPostByIdQuery = { __typename?: 'Query', loadPostById?: { __typename?: 'Post', _id: string, title: string, description?: string | null, status: string, tech_stack?: Array<string | null> | null } | null };
+export type LoadPostByIdQuery = { __typename?: 'Query', loadPostById?: { __typename?: 'PostDetails', _id: string, title: string, description?: string | null, posted_by: string, first_name: string, last_name?: string | null, photo?: string | null, tech_stack?: Array<string | null> | null, project_phase?: string | null, project_type?: string | null, work_mode?: string | null, experience_level?: string | null, location_id?: string | null, status: string, views_count: number, applications_count: number, is_saved: boolean, is_applied?: string | null, created_at: any, updated_at: any, requirements?: { __typename?: 'Requirement', desired_skills?: Array<string | null> | null, desired_roles?: Array<string | null> | null } | null } | null };
 
 export type LoadPostByFilterQueryVariables = Exact<{
   filter: PostFilterInput;
 }>;
 
 
-export type LoadPostByFilterQuery = { __typename?: 'Query', loadPostByFilter: Array<{ __typename?: 'Post', _id: string, title: string, project_type?: string | null, work_mode?: string | null, tech_stack?: Array<string | null> | null } | null> };
+export type LoadPostByFilterQuery = { __typename?: 'Query', loadPostByFilter: Array<{ __typename?: 'PostSummary', _id: string, title: string, description?: string | null, posted_by: string, first_name: string, last_name?: string | null, photo?: string | null, tech_stack?: Array<string | null> | null, work_mode?: string | null, experience_level?: string | null, location_id?: string | null, status: string, views_count: number, applications_count: number, is_saved: boolean, is_applied?: string | null, created_at: any, updated_at: any } | null> };
 
 export type GetSavedPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -904,6 +951,163 @@ export type UpdateApplicationStatusMutationVariables = Exact<{
 
 export type UpdateApplicationStatusMutation = { __typename?: 'Mutation', updateApplicationStatus: { __typename?: 'Application', _id: string, status: string } };
 
+export type GetAchievementsByUserQueryVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetAchievementsByUserQuery = { __typename?: 'Query', getAchievementsByUser: Array<{ __typename?: 'Achievement', _id: string, title: string, description?: string | null, user_id: string, created_at: any, updated_at: any } | null> };
+
+export type CreateAchievementMutationVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+  input: CreateAchievementInput;
+}>;
+
+
+export type CreateAchievementMutation = { __typename?: 'Mutation', createAchievement: { __typename?: 'Achievement', _id: string, title: string, description?: string | null, user_id: string, created_at: any, updated_at: any } };
+
+export type UpdateAchievementMutationVariables = Exact<{
+  achievementId: Scalars['String']['input'];
+  input: UpdateAchievementInput;
+}>;
+
+
+export type UpdateAchievementMutation = { __typename?: 'Mutation', updateAchievement: { __typename?: 'Achievement', _id: string, title: string, description?: string | null, updated_at: any } };
+
+export type DeleteAchievementMutationVariables = Exact<{
+  achievementId: Scalars['String']['input'];
+}>;
+
+
+export type DeleteAchievementMutation = { __typename?: 'Mutation', deleteAchievement: boolean };
+
+export type GetEducationByUserQueryVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetEducationByUserQuery = { __typename?: 'Query', getEducationByUser: Array<{ __typename?: 'Education', _id: string, user_id: string, institution_name: string, location_id?: string | null, degree: string, field_of_study: string, start_date: any, end_date: any, is_current: boolean, grade?: string | null, description?: string | null, created_at: any, updated_at: any } | null> };
+
+export type CreateEducationMutationVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+  input: CreateEducationInput;
+}>;
+
+
+export type CreateEducationMutation = { __typename?: 'Mutation', createEducation: { __typename?: 'Education', _id: string, institution_name: string, degree: string, field_of_study: string, start_date: any, end_date: any, is_current: boolean, created_at: any, updated_at: any } };
+
+export type UpdateEducationMutationVariables = Exact<{
+  educationId: Scalars['String']['input'];
+  input: UpdateEducationInput;
+}>;
+
+
+export type UpdateEducationMutation = { __typename?: 'Mutation', updateEducation: { __typename?: 'Education', _id: string, institution_name: string, updated_at: any } };
+
+export type DeleteEducationMutationVariables = Exact<{
+  educationId: Scalars['String']['input'];
+}>;
+
+
+export type DeleteEducationMutation = { __typename?: 'Mutation', deleteEducation: boolean };
+
+export type GetExperienceByUserQueryVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetExperienceByUserQuery = { __typename?: 'Query', getExperienceByUser: Array<{ __typename?: 'Experience', _id: string, user_id: string, company_name: string, position: string, start_date: any, end_date: any, is_current: boolean, description?: string | null, location_id?: string | null, employment_type?: string | null, created_at: any, updated_at: any } | null> };
+
+export type CreateExperienceMutationVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+  input: CreateExperienceInput;
+}>;
+
+
+export type CreateExperienceMutation = { __typename?: 'Mutation', createExperience: { __typename?: 'Experience', _id: string, company_name: string, position: string, start_date: any, end_date: any, is_current: boolean, created_at: any, updated_at: any } };
+
+export type UpdateExperienceMutationVariables = Exact<{
+  experienceId: Scalars['String']['input'];
+  input: UpdateExperienceInput;
+}>;
+
+
+export type UpdateExperienceMutation = { __typename?: 'Mutation', updateExperience: { __typename?: 'Experience', _id: string, position: string, updated_at: any } };
+
+export type DeleteExperienceMutationVariables = Exact<{
+  experienceId: Scalars['String']['input'];
+}>;
+
+
+export type DeleteExperienceMutation = { __typename?: 'Mutation', deleteExperience: boolean };
+
+export type GetProjectsByUserQueryVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProjectsByUserQuery = { __typename?: 'Query', getProjectsByUser: Array<{ __typename?: 'Project', _id: string, user_id: string, title: string, description?: string | null, technologies?: Array<string | null> | null, project_url?: string | null, github_url?: string | null, start_date?: any | null, end_date?: any | null, is_current?: boolean | null, created_at: any, updated_at: any } | null> };
+
+export type CreateProjectMutationVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+  input: CreateProjectInput;
+}>;
+
+
+export type CreateProjectMutation = { __typename?: 'Mutation', createProject: { __typename?: 'Project', _id: string, title: string, technologies?: Array<string | null> | null, created_at: any, updated_at: any } };
+
+export type UpdateProjectMutationVariables = Exact<{
+  projectId: Scalars['String']['input'];
+  input: UpdateProjectInput;
+}>;
+
+
+export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject: { __typename?: 'Project', _id: string, title: string, updated_at: any } };
+
+export type DeleteProjectMutationVariables = Exact<{
+  projectId: Scalars['String']['input'];
+}>;
+
+
+export type DeleteProjectMutation = { __typename?: 'Mutation', deleteProject: boolean };
+
+export type GetSkillsByUserQueryVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetSkillsByUserQuery = { __typename?: 'Query', getSkillsByUser: Array<{ __typename?: 'UserSkill', _id: string, user_id: string, skill_name: string, proficiency_level: string, years_experience?: number | null, created_at: any, updated_at: any } | null> };
+
+export type CreateUserSkillMutationVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+  input: CreateUserSkillInput;
+}>;
+
+
+export type CreateUserSkillMutation = { __typename?: 'Mutation', createUserSkill: { __typename?: 'UserSkill', _id: string, skill_name: string, proficiency_level: string, years_experience?: number | null, created_at: any, updated_at: any } };
+
+export type UpdateUserSkillMutationVariables = Exact<{
+  userSkillId: Scalars['String']['input'];
+  input: UpdateUserSkillInput;
+}>;
+
+
+export type UpdateUserSkillMutation = { __typename?: 'Mutation', updateUserSkill: { __typename?: 'UserSkill', _id: string, skill_name: string, updated_at: any } };
+
+export type DeleteUserSkillMutationVariables = Exact<{
+  userSkillId: Scalars['String']['input'];
+}>;
+
+
+export type DeleteUserSkillMutation = { __typename?: 'Mutation', deleteUserSkill: boolean };
+
+export type LoadUserByIdQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type LoadUserByIdQuery = { __typename?: 'Query', loadUserById?: { __typename?: 'User', _id: string, first_name: string, last_name?: string | null, email: string, photo?: string | null, title?: string | null, bio?: string | null, location_id?: string | null, connections_count?: number | null, is_online?: boolean | null, last_seen?: any | null, created_at: any, updated_at: any, links?: Array<{ __typename?: 'Link', name: string, url: string } | null> | null } | null };
+
 
 export const LoadPostsDocument = gql`
     query LoadPosts($page: Int, $limit: Int) {
@@ -912,19 +1116,18 @@ export const LoadPostsDocument = gql`
     title
     description
     posted_by
-    requirements {
-      desired_skills
-      desired_roles
-      preferred_experience
-    }
+    first_name
+    last_name
+    photo
     tech_stack
-    project_phase
-    project_type
     work_mode
+    experience_level
     location_id
     status
     views_count
     applications_count
+    is_saved
+    is_applied
     created_at
     updated_at
   }
@@ -970,8 +1173,27 @@ export const LoadPostByIdDocument = gql`
     _id
     title
     description
-    status
+    posted_by
+    first_name
+    last_name
+    photo
+    requirements {
+      desired_skills
+      desired_roles
+    }
     tech_stack
+    project_phase
+    project_type
+    work_mode
+    experience_level
+    location_id
+    status
+    views_count
+    applications_count
+    is_saved
+    is_applied
+    created_at
+    updated_at
   }
 }
     `;
@@ -1013,9 +1235,22 @@ export const LoadPostByFilterDocument = gql`
   loadPostByFilter(filter: $filter) {
     _id
     title
-    project_type
-    work_mode
+    description
+    posted_by
+    first_name
+    last_name
+    photo
     tech_stack
+    work_mode
+    experience_level
+    location_id
+    status
+    views_count
+    applications_count
+    is_saved
+    is_applied
+    created_at
+    updated_at
   }
 }
     `;
@@ -1519,3 +1754,839 @@ export function useUpdateApplicationStatusMutation(baseOptions?: Apollo.Mutation
 export type UpdateApplicationStatusMutationHookResult = ReturnType<typeof useUpdateApplicationStatusMutation>;
 export type UpdateApplicationStatusMutationResult = Apollo.MutationResult<UpdateApplicationStatusMutation>;
 export type UpdateApplicationStatusMutationOptions = Apollo.BaseMutationOptions<UpdateApplicationStatusMutation, UpdateApplicationStatusMutationVariables>;
+export const GetAchievementsByUserDocument = gql`
+    query GetAchievementsByUser($userId: String) {
+  getAchievementsByUser(userId: $userId) {
+    _id
+    title
+    description
+    user_id
+    created_at
+    updated_at
+  }
+}
+    `;
+
+/**
+ * __useGetAchievementsByUserQuery__
+ *
+ * To run a query within a React component, call `useGetAchievementsByUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAchievementsByUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAchievementsByUserQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetAchievementsByUserQuery(baseOptions?: Apollo.QueryHookOptions<GetAchievementsByUserQuery, GetAchievementsByUserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAchievementsByUserQuery, GetAchievementsByUserQueryVariables>(GetAchievementsByUserDocument, options);
+      }
+export function useGetAchievementsByUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAchievementsByUserQuery, GetAchievementsByUserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAchievementsByUserQuery, GetAchievementsByUserQueryVariables>(GetAchievementsByUserDocument, options);
+        }
+export function useGetAchievementsByUserSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAchievementsByUserQuery, GetAchievementsByUserQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAchievementsByUserQuery, GetAchievementsByUserQueryVariables>(GetAchievementsByUserDocument, options);
+        }
+export type GetAchievementsByUserQueryHookResult = ReturnType<typeof useGetAchievementsByUserQuery>;
+export type GetAchievementsByUserLazyQueryHookResult = ReturnType<typeof useGetAchievementsByUserLazyQuery>;
+export type GetAchievementsByUserSuspenseQueryHookResult = ReturnType<typeof useGetAchievementsByUserSuspenseQuery>;
+export type GetAchievementsByUserQueryResult = Apollo.QueryResult<GetAchievementsByUserQuery, GetAchievementsByUserQueryVariables>;
+export const CreateAchievementDocument = gql`
+    mutation CreateAchievement($userId: String, $input: CreateAchievementInput!) {
+  createAchievement(userId: $userId, input: $input) {
+    _id
+    title
+    description
+    user_id
+    created_at
+    updated_at
+  }
+}
+    `;
+export type CreateAchievementMutationFn = Apollo.MutationFunction<CreateAchievementMutation, CreateAchievementMutationVariables>;
+
+/**
+ * __useCreateAchievementMutation__
+ *
+ * To run a mutation, you first call `useCreateAchievementMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAchievementMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAchievementMutation, { data, loading, error }] = useCreateAchievementMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateAchievementMutation(baseOptions?: Apollo.MutationHookOptions<CreateAchievementMutation, CreateAchievementMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAchievementMutation, CreateAchievementMutationVariables>(CreateAchievementDocument, options);
+      }
+export type CreateAchievementMutationHookResult = ReturnType<typeof useCreateAchievementMutation>;
+export type CreateAchievementMutationResult = Apollo.MutationResult<CreateAchievementMutation>;
+export type CreateAchievementMutationOptions = Apollo.BaseMutationOptions<CreateAchievementMutation, CreateAchievementMutationVariables>;
+export const UpdateAchievementDocument = gql`
+    mutation UpdateAchievement($achievementId: String!, $input: UpdateAchievementInput!) {
+  updateAchievement(achievementId: $achievementId, input: $input) {
+    _id
+    title
+    description
+    updated_at
+  }
+}
+    `;
+export type UpdateAchievementMutationFn = Apollo.MutationFunction<UpdateAchievementMutation, UpdateAchievementMutationVariables>;
+
+/**
+ * __useUpdateAchievementMutation__
+ *
+ * To run a mutation, you first call `useUpdateAchievementMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAchievementMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAchievementMutation, { data, loading, error }] = useUpdateAchievementMutation({
+ *   variables: {
+ *      achievementId: // value for 'achievementId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAchievementMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAchievementMutation, UpdateAchievementMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAchievementMutation, UpdateAchievementMutationVariables>(UpdateAchievementDocument, options);
+      }
+export type UpdateAchievementMutationHookResult = ReturnType<typeof useUpdateAchievementMutation>;
+export type UpdateAchievementMutationResult = Apollo.MutationResult<UpdateAchievementMutation>;
+export type UpdateAchievementMutationOptions = Apollo.BaseMutationOptions<UpdateAchievementMutation, UpdateAchievementMutationVariables>;
+export const DeleteAchievementDocument = gql`
+    mutation DeleteAchievement($achievementId: String!) {
+  deleteAchievement(achievementId: $achievementId)
+}
+    `;
+export type DeleteAchievementMutationFn = Apollo.MutationFunction<DeleteAchievementMutation, DeleteAchievementMutationVariables>;
+
+/**
+ * __useDeleteAchievementMutation__
+ *
+ * To run a mutation, you first call `useDeleteAchievementMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAchievementMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAchievementMutation, { data, loading, error }] = useDeleteAchievementMutation({
+ *   variables: {
+ *      achievementId: // value for 'achievementId'
+ *   },
+ * });
+ */
+export function useDeleteAchievementMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAchievementMutation, DeleteAchievementMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAchievementMutation, DeleteAchievementMutationVariables>(DeleteAchievementDocument, options);
+      }
+export type DeleteAchievementMutationHookResult = ReturnType<typeof useDeleteAchievementMutation>;
+export type DeleteAchievementMutationResult = Apollo.MutationResult<DeleteAchievementMutation>;
+export type DeleteAchievementMutationOptions = Apollo.BaseMutationOptions<DeleteAchievementMutation, DeleteAchievementMutationVariables>;
+export const GetEducationByUserDocument = gql`
+    query GetEducationByUser($userId: String) {
+  getEducationByUser(userId: $userId) {
+    _id
+    user_id
+    institution_name
+    location_id
+    degree
+    field_of_study
+    start_date
+    end_date
+    is_current
+    grade
+    description
+    created_at
+    updated_at
+  }
+}
+    `;
+
+/**
+ * __useGetEducationByUserQuery__
+ *
+ * To run a query within a React component, call `useGetEducationByUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEducationByUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEducationByUserQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetEducationByUserQuery(baseOptions?: Apollo.QueryHookOptions<GetEducationByUserQuery, GetEducationByUserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetEducationByUserQuery, GetEducationByUserQueryVariables>(GetEducationByUserDocument, options);
+      }
+export function useGetEducationByUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetEducationByUserQuery, GetEducationByUserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetEducationByUserQuery, GetEducationByUserQueryVariables>(GetEducationByUserDocument, options);
+        }
+export function useGetEducationByUserSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEducationByUserQuery, GetEducationByUserQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetEducationByUserQuery, GetEducationByUserQueryVariables>(GetEducationByUserDocument, options);
+        }
+export type GetEducationByUserQueryHookResult = ReturnType<typeof useGetEducationByUserQuery>;
+export type GetEducationByUserLazyQueryHookResult = ReturnType<typeof useGetEducationByUserLazyQuery>;
+export type GetEducationByUserSuspenseQueryHookResult = ReturnType<typeof useGetEducationByUserSuspenseQuery>;
+export type GetEducationByUserQueryResult = Apollo.QueryResult<GetEducationByUserQuery, GetEducationByUserQueryVariables>;
+export const CreateEducationDocument = gql`
+    mutation CreateEducation($userId: String, $input: CreateEducationInput!) {
+  createEducation(userId: $userId, input: $input) {
+    _id
+    institution_name
+    degree
+    field_of_study
+    start_date
+    end_date
+    is_current
+    created_at
+    updated_at
+  }
+}
+    `;
+export type CreateEducationMutationFn = Apollo.MutationFunction<CreateEducationMutation, CreateEducationMutationVariables>;
+
+/**
+ * __useCreateEducationMutation__
+ *
+ * To run a mutation, you first call `useCreateEducationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateEducationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createEducationMutation, { data, loading, error }] = useCreateEducationMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateEducationMutation(baseOptions?: Apollo.MutationHookOptions<CreateEducationMutation, CreateEducationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateEducationMutation, CreateEducationMutationVariables>(CreateEducationDocument, options);
+      }
+export type CreateEducationMutationHookResult = ReturnType<typeof useCreateEducationMutation>;
+export type CreateEducationMutationResult = Apollo.MutationResult<CreateEducationMutation>;
+export type CreateEducationMutationOptions = Apollo.BaseMutationOptions<CreateEducationMutation, CreateEducationMutationVariables>;
+export const UpdateEducationDocument = gql`
+    mutation UpdateEducation($educationId: String!, $input: UpdateEducationInput!) {
+  updateEducation(educationId: $educationId, input: $input) {
+    _id
+    institution_name
+    updated_at
+  }
+}
+    `;
+export type UpdateEducationMutationFn = Apollo.MutationFunction<UpdateEducationMutation, UpdateEducationMutationVariables>;
+
+/**
+ * __useUpdateEducationMutation__
+ *
+ * To run a mutation, you first call `useUpdateEducationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateEducationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateEducationMutation, { data, loading, error }] = useUpdateEducationMutation({
+ *   variables: {
+ *      educationId: // value for 'educationId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateEducationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateEducationMutation, UpdateEducationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateEducationMutation, UpdateEducationMutationVariables>(UpdateEducationDocument, options);
+      }
+export type UpdateEducationMutationHookResult = ReturnType<typeof useUpdateEducationMutation>;
+export type UpdateEducationMutationResult = Apollo.MutationResult<UpdateEducationMutation>;
+export type UpdateEducationMutationOptions = Apollo.BaseMutationOptions<UpdateEducationMutation, UpdateEducationMutationVariables>;
+export const DeleteEducationDocument = gql`
+    mutation DeleteEducation($educationId: String!) {
+  deleteEducation(educationId: $educationId)
+}
+    `;
+export type DeleteEducationMutationFn = Apollo.MutationFunction<DeleteEducationMutation, DeleteEducationMutationVariables>;
+
+/**
+ * __useDeleteEducationMutation__
+ *
+ * To run a mutation, you first call `useDeleteEducationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteEducationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteEducationMutation, { data, loading, error }] = useDeleteEducationMutation({
+ *   variables: {
+ *      educationId: // value for 'educationId'
+ *   },
+ * });
+ */
+export function useDeleteEducationMutation(baseOptions?: Apollo.MutationHookOptions<DeleteEducationMutation, DeleteEducationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteEducationMutation, DeleteEducationMutationVariables>(DeleteEducationDocument, options);
+      }
+export type DeleteEducationMutationHookResult = ReturnType<typeof useDeleteEducationMutation>;
+export type DeleteEducationMutationResult = Apollo.MutationResult<DeleteEducationMutation>;
+export type DeleteEducationMutationOptions = Apollo.BaseMutationOptions<DeleteEducationMutation, DeleteEducationMutationVariables>;
+export const GetExperienceByUserDocument = gql`
+    query GetExperienceByUser($userId: String) {
+  getExperienceByUser(userId: $userId) {
+    _id
+    user_id
+    company_name
+    position
+    start_date
+    end_date
+    is_current
+    description
+    location_id
+    employment_type
+    created_at
+    updated_at
+  }
+}
+    `;
+
+/**
+ * __useGetExperienceByUserQuery__
+ *
+ * To run a query within a React component, call `useGetExperienceByUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetExperienceByUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetExperienceByUserQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetExperienceByUserQuery(baseOptions?: Apollo.QueryHookOptions<GetExperienceByUserQuery, GetExperienceByUserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetExperienceByUserQuery, GetExperienceByUserQueryVariables>(GetExperienceByUserDocument, options);
+      }
+export function useGetExperienceByUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetExperienceByUserQuery, GetExperienceByUserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetExperienceByUserQuery, GetExperienceByUserQueryVariables>(GetExperienceByUserDocument, options);
+        }
+export function useGetExperienceByUserSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetExperienceByUserQuery, GetExperienceByUserQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetExperienceByUserQuery, GetExperienceByUserQueryVariables>(GetExperienceByUserDocument, options);
+        }
+export type GetExperienceByUserQueryHookResult = ReturnType<typeof useGetExperienceByUserQuery>;
+export type GetExperienceByUserLazyQueryHookResult = ReturnType<typeof useGetExperienceByUserLazyQuery>;
+export type GetExperienceByUserSuspenseQueryHookResult = ReturnType<typeof useGetExperienceByUserSuspenseQuery>;
+export type GetExperienceByUserQueryResult = Apollo.QueryResult<GetExperienceByUserQuery, GetExperienceByUserQueryVariables>;
+export const CreateExperienceDocument = gql`
+    mutation CreateExperience($userId: String, $input: CreateExperienceInput!) {
+  createExperience(userId: $userId, input: $input) {
+    _id
+    company_name
+    position
+    start_date
+    end_date
+    is_current
+    created_at
+    updated_at
+  }
+}
+    `;
+export type CreateExperienceMutationFn = Apollo.MutationFunction<CreateExperienceMutation, CreateExperienceMutationVariables>;
+
+/**
+ * __useCreateExperienceMutation__
+ *
+ * To run a mutation, you first call `useCreateExperienceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateExperienceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createExperienceMutation, { data, loading, error }] = useCreateExperienceMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateExperienceMutation(baseOptions?: Apollo.MutationHookOptions<CreateExperienceMutation, CreateExperienceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateExperienceMutation, CreateExperienceMutationVariables>(CreateExperienceDocument, options);
+      }
+export type CreateExperienceMutationHookResult = ReturnType<typeof useCreateExperienceMutation>;
+export type CreateExperienceMutationResult = Apollo.MutationResult<CreateExperienceMutation>;
+export type CreateExperienceMutationOptions = Apollo.BaseMutationOptions<CreateExperienceMutation, CreateExperienceMutationVariables>;
+export const UpdateExperienceDocument = gql`
+    mutation UpdateExperience($experienceId: String!, $input: UpdateExperienceInput!) {
+  updateExperience(experienceId: $experienceId, input: $input) {
+    _id
+    position
+    updated_at
+  }
+}
+    `;
+export type UpdateExperienceMutationFn = Apollo.MutationFunction<UpdateExperienceMutation, UpdateExperienceMutationVariables>;
+
+/**
+ * __useUpdateExperienceMutation__
+ *
+ * To run a mutation, you first call `useUpdateExperienceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateExperienceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateExperienceMutation, { data, loading, error }] = useUpdateExperienceMutation({
+ *   variables: {
+ *      experienceId: // value for 'experienceId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateExperienceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateExperienceMutation, UpdateExperienceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateExperienceMutation, UpdateExperienceMutationVariables>(UpdateExperienceDocument, options);
+      }
+export type UpdateExperienceMutationHookResult = ReturnType<typeof useUpdateExperienceMutation>;
+export type UpdateExperienceMutationResult = Apollo.MutationResult<UpdateExperienceMutation>;
+export type UpdateExperienceMutationOptions = Apollo.BaseMutationOptions<UpdateExperienceMutation, UpdateExperienceMutationVariables>;
+export const DeleteExperienceDocument = gql`
+    mutation DeleteExperience($experienceId: String!) {
+  deleteExperience(experienceId: $experienceId)
+}
+    `;
+export type DeleteExperienceMutationFn = Apollo.MutationFunction<DeleteExperienceMutation, DeleteExperienceMutationVariables>;
+
+/**
+ * __useDeleteExperienceMutation__
+ *
+ * To run a mutation, you first call `useDeleteExperienceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteExperienceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteExperienceMutation, { data, loading, error }] = useDeleteExperienceMutation({
+ *   variables: {
+ *      experienceId: // value for 'experienceId'
+ *   },
+ * });
+ */
+export function useDeleteExperienceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteExperienceMutation, DeleteExperienceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteExperienceMutation, DeleteExperienceMutationVariables>(DeleteExperienceDocument, options);
+      }
+export type DeleteExperienceMutationHookResult = ReturnType<typeof useDeleteExperienceMutation>;
+export type DeleteExperienceMutationResult = Apollo.MutationResult<DeleteExperienceMutation>;
+export type DeleteExperienceMutationOptions = Apollo.BaseMutationOptions<DeleteExperienceMutation, DeleteExperienceMutationVariables>;
+export const GetProjectsByUserDocument = gql`
+    query GetProjectsByUser($userId: String) {
+  getProjectsByUser(userId: $userId) {
+    _id
+    user_id
+    title
+    description
+    technologies
+    project_url
+    github_url
+    start_date
+    end_date
+    is_current
+    created_at
+    updated_at
+  }
+}
+    `;
+
+/**
+ * __useGetProjectsByUserQuery__
+ *
+ * To run a query within a React component, call `useGetProjectsByUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProjectsByUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProjectsByUserQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetProjectsByUserQuery(baseOptions?: Apollo.QueryHookOptions<GetProjectsByUserQuery, GetProjectsByUserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProjectsByUserQuery, GetProjectsByUserQueryVariables>(GetProjectsByUserDocument, options);
+      }
+export function useGetProjectsByUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProjectsByUserQuery, GetProjectsByUserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProjectsByUserQuery, GetProjectsByUserQueryVariables>(GetProjectsByUserDocument, options);
+        }
+export function useGetProjectsByUserSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProjectsByUserQuery, GetProjectsByUserQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProjectsByUserQuery, GetProjectsByUserQueryVariables>(GetProjectsByUserDocument, options);
+        }
+export type GetProjectsByUserQueryHookResult = ReturnType<typeof useGetProjectsByUserQuery>;
+export type GetProjectsByUserLazyQueryHookResult = ReturnType<typeof useGetProjectsByUserLazyQuery>;
+export type GetProjectsByUserSuspenseQueryHookResult = ReturnType<typeof useGetProjectsByUserSuspenseQuery>;
+export type GetProjectsByUserQueryResult = Apollo.QueryResult<GetProjectsByUserQuery, GetProjectsByUserQueryVariables>;
+export const CreateProjectDocument = gql`
+    mutation CreateProject($userId: String, $input: CreateProjectInput!) {
+  createProject(userId: $userId, input: $input) {
+    _id
+    title
+    technologies
+    created_at
+    updated_at
+  }
+}
+    `;
+export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutation, CreateProjectMutationVariables>;
+
+/**
+ * __useCreateProjectMutation__
+ *
+ * To run a mutation, you first call `useCreateProjectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateProjectMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createProjectMutation, { data, loading, error }] = useCreateProjectMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateProjectMutation(baseOptions?: Apollo.MutationHookOptions<CreateProjectMutation, CreateProjectMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateProjectMutation, CreateProjectMutationVariables>(CreateProjectDocument, options);
+      }
+export type CreateProjectMutationHookResult = ReturnType<typeof useCreateProjectMutation>;
+export type CreateProjectMutationResult = Apollo.MutationResult<CreateProjectMutation>;
+export type CreateProjectMutationOptions = Apollo.BaseMutationOptions<CreateProjectMutation, CreateProjectMutationVariables>;
+export const UpdateProjectDocument = gql`
+    mutation UpdateProject($projectId: String!, $input: UpdateProjectInput!) {
+  updateProject(projectId: $projectId, input: $input) {
+    _id
+    title
+    updated_at
+  }
+}
+    `;
+export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutation, UpdateProjectMutationVariables>;
+
+/**
+ * __useUpdateProjectMutation__
+ *
+ * To run a mutation, you first call `useUpdateProjectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProjectMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateProjectMutation, { data, loading, error }] = useUpdateProjectMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateProjectMutation(baseOptions?: Apollo.MutationHookOptions<UpdateProjectMutation, UpdateProjectMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateProjectMutation, UpdateProjectMutationVariables>(UpdateProjectDocument, options);
+      }
+export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProjectMutation>;
+export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
+export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
+export const DeleteProjectDocument = gql`
+    mutation DeleteProject($projectId: String!) {
+  deleteProject(projectId: $projectId)
+}
+    `;
+export type DeleteProjectMutationFn = Apollo.MutationFunction<DeleteProjectMutation, DeleteProjectMutationVariables>;
+
+/**
+ * __useDeleteProjectMutation__
+ *
+ * To run a mutation, you first call `useDeleteProjectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteProjectMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteProjectMutation, { data, loading, error }] = useDeleteProjectMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useDeleteProjectMutation(baseOptions?: Apollo.MutationHookOptions<DeleteProjectMutation, DeleteProjectMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteProjectMutation, DeleteProjectMutationVariables>(DeleteProjectDocument, options);
+      }
+export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProjectMutation>;
+export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
+export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
+export const GetSkillsByUserDocument = gql`
+    query GetSkillsByUser($userId: String) {
+  getSkillsByUser(userId: $userId) {
+    _id
+    user_id
+    skill_name
+    proficiency_level
+    years_experience
+    created_at
+    updated_at
+  }
+}
+    `;
+
+/**
+ * __useGetSkillsByUserQuery__
+ *
+ * To run a query within a React component, call `useGetSkillsByUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSkillsByUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSkillsByUserQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetSkillsByUserQuery(baseOptions?: Apollo.QueryHookOptions<GetSkillsByUserQuery, GetSkillsByUserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSkillsByUserQuery, GetSkillsByUserQueryVariables>(GetSkillsByUserDocument, options);
+      }
+export function useGetSkillsByUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSkillsByUserQuery, GetSkillsByUserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSkillsByUserQuery, GetSkillsByUserQueryVariables>(GetSkillsByUserDocument, options);
+        }
+export function useGetSkillsByUserSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSkillsByUserQuery, GetSkillsByUserQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSkillsByUserQuery, GetSkillsByUserQueryVariables>(GetSkillsByUserDocument, options);
+        }
+export type GetSkillsByUserQueryHookResult = ReturnType<typeof useGetSkillsByUserQuery>;
+export type GetSkillsByUserLazyQueryHookResult = ReturnType<typeof useGetSkillsByUserLazyQuery>;
+export type GetSkillsByUserSuspenseQueryHookResult = ReturnType<typeof useGetSkillsByUserSuspenseQuery>;
+export type GetSkillsByUserQueryResult = Apollo.QueryResult<GetSkillsByUserQuery, GetSkillsByUserQueryVariables>;
+export const CreateUserSkillDocument = gql`
+    mutation CreateUserSkill($userId: String, $input: CreateUserSkillInput!) {
+  createUserSkill(userId: $userId, input: $input) {
+    _id
+    skill_name
+    proficiency_level
+    years_experience
+    created_at
+    updated_at
+  }
+}
+    `;
+export type CreateUserSkillMutationFn = Apollo.MutationFunction<CreateUserSkillMutation, CreateUserSkillMutationVariables>;
+
+/**
+ * __useCreateUserSkillMutation__
+ *
+ * To run a mutation, you first call `useCreateUserSkillMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateUserSkillMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createUserSkillMutation, { data, loading, error }] = useCreateUserSkillMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateUserSkillMutation(baseOptions?: Apollo.MutationHookOptions<CreateUserSkillMutation, CreateUserSkillMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateUserSkillMutation, CreateUserSkillMutationVariables>(CreateUserSkillDocument, options);
+      }
+export type CreateUserSkillMutationHookResult = ReturnType<typeof useCreateUserSkillMutation>;
+export type CreateUserSkillMutationResult = Apollo.MutationResult<CreateUserSkillMutation>;
+export type CreateUserSkillMutationOptions = Apollo.BaseMutationOptions<CreateUserSkillMutation, CreateUserSkillMutationVariables>;
+export const UpdateUserSkillDocument = gql`
+    mutation UpdateUserSkill($userSkillId: String!, $input: UpdateUserSkillInput!) {
+  updateUserSkill(userSkillId: $userSkillId, input: $input) {
+    _id
+    skill_name
+    updated_at
+  }
+}
+    `;
+export type UpdateUserSkillMutationFn = Apollo.MutationFunction<UpdateUserSkillMutation, UpdateUserSkillMutationVariables>;
+
+/**
+ * __useUpdateUserSkillMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserSkillMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserSkillMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserSkillMutation, { data, loading, error }] = useUpdateUserSkillMutation({
+ *   variables: {
+ *      userSkillId: // value for 'userSkillId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateUserSkillMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserSkillMutation, UpdateUserSkillMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserSkillMutation, UpdateUserSkillMutationVariables>(UpdateUserSkillDocument, options);
+      }
+export type UpdateUserSkillMutationHookResult = ReturnType<typeof useUpdateUserSkillMutation>;
+export type UpdateUserSkillMutationResult = Apollo.MutationResult<UpdateUserSkillMutation>;
+export type UpdateUserSkillMutationOptions = Apollo.BaseMutationOptions<UpdateUserSkillMutation, UpdateUserSkillMutationVariables>;
+export const DeleteUserSkillDocument = gql`
+    mutation DeleteUserSkill($userSkillId: String!) {
+  deleteUserSkill(userSkillId: $userSkillId)
+}
+    `;
+export type DeleteUserSkillMutationFn = Apollo.MutationFunction<DeleteUserSkillMutation, DeleteUserSkillMutationVariables>;
+
+/**
+ * __useDeleteUserSkillMutation__
+ *
+ * To run a mutation, you first call `useDeleteUserSkillMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteUserSkillMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteUserSkillMutation, { data, loading, error }] = useDeleteUserSkillMutation({
+ *   variables: {
+ *      userSkillId: // value for 'userSkillId'
+ *   },
+ * });
+ */
+export function useDeleteUserSkillMutation(baseOptions?: Apollo.MutationHookOptions<DeleteUserSkillMutation, DeleteUserSkillMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteUserSkillMutation, DeleteUserSkillMutationVariables>(DeleteUserSkillDocument, options);
+      }
+export type DeleteUserSkillMutationHookResult = ReturnType<typeof useDeleteUserSkillMutation>;
+export type DeleteUserSkillMutationResult = Apollo.MutationResult<DeleteUserSkillMutation>;
+export type DeleteUserSkillMutationOptions = Apollo.BaseMutationOptions<DeleteUserSkillMutation, DeleteUserSkillMutationVariables>;
+export const LoadUserByIdDocument = gql`
+    query LoadUserById($userId: String!) {
+  loadUserById(userId: $userId) {
+    _id
+    first_name
+    last_name
+    email
+    photo
+    title
+    bio
+    location_id
+    connections_count
+    links {
+      name
+      url
+    }
+    is_online
+    last_seen
+    created_at
+    updated_at
+  }
+}
+    `;
+
+/**
+ * __useLoadUserByIdQuery__
+ *
+ * To run a query within a React component, call `useLoadUserByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoadUserByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLoadUserByIdQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useLoadUserByIdQuery(baseOptions: Apollo.QueryHookOptions<LoadUserByIdQuery, LoadUserByIdQueryVariables> & ({ variables: LoadUserByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LoadUserByIdQuery, LoadUserByIdQueryVariables>(LoadUserByIdDocument, options);
+      }
+export function useLoadUserByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LoadUserByIdQuery, LoadUserByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LoadUserByIdQuery, LoadUserByIdQueryVariables>(LoadUserByIdDocument, options);
+        }
+export function useLoadUserByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LoadUserByIdQuery, LoadUserByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LoadUserByIdQuery, LoadUserByIdQueryVariables>(LoadUserByIdDocument, options);
+        }
+export type LoadUserByIdQueryHookResult = ReturnType<typeof useLoadUserByIdQuery>;
+export type LoadUserByIdLazyQueryHookResult = ReturnType<typeof useLoadUserByIdLazyQuery>;
+export type LoadUserByIdSuspenseQueryHookResult = ReturnType<typeof useLoadUserByIdSuspenseQuery>;
+export type LoadUserByIdQueryResult = Apollo.QueryResult<LoadUserByIdQuery, LoadUserByIdQueryVariables>;

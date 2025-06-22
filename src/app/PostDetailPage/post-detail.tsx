@@ -24,7 +24,7 @@ export default function PostDetailPage() {
   const [applyToPost] = useMutation(APPLY_TO_POST)
 
   const [isSaved, setIsSaved] = useState(false)
-  const [isApplied, setIsApplied] = useState(false)
+  const [isApplied, setIsApplied] = useState<"pending" | "accepted" | "rejected" | "withdrawn" | null>(null)
   const [applicationMessage, setApplicationMessage] = useState("")
   const [showApplicationForm, setShowApplicationForm] = useState(false)
 
@@ -39,7 +39,7 @@ export default function PostDetailPage() {
         variables: { postId, message: applicationMessage },
       })
       toast("Application sent successfully!")
-      setIsApplied(true) // Update state to applied
+      setIsApplied("pending") // Update state to applied
       setShowApplicationForm(false)
       setApplicationMessage("") // Reset application message
     } catch (e) {
@@ -97,7 +97,7 @@ export default function PostDetailPage() {
   useEffect(() => {
     if (data?.loadPostById) {
       setIsSaved(data.loadPostById.is_saved ?? false)
-      setIsApplied(data.loadPostById.is_applied ?? false)
+      setIsApplied(data.loadPostById.is_applied ?? null)
     }
   }, [data])
 
@@ -121,7 +121,7 @@ export default function PostDetailPage() {
     experienceLevel: data?.loadPostById?.experience_level || "Unknown",
     workMode: data?.loadPostById?.work_mode || "Unknown",
     isSaved: data?.loadPostById?.is_saved ?? false,
-    isApplied: data?.loadPostById?.is_applied ?? false,
+    isApplied: data?.loadPostById?.is_applied,
   }
 
   return (
@@ -282,20 +282,28 @@ export default function PostDetailPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="space-y-3">
-                  <Button
-                    onClick={() => {
-                      if (!isApplied) setShowApplicationForm(true)
-                    }}
-                    className="w-full gap-2"
-                    disabled={isApplied || showApplicationForm}
-                  >
-                    <Send className="h-4 w-4" />
-                    {isApplied
-                      ? "Applied"
-                      : showApplicationForm
-                      ? "Fill Application Below"
-                      : "Apply to Join"}
-                  </Button>
+                  {isApplied === null ? (
+  <Button
+    onClick={() => {
+      setShowApplicationForm(true)
+    }}
+    className="w-full gap-2"
+    disabled={showApplicationForm}
+  >
+    <Send className="h-4 w-4" />
+    {showApplicationForm ? "Fill Application Below" : "Apply to Join"}
+  </Button>
+) : (
+  <Button
+    className="w-full gap-2 opacity-60 cursor-not-allowed"
+    variant="secondary"
+    disabled
+  >
+    <Send className="h-4 w-4" />
+    Applied ({isApplied.charAt(0).toUpperCase() + isApplied.slice(1)})
+  </Button>
+)}
+
 
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={handleSave}>

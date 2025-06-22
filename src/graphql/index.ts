@@ -64,11 +64,24 @@ export const LOAD_POST_BY_ID = gql`
 export const LOAD_POST_BY_FILTER = gql`
   query LoadPostByFilter($filter: PostFilterInput!) {
     loadPostByFilter(filter: $filter) {
-      _id
+       _id
       title
-      project_type
-      work_mode
+      description
+      posted_by
+      first_name
+      last_name
+      photo
       tech_stack
+      work_mode
+      experience_level
+      location_id
+      status
+      views_count
+      applications_count
+      is_saved
+      is_applied
+      created_at
+      updated_at
     }
   }
 `
@@ -207,3 +220,262 @@ export const UPDATE_APPLICATION_STATUS = gql`
     }
   }
 `
+
+// -------------------- PROFILE --------------------
+// -------------------- PROFILE --------------------
+
+
+export const GET_ACHIEVEMENTS_BY_USER = gql`
+  query GetAchievementsByUser($userId: String) {
+    getAchievementsByUser(userId: $userId) {
+      _id
+      title
+      description
+      user_id
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const CREATE_ACHIEVEMENT = gql`
+  mutation CreateAchievement($userId: String, $input: CreateAchievementInput!) {
+    createAchievement(userId: $userId, input: $input) {
+      _id
+      title
+      description
+      user_id
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_ACHIEVEMENT = gql`
+  mutation UpdateAchievement($achievementId: String!, $input: UpdateAchievementInput!) {
+    updateAchievement(achievementId: $achievementId, input: $input) {
+      _id
+      title
+      description
+      updated_at
+    }
+  }
+`
+
+export const DELETE_ACHIEVEMENT = gql`
+  mutation DeleteAchievement($achievementId: String!) {
+    deleteAchievement(achievementId: $achievementId)
+  }
+`
+export const GET_EDUCATION_BY_USER = gql`
+  query GetEducationByUser($userId: String) {
+    getEducationByUser(userId: $userId) {
+      _id
+      user_id
+      institution_name
+      location_id
+      degree
+      field_of_study
+      start_date
+      end_date
+      is_current
+      grade
+      description
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const CREATE_EDUCATION = gql`
+  mutation CreateEducation($userId: String, $input: CreateEducationInput!) {
+    createEducation(userId: $userId, input: $input) {
+      _id
+      institution_name
+      degree
+      field_of_study
+      start_date
+      end_date
+      is_current
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_EDUCATION = gql`
+  mutation UpdateEducation($educationId: String!, $input: UpdateEducationInput!) {
+    updateEducation(educationId: $educationId, input: $input) {
+      _id
+      institution_name
+      updated_at
+    }
+  }
+`
+
+export const DELETE_EDUCATION = gql`
+  mutation DeleteEducation($educationId: String!) {
+    deleteEducation(educationId: $educationId)
+  }
+`
+export const GET_EXPERIENCE_BY_USER = gql`
+  query GetExperienceByUser($userId: String) {
+    getExperienceByUser(userId: $userId) {
+      _id
+      user_id
+      company_name
+      position
+      start_date
+      end_date
+      is_current
+      description
+      location_id
+      employment_type
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const CREATE_EXPERIENCE = gql`
+  mutation CreateExperience($userId: String, $input: CreateExperienceInput!) {
+    createExperience(userId: $userId, input: $input) {
+      _id
+      company_name
+      position
+      start_date
+      end_date
+      is_current
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_EXPERIENCE = gql`
+  mutation UpdateExperience($experienceId: String!, $input: UpdateExperienceInput!) {
+    updateExperience(experienceId: $experienceId, input: $input) {
+      _id
+      position
+      updated_at
+    }
+  }
+`
+
+export const DELETE_EXPERIENCE = gql`
+  mutation DeleteExperience($experienceId: String!) {
+    deleteExperience(experienceId: $experienceId)
+  }
+`
+export const GET_PROJECTS_BY_USER = gql`
+  query GetProjectsByUser($userId: String) {
+    getProjectsByUser(userId: $userId) {
+      _id
+      user_id
+      title
+      description
+      technologies
+      project_url
+      github_url
+      start_date
+      end_date
+      is_current
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const CREATE_PROJECT = gql`
+  mutation CreateProject($userId: String, $input: CreateProjectInput!) {
+    createProject(userId: $userId, input: $input) {
+      _id
+      title
+      technologies
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_PROJECT = gql`
+  mutation UpdateProject($projectId: String!, $input: UpdateProjectInput!) {
+    updateProject(projectId: $projectId, input: $input) {
+      _id
+      title
+      updated_at
+    }
+  }
+`
+
+export const DELETE_PROJECT = gql`
+  mutation DeleteProject($projectId: String!) {
+    deleteProject(projectId: $projectId)
+  }
+`
+export const GET_SKILLS_BY_USER = gql`
+  query GetSkillsByUser($userId: String) {
+    getSkillsByUser(userId: $userId) {
+      _id
+      user_id
+      skill_name
+      proficiency_level
+      years_experience
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const CREATE_USER_SKILL = gql`
+  mutation CreateUserSkill($userId: String, $input: CreateUserSkillInput!) {
+    createUserSkill(userId: $userId, input: $input) {
+      _id
+      skill_name
+      proficiency_level
+      years_experience
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_USER_SKILL = gql`
+  mutation UpdateUserSkill($userSkillId: String!, $input: UpdateUserSkillInput!) {
+    updateUserSkill(userSkillId: $userSkillId, input: $input) {
+      _id
+      skill_name
+      updated_at
+    }
+  }
+`
+
+export const DELETE_USER_SKILL = gql`
+  mutation DeleteUserSkill($userSkillId: String!) {
+    deleteUserSkill(userSkillId: $userSkillId)
+  }
+`
+export const LOAD_USER_BY_ID = gql`
+  query LoadUserById($userId: String!) {
+    loadUserById(userId: $userId) {
+      _id
+      first_name
+      last_name
+      email
+      photo
+      title
+      bio
+      location_id
+      connections_count
+      links {
+        name
+        url
+      }
+      is_online
+      last_seen
+      created_at
+      updated_at
+    }
+  }
+`
+

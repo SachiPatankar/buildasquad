@@ -183,7 +183,7 @@ export default function ProfilePage() {
         {/* Tabs */}
         <Tabs defaultValue="about" className="space-y-6">
           <TabsList className="flex overflow-x-auto no-scrollbar space-x-2 sm:justify-center">
-            <TabsTrigger value="about" className="min-w-max">About</TabsTrigger>
+            <TabsTrigger value="about" className="min-w-max">Education</TabsTrigger>
             <TabsTrigger value="experience" className="min-w-max">Experience</TabsTrigger>
             <TabsTrigger value="projects" className="min-w-max">Projects</TabsTrigger>
             <TabsTrigger value="skills" className="min-w-max">Skills</TabsTrigger>
