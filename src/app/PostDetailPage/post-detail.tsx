@@ -106,6 +106,8 @@ export default function PostDetailPage() {
   if (!data?.loadPostById) return <div>Post not found.</div>
 
   const post = {
+    id: data.loadPostById._id,
+    posted_by: data.loadPostById.posted_by,
     title: data?.loadPostById?.title || 'Unknown Title',
     description: data?.loadPostById?.description || 'No description available.',
     creatorName: data?.loadPostById?.first_name + " " + data?.loadPostById?.last_name || "Unknown", // Replace with actual data if available
@@ -159,7 +161,7 @@ export default function PostDetailPage() {
                     <h3 className="font-bold text-lg">{post.creatorName}</h3>
                   </div>
                   <div className="flex gap-2">
-                    <Link to={`/profile/${post.creatorName}`}>
+                    <Link to={`/profile/${post.posted_by}`}>
                       <Button variant="outline" size="sm">
                         View Profile
                       </Button>

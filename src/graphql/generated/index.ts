@@ -1102,7 +1102,7 @@ export type DeleteUserSkillMutationVariables = Exact<{
 export type DeleteUserSkillMutation = { __typename?: 'Mutation', deleteUserSkill: boolean };
 
 export type LoadUserByIdQueryVariables = Exact<{
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -2535,7 +2535,7 @@ export type DeleteUserSkillMutationHookResult = ReturnType<typeof useDeleteUserS
 export type DeleteUserSkillMutationResult = Apollo.MutationResult<DeleteUserSkillMutation>;
 export type DeleteUserSkillMutationOptions = Apollo.BaseMutationOptions<DeleteUserSkillMutation, DeleteUserSkillMutationVariables>;
 export const LoadUserByIdDocument = gql`
-    query LoadUserById($userId: String!) {
+    query LoadUserById($userId: String) {
   loadUserById(userId: $userId) {
     _id
     first_name
@@ -2574,7 +2574,7 @@ export const LoadUserByIdDocument = gql`
  *   },
  * });
  */
-export function useLoadUserByIdQuery(baseOptions: Apollo.QueryHookOptions<LoadUserByIdQuery, LoadUserByIdQueryVariables> & ({ variables: LoadUserByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useLoadUserByIdQuery(baseOptions?: Apollo.QueryHookOptions<LoadUserByIdQuery, LoadUserByIdQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<LoadUserByIdQuery, LoadUserByIdQueryVariables>(LoadUserByIdDocument, options);
       }

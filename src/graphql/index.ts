@@ -456,7 +456,7 @@ export const DELETE_USER_SKILL = gql`
   }
 `
 export const LOAD_USER_BY_ID = gql`
-  query LoadUserById($userId: String!) {
+  query LoadUserById($userId: String) {
     loadUserById(userId: $userId) {
       _id
       first_name

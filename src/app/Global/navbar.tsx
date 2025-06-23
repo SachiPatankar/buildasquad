@@ -125,7 +125,9 @@ function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>My Profile</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/profile/me">My Profile</Link>
+        </DropdownMenuItem>
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>Sign out</DropdownMenuItem>

@@ -62,6 +62,7 @@ function App() {
                 <Route path="people" element={<PeoplePage />} />
                 <Route path="chat" element={<ChatPage />} />
                 <Route path="profile" element={<ProfilePage />} />
+                 <Route path="profile/me" element={<ProfilePage />} />
                 <Route path="profile/:userId" element={<ProfilePage />} />
                 <Route path="me" element={<ProfilePage />} />
                 <Route path="myposts" element={<MyPostsPage />} />
