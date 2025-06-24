@@ -1,53 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Plus, Eye, Users, Calendar, MoreVertical, Edit, UserX, Trash2 } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-
-// Mock data for user's posts
-const mockPosts = [
-  {
-    id: "1",
-    title: "AI-Powered Study Assistant",
-    description:
-      "Building an intelligent study companion that helps students with personalized learning paths and doubt resolution using NLP.",
-    status: "accepting",
-    createdOn: "2 weeks ago",
-    applicantCount: 8,
-    skills: ["Python", "Machine Learning", "React"],
-    projectType: "Academic",
-    teamSize: 4,
-  },
-  {
-    id: "2",
-    title: "E-commerce Mobile App",
-    description: "Full-stack mobile application with payment integration and real-time notifications.",
-    status: "closed",
-    createdOn: "1 month ago",
-    applicantCount: 12,
-    skills: ["React Native", "Node.js", "MongoDB"],
-    projectType: "Startup-level",
-    teamSize: 3,
-  },
-  {
-    id: "3",
-    title: "Blockchain Voting System",
-    description: "Secure and transparent voting system using blockchain technology for college elections.",
-    status: "accepting",
-    createdOn: "5 days ago",
-    applicantCount: 3,
-    skills: ["Solidity", "Web3", "JavaScript"],
-    projectType: "Open Source",
-    teamSize: 5,
-  },
-]
+import { LOAD_POSTS_BY_USER_ID, CLOSE_POST, OPEN_POST, DELETE_POST } from "@/graphql"
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
+import { toast } from 'react-toastify';
+import type { PostSummary } from "@/graphql/generated"
 
 export default function MyPostsPage() {
-  const [posts] = useState(mockPosts)
+  const navigate = useNavigate();
+  const { data, loading, error, refetch } = useQuery(LOAD_POSTS_BY_USER_ID, { fetchPolicy: 'network-only' });
+  const [closePost] = useMutation(CLOSE_POST);
+  const [openPost] = useMutation(OPEN_POST);
+  const [deletePost] = useMutation(DELETE_POST);
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; postId: string | null; action: 'open' | 'close' | 'delete' | null }>({ open: false, postId: null, action: null });
+  const client = useApolloClient();
+
+  const posts = data?.loadPostsByUserId || [];
+
+  // Always refetch posts on mount (e.g., after create/update)
+  useEffect(() => {
+    refetch();
+    // eslint-disable-next-line
+  }, []);
 
   const getStatusColor = (status: string) => {
     return status === "accepting"
@@ -56,13 +36,42 @@ export default function MyPostsPage() {
   }
 
   const handleCloseRecruitment = (postId: string) => {
-    // Handle closing recruitment
-    console.log("Closing recruitment for post:", postId)
+    setConfirmDialog({ open: true, postId, action: 'close' });
+  }
+
+  const handleOpenRecruitment = (postId: string) => {
+    setConfirmDialog({ open: true, postId, action: 'open' });
   }
 
   const handleDeletePost = (postId: string) => {
-    // Handle deleting post
-    console.log("Deleting post:", postId)
+    setConfirmDialog({ open: true, postId, action: 'delete' });
+  }
+
+  const handleConfirmAction = async () => {
+    if (!confirmDialog.postId || !confirmDialog.action) return;
+    try {
+      if (confirmDialog.action === 'close') {
+        await closePost({ variables: { postId: confirmDialog.postId } });
+        toast.success('Post closed successfully');
+      } else if (confirmDialog.action === 'open') {
+        await openPost({ variables: { postId: confirmDialog.postId } });
+        toast.success('Post opened successfully');
+      } else if (confirmDialog.action === 'delete') {
+        await deletePost({ variables: { postId: confirmDialog.postId } });
+        toast.success('Post deleted successfully');
+      }
+      await client.refetchQueries({ include: [LOAD_POSTS_BY_USER_ID] });
+    } catch (err) {
+      toast.error('Failed to update post');
+    }
+    setConfirmDialog({ open: false, postId: null, action: null });
+  }
+
+  if (loading) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
+  if (error) {
+    return <div className="p-8 text-center text-red-500">Error loading posts</div>;
   }
 
   return (
@@ -104,15 +113,15 @@ export default function MyPostsPage() {
           </Card>
         ) : (
           <div className="space-y-6">
-            {posts.map((post) => (
-              <Card key={post.id} className="hover:shadow-lg transition-shadow">
+            {posts.map((post: PostSummary) => (
+              <Card key={post._id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
                         <CardTitle className="text-xl">{post.title}</CardTitle>
                         <Badge className={getStatusColor(post.status)}>
-                          {post.status === "accepting" ? "Accepting Applications" : "Closed"}
+                          {post.status}
                         </Badge>
                       </div>
                       <p className="text-muted-foreground line-clamp-2">{post.description}</p>
@@ -125,20 +134,26 @@ export default function MyPostsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <Link to={`/post/${post.id}/edit`}>
+                        <Link to={`/post/edit/${post._id}`}>
                           <DropdownMenuItem>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Post
                           </DropdownMenuItem>
                         </Link>
-                        {post.status === "accepting" && (
-                          <DropdownMenuItem onClick={() => handleCloseRecruitment(post.id)}>
+                        {post.status === "open" && (
+                          <DropdownMenuItem onClick={() => handleCloseRecruitment(post._id)}>
                             <UserX className="h-4 w-4 mr-2" />
                             Close Recruitment
                           </DropdownMenuItem>
                         )}
+                        {post.status === "closed" && (
+                          <DropdownMenuItem onClick={() => handleOpenRecruitment(post._id)}>
+                            <Users className="h-4 w-4 mr-2" />
+                            Open Post
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
-                          onClick={() => handleDeletePost(post.id)}
+                          onClick={() => handleDeletePost(post._id)}
                           className="text-destructive focus:text-destructive"
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
@@ -151,61 +166,76 @@ export default function MyPostsPage() {
 
                 <CardContent>
                   <div className="space-y-4">
-                    {/* Skills */}
+                    {/* Tech Stack */}
                     <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-2">Required Skills</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-2">Tech Stack</h4>
                       <div className="flex flex-wrap gap-1.5">
-                        {post.skills.map((skill) => (
-                          <Badge key={skill} variant="outline" className="text-xs">
-                            {skill}
+                        {Array.isArray(post.tech_stack) && post.tech_stack.filter((tech): tech is string => !!tech).map((tech) => (
+                          <Badge key={tech} variant="outline" className="text-xs">
+                            {tech}
                           </Badge>
                         ))}
                       </div>
                     </div>
-
-                    {/* Stats */}
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>Posted {post.createdOn}</span>
+                    {/* Experience Level, Location, Views, Applications, Created At */}
+                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                      <div>
+                        <span className="font-medium">Experience:</span> {post.experience_level || '-'}
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        <span>Team of {post.teamSize}</span>
+                      <div>
+                        <span className="font-medium">Location:</span> {post.location_id || '-'}
                       </div>
-                      <Badge variant="secondary" className="text-xs">
-                        {post.projectType}
-                      </Badge>
+                      <div>
+                        <span className="font-medium">Views:</span> {post.views_count}
+                      </div>
+                      <div>
+                        <span className="font-medium">Applications:</span> {post.applications_count}
+                      </div>
+                      <div>
+                        <span className="font-medium">Created:</span> {post.created_at}
+                      </div>
                     </div>
-
                     {/* Actions */}
                     <div className="flex items-center justify-between pt-4 border-t">
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Button variant="outline" size="sm" className="gap-1" onClick={() => navigate(`/post/${post._id}`)}>
+                        <Eye className="h-4 w-4" />
+                        View Post
+                      </Button>
+                      <Button size="sm" className="gap-1" onClick={() => navigate(`/myposts/${post._id}`)}>
                         <Users className="h-4 w-4" />
-                        <span>
-                          {post.applicantCount} applicant{post.applicantCount !== 1 ? "s" : ""}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Link to={`/post/${post.id}`}>
-                          <Button variant="outline" size="sm" className="gap-1">
-                            <Eye className="h-4 w-4" />
-                            View Post
-                          </Button>
-                        </Link>
-                        <Link to={`/myposts/${post.id}`}>
-                          <Button size="sm" className="gap-1">
-                            <Users className="h-4 w-4" />
-                            View Applicants
-                          </Button>
-                        </Link>
-                      </div>
+                        View Applicants
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {/* Confirmation Dialog */}
+        {confirmDialog.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-background rounded-lg shadow-lg p-6 w-full max-w-sm">
+              <h3 className="text-lg font-semibold mb-4">
+                {confirmDialog.action === 'close' ? 'Close Recruitment?' : confirmDialog.action === 'open' ? 'Open Recruitment?' : 'Delete Post?'}
+              </h3>
+              <p className="mb-6">
+                {confirmDialog.action === 'close'
+                  ? 'Are you sure you want to close this post? This action cannot be undone.'
+                  : confirmDialog.action === 'open'
+                  ? 'Are you sure you want to open this post for recruitment?'
+                  : 'Are you sure you want to delete this post? This action cannot be undone.'}
+              </p>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setConfirmDialog({ open: false, postId: null, action: null })}>
+                  Cancel
+                </Button>
+                <Button variant={confirmDialog.action === 'delete' ? 'destructive' : confirmDialog.action === 'close' ? 'destructive' : 'default'} onClick={handleConfirmAction}>
+                  {confirmDialog.action === 'close' ? 'Close Post' : confirmDialog.action === 'open' ? 'Open Post' : 'Delete Post'}
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -1108,6 +1108,23 @@ export type LoadUserByIdQueryVariables = Exact<{
 
 export type LoadUserByIdQuery = { __typename?: 'Query', loadUserById?: { __typename?: 'User', _id: string, first_name: string, last_name?: string | null, email: string, photo?: string | null, title?: string | null, bio?: string | null, location_id?: string | null, connections_count?: number | null, is_online?: boolean | null, last_seen?: any | null, created_at: any, updated_at: any, links?: Array<{ __typename?: 'Link', name: string, url: string } | null> | null } | null };
 
+export type LoadPeopleQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type LoadPeopleQuery = { __typename?: 'Query', loadPeople: Array<{ __typename?: 'Person', _id: string, first_name: string, last_name?: string | null, photo?: string | null, location_id?: string | null, title?: string | null, bio?: string | null, top_skills?: Array<{ __typename?: 'UserSkill', _id: string, skill_name: string, proficiency_level: string } | null> | null } | null> };
+
+export type LoadPeopleByFilterQueryVariables = Exact<{
+  filter: PeopleFilterInput;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type LoadPeopleByFilterQuery = { __typename?: 'Query', loadPeopleByFilter: Array<{ __typename?: 'Person', _id: string, first_name: string, last_name?: string | null, photo?: string | null, location_id?: string | null, title?: string | null, bio?: string | null, top_skills?: Array<{ __typename?: 'UserSkill', _id: string, skill_name: string, proficiency_level: string } | null> | null } | null> };
+
 
 export const LoadPostsDocument = gql`
     query LoadPosts($page: Int, $limit: Int) {
@@ -2590,3 +2607,108 @@ export type LoadUserByIdQueryHookResult = ReturnType<typeof useLoadUserByIdQuery
 export type LoadUserByIdLazyQueryHookResult = ReturnType<typeof useLoadUserByIdLazyQuery>;
 export type LoadUserByIdSuspenseQueryHookResult = ReturnType<typeof useLoadUserByIdSuspenseQuery>;
 export type LoadUserByIdQueryResult = Apollo.QueryResult<LoadUserByIdQuery, LoadUserByIdQueryVariables>;
+export const LoadPeopleDocument = gql`
+    query LoadPeople($page: Int, $limit: Int) {
+  loadPeople(page: $page, limit: $limit) {
+    _id
+    first_name
+    last_name
+    photo
+    location_id
+    title
+    bio
+    top_skills {
+      _id
+      skill_name
+      proficiency_level
+    }
+  }
+}
+    `;
+
+/**
+ * __useLoadPeopleQuery__
+ *
+ * To run a query within a React component, call `useLoadPeopleQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoadPeopleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLoadPeopleQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useLoadPeopleQuery(baseOptions?: Apollo.QueryHookOptions<LoadPeopleQuery, LoadPeopleQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LoadPeopleQuery, LoadPeopleQueryVariables>(LoadPeopleDocument, options);
+      }
+export function useLoadPeopleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LoadPeopleQuery, LoadPeopleQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LoadPeopleQuery, LoadPeopleQueryVariables>(LoadPeopleDocument, options);
+        }
+export function useLoadPeopleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LoadPeopleQuery, LoadPeopleQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LoadPeopleQuery, LoadPeopleQueryVariables>(LoadPeopleDocument, options);
+        }
+export type LoadPeopleQueryHookResult = ReturnType<typeof useLoadPeopleQuery>;
+export type LoadPeopleLazyQueryHookResult = ReturnType<typeof useLoadPeopleLazyQuery>;
+export type LoadPeopleSuspenseQueryHookResult = ReturnType<typeof useLoadPeopleSuspenseQuery>;
+export type LoadPeopleQueryResult = Apollo.QueryResult<LoadPeopleQuery, LoadPeopleQueryVariables>;
+export const LoadPeopleByFilterDocument = gql`
+    query LoadPeopleByFilter($filter: PeopleFilterInput!, $page: Int, $limit: Int) {
+  loadPeopleByFilter(filter: $filter, page: $page, limit: $limit) {
+    _id
+    first_name
+    last_name
+    photo
+    location_id
+    title
+    bio
+    top_skills {
+      _id
+      skill_name
+      proficiency_level
+    }
+  }
+}
+    `;
+
+/**
+ * __useLoadPeopleByFilterQuery__
+ *
+ * To run a query within a React component, call `useLoadPeopleByFilterQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoadPeopleByFilterQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLoadPeopleByFilterQuery({
+ *   variables: {
+ *      filter: // value for 'filter'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useLoadPeopleByFilterQuery(baseOptions: Apollo.QueryHookOptions<LoadPeopleByFilterQuery, LoadPeopleByFilterQueryVariables> & ({ variables: LoadPeopleByFilterQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LoadPeopleByFilterQuery, LoadPeopleByFilterQueryVariables>(LoadPeopleByFilterDocument, options);
+      }
+export function useLoadPeopleByFilterLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LoadPeopleByFilterQuery, LoadPeopleByFilterQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LoadPeopleByFilterQuery, LoadPeopleByFilterQueryVariables>(LoadPeopleByFilterDocument, options);
+        }
+export function useLoadPeopleByFilterSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LoadPeopleByFilterQuery, LoadPeopleByFilterQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LoadPeopleByFilterQuery, LoadPeopleByFilterQueryVariables>(LoadPeopleByFilterDocument, options);
+        }
+export type LoadPeopleByFilterQueryHookResult = ReturnType<typeof useLoadPeopleByFilterQuery>;
+export type LoadPeopleByFilterLazyQueryHookResult = ReturnType<typeof useLoadPeopleByFilterLazyQuery>;
+export type LoadPeopleByFilterSuspenseQueryHookResult = ReturnType<typeof useLoadPeopleByFilterSuspenseQuery>;
+export type LoadPeopleByFilterQueryResult = Apollo.QueryResult<LoadPeopleByFilterQuery, LoadPeopleByFilterQueryVariables>;

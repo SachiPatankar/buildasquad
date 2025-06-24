@@ -2,18 +2,32 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_EXPERIENCE } from "@/graphql" // adjust import path if needed
+import { CREATE_EXPERIENCE, UPDATE_EXPERIENCE, DELETE_EXPERIENCE } from "@/graphql"
+import { Trash2 } from "lucide-react"
+
+export type Experience = {
+  _id?: string
+  position: string
+  company_name: string
+  start_date: string
+  end_date?: string
+  employment_type?: string
+  description?: string
+  is_current: boolean
+}
 
 export default function ExperienceModal({
   open,
   onClose,
   userId,
+  experience,
 }: {
   open: boolean
   onClose: () => void
   userId?: string
+  experience?: Experience | null
 }) {
   const [companyName, setCompanyName] = useState("")
   const [position, setPosition] = useState("")
@@ -23,8 +37,16 @@ export default function ExperienceModal({
   const [description, setDescription] = useState("")
   const [employmentType, setEmploymentType] = useState("")
 
-  const [createExperience, { loading, error }] = useMutation(CREATE_EXPERIENCE, {
-    onCompleted: () => {
+  useEffect(() => {
+    if (experience) {
+      setCompanyName(experience.company_name || "")
+      setPosition(experience.position || "")
+      setStartDate(experience.start_date || "")
+      setEndDate(experience.end_date || "")
+      setIsCurrent(!!experience.is_current)
+      setDescription(experience.description || "")
+      setEmploymentType(experience.employment_type || "")
+    } else {
       setCompanyName("")
       setPosition("")
       setStartDate("")
@@ -32,33 +54,56 @@ export default function ExperienceModal({
       setIsCurrent(false)
       setDescription("")
       setEmploymentType("")
-      onClose()
-    },
+    }
+  }, [experience, open])
+
+  const [createExperience, { loading: creating, error: createError }] = useMutation(CREATE_EXPERIENCE, {
+    onCompleted: onClose,
+  })
+  const [updateExperience, { loading: updating, error: updateError }] = useMutation(UPDATE_EXPERIENCE, {
+    onCompleted: onClose,
+  })
+  const [deleteExperience, { loading: deleting, error: deleteError }] = useMutation(DELETE_EXPERIENCE, {
+    onCompleted: onClose,
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    createExperience({
-      variables: {
-        userId,
-        input: {
-          company_name: companyName,
-          position,
-          start_date: startDate,
-          end_date: isCurrent ? null : endDate,
-          is_current: isCurrent,
-          description,
-          employment_type: employmentType,
-        },
-      },
-    })
+    const input = {
+      company_name: companyName,
+      position,
+      start_date: startDate,
+      end_date: isCurrent ? null : endDate,
+      is_current: isCurrent,
+      description: description || undefined,
+      employment_type: employmentType || undefined,
+    }
+    if (experience && experience._id) {
+      updateExperience({ variables: { experienceId: experience._id, input } })
+    } else {
+      createExperience({ variables: { userId, input } })
+    }
   }
+
+  const handleDelete = () => {
+    if (experience && experience._id) {
+      deleteExperience({ variables: { experienceId: experience._id } })
+    }
+  }
+
+  const error = createError || updateError || deleteError
+  const loading = creating || updating || deleting
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Experience</DialogTitle>
+        <DialogHeader className="flex flex-row items-center justify-between">
+          <DialogTitle>{experience ? "Edit Experience" : "Add Experience"}</DialogTitle>
+          {experience && experience._id && (
+            <Button variant="ghost" size="icon" onClick={handleDelete} disabled={deleting}>
+              <Trash2 className="w-5 h-5 text-red-500" />
+            </Button>
+          )}
         </DialogHeader>
         <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
           <Input
@@ -110,7 +155,7 @@ export default function ExperienceModal({
           {error && <div className="text-red-500 text-sm">{error.message}</div>}
           <div className="flex gap-2">
             <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : "Save"}
+              {loading ? "Saving..." : experience ? "Update" : "Save"}
             </Button>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel

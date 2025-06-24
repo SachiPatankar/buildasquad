@@ -1,9 +1,5 @@
-"use client"
-
-import type React from "react"
-
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { useNavigate, Link, useParams } from "react-router-dom"
 import { ArrowLeft, Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,6 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
+import { CREATE_POST, UPDATE_POST, LOAD_POST_BY_ID, LOAD_POSTS_BY_USER_ID } from '@/graphql';
+import { toast } from 'react-toastify';
 
 const skillOptions = [
   "React",
@@ -48,94 +47,170 @@ const projectPhases = ["Idea stage", "Planning", "Development", "Testing", "Near
 
 const workModes = ["Remote", "In-person", "Hybrid"]
 
+const experience_level = ["Beginner", "Intermediate", "Advanced", "Any level"]
+
 export default function CreatePostPage() {
   const navigate = useNavigate()
+  const { postId } = useParams()
+  const isEdit = Boolean(postId)
+
+  // Initial form state matching backend schema
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    skills: [] as string[],
-    roles: [] as string[],
-    techStack: [] as string[],
-    projectType: "",
-    projectPhase: "",
-    teamSize: "",
-    workMode: "",
-    experienceLevel: "",
-    duration: "",
-    additionalInfo: "",
+    requirements: {
+      desired_skills: [] as string[],
+      desired_roles: [] as string[],
+      preferred_experience: "",
+    },
+    tech_stack: [] as string[],
+    project_phase: "",
+    project_type: "",
+    work_mode: "",
+    experience_level: "",
+    location_id: "",
   })
 
   const [skillInput, setSkillInput] = useState("")
   const [roleInput, setRoleInput] = useState("")
   const [techInput, setTechInput] = useState("")
 
+  // Apollo hooks
+  const { data: postData, loading: postLoading } = useQuery(LOAD_POST_BY_ID, {
+    variables: { postId },
+    skip: !isEdit,
+  })
+  const [createPost] = useMutation(CREATE_POST)
+  const [updatePost] = useMutation(UPDATE_POST)
+  const client = useApolloClient();
+
+  // Prefill form in edit mode
+  useEffect(() => {
+    if (isEdit && postData?.loadPostById) {
+      const post = postData.loadPostById
+      setFormData({
+        title: post.title || "",
+        description: post.description || "",
+        requirements: {
+          desired_skills: post.requirements?.desired_skills?.filter(Boolean) || [],
+          desired_roles: post.requirements?.desired_roles?.filter(Boolean) || [],
+          preferred_experience: post.requirements?.preferred_experience || "",
+        },
+        tech_stack: post.tech_stack?.filter(Boolean) || [],
+        project_phase: post.project_phase || "",
+        project_type: post.project_type || "",
+        work_mode: post.work_mode || "",
+        experience_level: post.experience_level || "",
+        location_id: post.location_id || "",
+      })
+    }
+  }, [isEdit, postData])
+
+  // Handlers for requirements
   const handleAddSkill = () => {
-    if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
+    if (skillInput.trim() && !formData.requirements.desired_skills.includes(skillInput.trim())) {
       setFormData((prev) => ({
         ...prev,
-        skills: [...prev.skills, skillInput.trim()],
+        requirements: {
+          ...prev.requirements,
+          desired_skills: [...prev.requirements.desired_skills, skillInput.trim()],
+        },
       }))
       setSkillInput("")
-    }
-  }
-
-  const handleAddRole = () => {
-    if (roleInput.trim() && !formData.roles.includes(roleInput.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        roles: [...prev.roles, roleInput.trim()],
-      }))
-      setRoleInput("")
-    }
-  }
-
-  const handleAddTech = () => {
-    if (techInput.trim() && !formData.techStack.includes(techInput.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        techStack: [...prev.techStack, techInput.trim()],
-      }))
-      setTechInput("")
     }
   }
 
   const handleRemoveSkill = (skill: string) => {
     setFormData((prev) => ({
       ...prev,
-      skills: prev.skills.filter((s) => s !== skill),
+      requirements: {
+        ...prev.requirements,
+        desired_skills: prev.requirements.desired_skills.filter((s) => s !== skill),
+      },
     }))
+  }
+
+  const handleAddRole = () => {
+    if (roleInput.trim() && !formData.requirements.desired_roles.includes(roleInput.trim())) {
+      setFormData((prev) => ({
+        ...prev,
+        requirements: {
+          ...prev.requirements,
+          desired_roles: [...prev.requirements.desired_roles, roleInput.trim()],
+        },
+      }))
+      setRoleInput("")
+    }
   }
 
   const handleRemoveRole = (role: string) => {
     setFormData((prev) => ({
       ...prev,
-      roles: prev.roles.filter((r) => r !== role),
+      requirements: {
+        ...prev.requirements,
+        desired_roles: prev.requirements.desired_roles.filter((r) => r !== role),
+      },
     }))
+  }
+
+  const handleAddTech = () => {
+    if (techInput.trim() && !formData.tech_stack.includes(techInput.trim())) {
+      setFormData((prev) => ({
+        ...prev,
+        tech_stack: [...prev.tech_stack, techInput.trim()],
+      }))
+      setTechInput("")
+    }
   }
 
   const handleRemoveTech = (tech: string) => {
     setFormData((prev) => ({
       ...prev,
-      techStack: prev.techStack.filter((t) => t !== tech),
+      tech_stack: prev.tech_stack.filter((t) => t !== tech),
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission
-    console.log("Creating post:", formData)
-    navigate("/myposts")
-  }
-
+  // Form validation
   const isFormValid = () => {
     return (
       formData.title.trim() &&
       formData.description.trim() &&
-      formData.skills.length > 0 &&
-      formData.projectType &&
-      formData.teamSize &&
-      formData.workMode
+      formData.requirements.desired_skills.length > 0 &&
+      formData.project_type &&
+      formData.work_mode
     )
+  }
+
+  // Submit handler
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const input = {
+      title: formData.title,
+      description: formData.description,
+      requirements: {
+        desired_skills: formData.requirements.desired_skills,
+        desired_roles: formData.requirements.desired_roles,
+        preferred_experience: formData.requirements.preferred_experience,
+      },
+      tech_stack: formData.tech_stack,
+      project_phase: formData.project_phase,
+      project_type: formData.project_type,
+      work_mode: formData.work_mode,
+      experience_level: formData.experience_level,
+      location_id: formData.location_id,
+    }
+    try {
+      if (isEdit) {
+        await updatePost({ variables: { postId, input } })
+        toast.success("Post updated successfully")
+      } else {
+        await createPost({ variables: { input } })
+        toast.success("Post created successfully")
+      }
+      navigate("/myposts")
+    } catch (err) {
+      toast.error("Failed to submit post")
+    }
   }
 
   return (
@@ -210,13 +285,19 @@ export default function CreatePostPage() {
                     {skillOptions.map((skill) => (
                       <Badge
                         key={skill}
-                        variant={formData.skills.includes(skill) ? "default" : "outline"}
+                        variant={formData.requirements.desired_skills.includes(skill) ? "default" : "outline"}
                         className="cursor-pointer"
                         onClick={() => {
-                          if (formData.skills.includes(skill)) {
-                            handleRemoveSkill(skill)
+                          if (formData.requirements.desired_skills.includes(skill)) {
+                            handleRemoveSkill(skill);
                           } else {
-                            setFormData((prev) => ({ ...prev, skills: [...prev.skills, skill] }))
+                            setFormData((prev) => ({
+                              ...prev,
+                              requirements: {
+                                ...prev.requirements,
+                                desired_skills: [...prev.requirements.desired_skills, skill],
+                              },
+                            }));
                           }
                         }}
                       >
@@ -224,11 +305,11 @@ export default function CreatePostPage() {
                       </Badge>
                     ))}
                   </div>
-                  {formData.skills.length > 0 && (
+                  {formData.requirements.desired_skills.length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm">Selected Skills:</Label>
                       <div className="flex flex-wrap gap-2">
-                        {formData.skills.map((skill) => (
+                        {formData.requirements.desired_skills.map((skill) => (
                           <Badge key={skill} className="gap-1">
                             {skill}
                             <X className="h-3 w-3 cursor-pointer" onClick={() => handleRemoveSkill(skill)} />
@@ -255,9 +336,9 @@ export default function CreatePostPage() {
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                  {formData.roles.length > 0 && (
+                  {formData.requirements.desired_roles.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {formData.roles.map((role) => (
+                      {formData.requirements.desired_roles.map((role) => (
                         <Badge key={role} variant="secondary" className="gap-1">
                           {role}
                           <X className="h-3 w-3 cursor-pointer" onClick={() => handleRemoveRole(role)} />
@@ -268,27 +349,12 @@ export default function CreatePostPage() {
                 </div>
               </div>
 
-              {/* Team Size */}
-              <div>
-                <Label htmlFor="teamSize">Team Size *</Label>
-                <Input
-                  id="teamSize"
-                  type="number"
-                  min="1"
-                  max="20"
-                  value={formData.teamSize}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, teamSize: e.target.value }))}
-                  placeholder="How many people do you need?"
-                  className="mt-1"
-                />
-              </div>
-
               {/* Experience Level */}
               <div>
                 <Label>Preferred Experience Level</Label>
                 <RadioGroup
-                  value={formData.experienceLevel}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, experienceLevel: value }))}
+                  value={formData.experience_level}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, experience_level: value }))}
                   className="mt-2"
                 >
                   <div className="flex items-center space-x-2">
@@ -333,9 +399,9 @@ export default function CreatePostPage() {
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                  {formData.techStack.length > 0 && (
+                  {formData.tech_stack.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {formData.techStack.map((tech) => (
+                      {formData.tech_stack.map((tech) => (
                         <Badge key={tech} variant="outline" className="gap-1">
                           {tech}
                           <X className="h-3 w-3 cursor-pointer" onClick={() => handleRemoveTech(tech)} />
@@ -350,8 +416,8 @@ export default function CreatePostPage() {
               <div>
                 <Label>Project Type *</Label>
                 <RadioGroup
-                  value={formData.projectType}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, projectType: value }))}
+                  value={formData.project_type}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, project_type: value }))}
                   className="mt-2"
                 >
                   {projectTypes.map((type) => (
@@ -367,8 +433,8 @@ export default function CreatePostPage() {
               <div>
                 <Label>Project Phase</Label>
                 <RadioGroup
-                  value={formData.projectPhase}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, projectPhase: value }))}
+                  value={formData.project_phase}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, project_phase: value }))}
                   className="mt-2"
                 >
                   {projectPhases.map((phase) => (
@@ -384,8 +450,8 @@ export default function CreatePostPage() {
               <div>
                 <Label>Work Mode *</Label>
                 <RadioGroup
-                  value={formData.workMode}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, workMode: value }))}
+                  value={formData.work_mode}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, work_mode: value }))}
                   className="mt-2"
                 >
                   {workModes.map((mode) => (
@@ -397,27 +463,15 @@ export default function CreatePostPage() {
                 </RadioGroup>
               </div>
 
-              {/* Duration */}
+              {/* Location */}
               <div>
-                <Label htmlFor="duration">Expected Duration</Label>
+                <Label htmlFor="location_id">Location</Label>
                 <Input
-                  id="duration"
-                  value={formData.duration}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, duration: e.target.value }))}
-                  placeholder="e.g., 3 months, 6 weeks"
+                  id="location_id"
+                  value={formData.location_id}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, location_id: e.target.value }))}
+                  placeholder="Enter the location"
                   className="mt-1"
-                />
-              </div>
-
-              {/* Additional Info */}
-              <div>
-                <Label htmlFor="additionalInfo">Additional Information</Label>
-                <textarea
-                  id="additionalInfo"
-                  value={formData.additionalInfo}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, additionalInfo: e.target.value }))}
-                  placeholder="Any additional details, requirements, or expectations"
-                  className="mt-1 w-full min-h-[80px] px-3 py-2 border border-input rounded-md bg-transparent text-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none resize-none"
                 />
               </div>
             </CardContent>
@@ -431,7 +485,7 @@ export default function CreatePostPage() {
               </Button>
             </Link>
             <Button type="submit" className="flex-1" disabled={!isFormValid()}>
-              Create Post
+              {isEdit ? 'Update Post' : 'Create Post'}
             </Button>
           </div>
         </form>

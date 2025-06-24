@@ -5,7 +5,8 @@ import {
   GET_EDUCATION_BY_USER,
   GET_EXPERIENCE_BY_USER,
   GET_PROJECTS_BY_USER,
-  GET_SKILLS_BY_USER
+  GET_SKILLS_BY_USER,
+  GET_ACHIEVEMENTS_BY_USER
 } from "@/graphql"
 import { useMemo } from "react"
 import ProfileHeader from "./components/ProfileHeader"
@@ -36,6 +37,10 @@ export default function ProfilePage() {
     variables: userId ? { userId } : undefined,
   })
 
+  const { data: achievementsData } = useQuery(GET_ACHIEVEMENTS_BY_USER, {
+    variables: userId ? { userId } : undefined,
+  })
+
   const profile = useMemo(() => {
     const user = userData?.loadUserById
     return {
@@ -61,6 +66,7 @@ export default function ProfilePage() {
           experience={experienceData?.getExperienceByUser ?? []}
           projects={projectsData?.getProjectsByUser ?? []}
           skills={skillsData?.getSkillsByUser ?? []}
+          achievements={achievementsData?.getAchievementsByUser ?? []}
         />
       </div>
     </div>

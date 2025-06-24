@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import logo from "@/assets/buildasquad_logo.png"
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -24,19 +25,17 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Left: Logo and brand name */}
           <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="h-8 w-8 bg-orange-500 rounded-md flex items-center justify-center text-white font-bold">
-                L
-              </div>
-            </div>
-            <div className="ml-3 font-medium text-lg">BrandName</div>
+            <Link to="/projects" className="flex items-center gap-2">
+              <img src={logo} alt="BuildASquad Logo" className="h-8 w-8 rounded-md" />
+              <span className="ml-1 font-medium text-lg">BuildASquad</span>
+            </Link>
           </div>
 
           {/* Middle: Navigation links (hidden on mobile) */}
           <div className="hidden md:block">
             <div className="flex items-center space-x-4">
-              <Link to="/myposts" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted">
-                My Posts
+              <Link to="/projects" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted">
+                Projects
               </Link>
               <Link to="/people" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted">
                 People
@@ -71,18 +70,10 @@ export function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link
-              to="/myposts"
-              className="block px-3 py-2 rounded-md text-base font-medium hover:bg-muted"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              My Posts
+            <Link to="/projects" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-muted" onClick={() => setIsMenuOpen(false)}>
+              Projects
             </Link>
-            <Link
-              to="/people"
-              className="block px-3 py-2 rounded-md text-base font-medium hover:bg-muted"
-              onClick={() => setIsMenuOpen(false)}
-            >
+            <Link to="/people" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-muted" onClick={() => setIsMenuOpen(false)}>
               People
             </Link>
           </div>
@@ -127,6 +118,15 @@ function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link to="/profile/me">My Profile</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/myposts">My Posts</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/applications">My Applications</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/saved">My Saved Posts</Link>
         </DropdownMenuItem>
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuSeparator />

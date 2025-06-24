@@ -68,6 +68,7 @@ function App() {
                 <Route path="myposts" element={<MyPostsPage />} />
                 <Route path="myposts/:postId" element={<PostApplicantsPage />} />
                 <Route path="post/new" element={<CreatePostPage />} />
+                <Route path="post/edit/:postId" element={<CreatePostPage />} />
                 <Route path="post/:postId" element={<PostDetailPage />} />
                 <Route path="post/:postId/edit" element={<CreatePostPage />} />
               </Route>

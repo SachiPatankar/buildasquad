@@ -117,10 +117,49 @@ export const LOAD_APPLICATIONS_BY_POST_ID = gql`
   query LoadApplicationsByPostId($postId: String!) {
     loadApplicationsByPostId(postId: $postId) {
       _id
+      post_id
+      applicant_id
+      first_name
+      last_name
+      photo
+      location_id
+      title
+      bio
+      top_skills {
+        _id
+        skill_name
+        proficiency_level
+      }
       message
       status
       created_at
-      applicant_id
+      updated_at
+    }
+  }
+`
+
+// Load posts by user ID
+export const LOAD_POSTS_BY_USER_ID = gql`
+  query LoadPostsByUserId($userId: String) {
+    loadPostsByUserId(userId: $userId) {
+      _id
+      title
+      description
+      posted_by
+      first_name
+      last_name
+      photo
+      tech_stack
+      work_mode
+      experience_level
+      location_id
+      status
+      views_count
+      applications_count
+      is_saved
+      is_applied
+      created_at
+      updated_at
     }
   }
 `
@@ -185,6 +224,15 @@ export const UNSAVE_POST = gql`
 export const CLOSE_POST = gql`
   mutation ClosePost($postId: String!) {
     closePost(postId: $postId) {
+      _id
+      status
+    }
+  }
+`
+
+export const OPEN_POST = gql`
+  mutation OpenPost($postId: String!) {
+    openPost(postId: $postId) {
       _id
       status
     }
@@ -478,4 +526,59 @@ export const LOAD_USER_BY_ID = gql`
     }
   }
 `
+export const LOAD_PEOPLE = gql`
+  query LoadPeople($page: Int, $limit: Int) {
+    loadPeople(page: $page, limit: $limit) {
+      _id
+      first_name
+      last_name
+      photo
+      location_id
+      title
+      bio
+      top_skills {
+        _id
+        skill_name
+        proficiency_level
+      }
+    }
+  }
+`;
 
+export const LOAD_PEOPLE_BY_FILTER = gql`
+  query LoadPeopleByFilter($filter: PeopleFilterInput!, $page: Int, $limit: Int) {
+    loadPeopleByFilter(filter: $filter, page: $page, limit: $limit) {
+      _id
+      first_name
+      last_name
+      photo
+      location_id
+      title
+      bio
+      top_skills {
+        _id
+        skill_name
+        proficiency_level
+      }
+    }
+  }
+`;
+
+export const LOAD_PERSON_BY_ID = gql`
+  query LoadPersonById($id: String!) {
+    loadPersonById(id: $id) {
+      _id
+      first_name
+      last_name
+      photo
+      location_id
+      title
+      bio
+      top_skills {
+        _id
+        skill_name
+        proficiency_level
+      }
+    }
+  }
+`;
