@@ -21,6 +21,9 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Layout from "./app/Global/Layout"
 import ProtectedRoute from "@/components/ProtectedRoute"
+import SavedPostsPage from "./app/SavedPostPage/saved-posts"
+import MyApplicationsPage from "./app/MyApplicationsPage/my-applications"
+import NotificationsPage from "./app/NotificationsPage/page"
 
 
 
@@ -71,6 +74,9 @@ function App() {
                 <Route path="post/edit/:postId" element={<CreatePostPage />} />
                 <Route path="post/:postId" element={<PostDetailPage />} />
                 <Route path="post/:postId/edit" element={<CreatePostPage />} />
+                <Route path="saved-posts" element={<SavedPostsPage />} />
+                <Route path="my-applications" element={<MyApplicationsPage />} />
+                <Route path="notifications" element={<NotificationsPage />} />
               </Route>
             </Route>
             

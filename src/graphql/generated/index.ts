@@ -39,6 +39,24 @@ export type Application = {
   updated_at: Scalars['Date']['output'];
 };
 
+export type ApplicationsByPostIdResponse = {
+  __typename?: 'ApplicationsByPostIdResponse';
+  _id: Scalars['String']['output'];
+  applicant_id: Scalars['String']['output'];
+  bio?: Maybe<Scalars['String']['output']>;
+  created_at: Scalars['Date']['output'];
+  first_name: Scalars['String']['output'];
+  last_name?: Maybe<Scalars['String']['output']>;
+  location_id?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  photo?: Maybe<Scalars['String']['output']>;
+  post_id: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+  title?: Maybe<Scalars['String']['output']>;
+  top_skills?: Maybe<Array<Maybe<UserSkill>>>;
+  updated_at: Scalars['Date']['output'];
+};
+
 export type Chat = {
   __typename?: 'Chat';
   _id: Scalars['String']['output'];
@@ -93,6 +111,7 @@ export type CreateExperienceInput = {
 
 export type CreatePostInput = {
   description?: InputMaybe<Scalars['String']['input']>;
+  experience_level?: InputMaybe<Scalars['String']['input']>;
   location_id?: InputMaybe<Scalars['String']['input']>;
   project_phase?: InputMaybe<Scalars['String']['input']>;
   project_type?: InputMaybe<Scalars['String']['input']>;
@@ -224,6 +243,7 @@ export type Mutation = {
   deleteUserSkill: Scalars['Boolean']['output'];
   editMessage: Message;
   incrementPostView: Post;
+  openPost: Post;
   removeConnection: Scalars['Boolean']['output'];
   savePost: SavedPost;
   sendFriendReq: Connection;
@@ -370,6 +390,11 @@ export type MutationEditMessageArgs = {
 
 
 export type MutationIncrementPostViewArgs = {
+  postId: Scalars['String']['input'];
+};
+
+
+export type MutationOpenPostArgs = {
   postId: Scalars['String']['input'];
 };
 
@@ -578,17 +603,19 @@ export type Query = {
   getMessagesForChat: Array<Maybe<Message>>;
   getPresignedUrl: PresignedUrlResult;
   getProjectsByUser: Array<Maybe<Project>>;
-  getSavedPosts: Array<Maybe<SavedPost>>;
+  getSavedPosts: Array<Maybe<PostSummary>>;
   getSkillsByUser: Array<Maybe<UserSkill>>;
   getUnreadCountForChats: Array<Maybe<UnreadChatCount>>;
-  loadApplicationsByPostId: Array<Maybe<Application>>;
+  loadApplicationsByPostId: Array<Maybe<ApplicationsByPostIdResponse>>;
   loadConnectionsList: Array<Maybe<Connection>>;
   loadPendingFriendRequests: Array<Maybe<Connection>>;
   loadPeople: Array<Maybe<Person>>;
   loadPeopleByFilter: Array<Maybe<Person>>;
+  loadPersonById: Person;
   loadPostByFilter: Array<Maybe<PostSummary>>;
   loadPostById?: Maybe<PostDetails>;
   loadPosts: Array<Maybe<PostSummary>>;
+  loadPostsByUserId: Array<Maybe<PostSummary>>;
   loadSentFriendRequests: Array<Maybe<Connection>>;
   loadUserById?: Maybe<User>;
 };
@@ -676,6 +703,11 @@ export type QueryLoadPeopleByFilterArgs = {
 };
 
 
+export type QueryLoadPersonByIdArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type QueryLoadPostByFilterArgs = {
   filter: PostFilterInput;
 };
@@ -689,6 +721,11 @@ export type QueryLoadPostByIdArgs = {
 export type QueryLoadPostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryLoadPostsByUserIdArgs = {
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -774,6 +811,8 @@ export type UpdateExperienceInput = {
 
 export type UpdatePostInput = {
   description?: InputMaybe<Scalars['String']['input']>;
+  experience_level?: InputMaybe<Scalars['String']['input']>;
+  location_id?: InputMaybe<Scalars['String']['input']>;
   project_phase?: InputMaybe<Scalars['String']['input']>;
   project_type?: InputMaybe<Scalars['String']['input']>;
   requirements?: InputMaybe<RequirementInput>;
@@ -864,7 +903,7 @@ export type LoadPostByFilterQuery = { __typename?: 'Query', loadPostByFilter: Ar
 export type GetSavedPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetSavedPostsQuery = { __typename?: 'Query', getSavedPosts: Array<{ __typename?: 'SavedPost', _id: string, post_id: string, user_id: string, created_at: any } | null> };
+export type GetSavedPostsQuery = { __typename?: 'Query', getSavedPosts: Array<{ __typename?: 'PostSummary', _id: string, title: string, description?: string | null, posted_by: string, first_name: string, last_name?: string | null, photo?: string | null, tech_stack?: Array<string | null> | null, work_mode?: string | null, experience_level?: string | null, location_id?: string | null, status: string, views_count: number, applications_count: number, is_saved: boolean, is_applied?: string | null, created_at: any, updated_at: any } | null> };
 
 export type GetApplicationsByUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -876,7 +915,14 @@ export type LoadApplicationsByPostIdQueryVariables = Exact<{
 }>;
 
 
-export type LoadApplicationsByPostIdQuery = { __typename?: 'Query', loadApplicationsByPostId: Array<{ __typename?: 'Application', _id: string, message?: string | null, status: string, created_at: any, applicant_id: string } | null> };
+export type LoadApplicationsByPostIdQuery = { __typename?: 'Query', loadApplicationsByPostId: Array<{ __typename?: 'ApplicationsByPostIdResponse', _id: string, post_id: string, applicant_id: string, first_name: string, last_name?: string | null, photo?: string | null, location_id?: string | null, title?: string | null, bio?: string | null, message?: string | null, status: string, created_at: any, updated_at: any, top_skills?: Array<{ __typename?: 'UserSkill', _id: string, skill_name: string, proficiency_level: string } | null> | null } | null> };
+
+export type LoadPostsByUserIdQueryVariables = Exact<{
+  userId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type LoadPostsByUserIdQuery = { __typename?: 'Query', loadPostsByUserId: Array<{ __typename?: 'PostSummary', _id: string, title: string, description?: string | null, posted_by: string, first_name: string, last_name?: string | null, photo?: string | null, tech_stack?: Array<string | null> | null, work_mode?: string | null, experience_level?: string | null, location_id?: string | null, status: string, views_count: number, applications_count: number, is_saved: boolean, is_applied?: string | null, created_at: any, updated_at: any } | null> };
 
 export type CreatePostMutationVariables = Exact<{
   input: CreatePostInput;
@@ -927,6 +973,13 @@ export type ClosePostMutationVariables = Exact<{
 
 
 export type ClosePostMutation = { __typename?: 'Mutation', closePost: { __typename?: 'Post', _id: string, status: string } };
+
+export type OpenPostMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+export type OpenPostMutation = { __typename?: 'Mutation', openPost: { __typename?: 'Post', _id: string, status: string } };
 
 export type ApplyToPostMutationVariables = Exact<{
   postId: Scalars['String']['input'];
@@ -1125,6 +1178,13 @@ export type LoadPeopleByFilterQueryVariables = Exact<{
 
 export type LoadPeopleByFilterQuery = { __typename?: 'Query', loadPeopleByFilter: Array<{ __typename?: 'Person', _id: string, first_name: string, last_name?: string | null, photo?: string | null, location_id?: string | null, title?: string | null, bio?: string | null, top_skills?: Array<{ __typename?: 'UserSkill', _id: string, skill_name: string, proficiency_level: string } | null> | null } | null> };
 
+export type LoadPersonByIdQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type LoadPersonByIdQuery = { __typename?: 'Query', loadPersonById: { __typename?: 'Person', _id: string, first_name: string, last_name?: string | null, photo?: string | null, location_id?: string | null, title?: string | null, bio?: string | null, top_skills?: Array<{ __typename?: 'UserSkill', _id: string, skill_name: string, proficiency_level: string } | null> | null } };
+
 
 export const LoadPostsDocument = gql`
     query LoadPosts($page: Int, $limit: Int) {
@@ -1308,9 +1368,23 @@ export const GetSavedPostsDocument = gql`
     query GetSavedPosts {
   getSavedPosts {
     _id
-    post_id
-    user_id
+    title
+    description
+    posted_by
+    first_name
+    last_name
+    photo
+    tech_stack
+    work_mode
+    experience_level
+    location_id
+    status
+    views_count
+    applications_count
+    is_saved
+    is_applied
     created_at
+    updated_at
   }
 }
     `;
@@ -1394,10 +1468,23 @@ export const LoadApplicationsByPostIdDocument = gql`
     query LoadApplicationsByPostId($postId: String!) {
   loadApplicationsByPostId(postId: $postId) {
     _id
+    post_id
+    applicant_id
+    first_name
+    last_name
+    photo
+    location_id
+    title
+    bio
+    top_skills {
+      _id
+      skill_name
+      proficiency_level
+    }
     message
     status
     created_at
-    applicant_id
+    updated_at
   }
 }
     `;
@@ -1434,6 +1521,63 @@ export type LoadApplicationsByPostIdQueryHookResult = ReturnType<typeof useLoadA
 export type LoadApplicationsByPostIdLazyQueryHookResult = ReturnType<typeof useLoadApplicationsByPostIdLazyQuery>;
 export type LoadApplicationsByPostIdSuspenseQueryHookResult = ReturnType<typeof useLoadApplicationsByPostIdSuspenseQuery>;
 export type LoadApplicationsByPostIdQueryResult = Apollo.QueryResult<LoadApplicationsByPostIdQuery, LoadApplicationsByPostIdQueryVariables>;
+export const LoadPostsByUserIdDocument = gql`
+    query LoadPostsByUserId($userId: String) {
+  loadPostsByUserId(userId: $userId) {
+    _id
+    title
+    description
+    posted_by
+    first_name
+    last_name
+    photo
+    tech_stack
+    work_mode
+    experience_level
+    location_id
+    status
+    views_count
+    applications_count
+    is_saved
+    is_applied
+    created_at
+    updated_at
+  }
+}
+    `;
+
+/**
+ * __useLoadPostsByUserIdQuery__
+ *
+ * To run a query within a React component, call `useLoadPostsByUserIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoadPostsByUserIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLoadPostsByUserIdQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useLoadPostsByUserIdQuery(baseOptions?: Apollo.QueryHookOptions<LoadPostsByUserIdQuery, LoadPostsByUserIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LoadPostsByUserIdQuery, LoadPostsByUserIdQueryVariables>(LoadPostsByUserIdDocument, options);
+      }
+export function useLoadPostsByUserIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LoadPostsByUserIdQuery, LoadPostsByUserIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LoadPostsByUserIdQuery, LoadPostsByUserIdQueryVariables>(LoadPostsByUserIdDocument, options);
+        }
+export function useLoadPostsByUserIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LoadPostsByUserIdQuery, LoadPostsByUserIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LoadPostsByUserIdQuery, LoadPostsByUserIdQueryVariables>(LoadPostsByUserIdDocument, options);
+        }
+export type LoadPostsByUserIdQueryHookResult = ReturnType<typeof useLoadPostsByUserIdQuery>;
+export type LoadPostsByUserIdLazyQueryHookResult = ReturnType<typeof useLoadPostsByUserIdLazyQuery>;
+export type LoadPostsByUserIdSuspenseQueryHookResult = ReturnType<typeof useLoadPostsByUserIdSuspenseQuery>;
+export type LoadPostsByUserIdQueryResult = Apollo.QueryResult<LoadPostsByUserIdQuery, LoadPostsByUserIdQueryVariables>;
 export const CreatePostDocument = gql`
     mutation CreatePost($input: CreatePostInput!) {
   createPost(input: $input) {
@@ -1667,6 +1811,40 @@ export function useClosePostMutation(baseOptions?: Apollo.MutationHookOptions<Cl
 export type ClosePostMutationHookResult = ReturnType<typeof useClosePostMutation>;
 export type ClosePostMutationResult = Apollo.MutationResult<ClosePostMutation>;
 export type ClosePostMutationOptions = Apollo.BaseMutationOptions<ClosePostMutation, ClosePostMutationVariables>;
+export const OpenPostDocument = gql`
+    mutation OpenPost($postId: String!) {
+  openPost(postId: $postId) {
+    _id
+    status
+  }
+}
+    `;
+export type OpenPostMutationFn = Apollo.MutationFunction<OpenPostMutation, OpenPostMutationVariables>;
+
+/**
+ * __useOpenPostMutation__
+ *
+ * To run a mutation, you first call `useOpenPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useOpenPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [openPostMutation, { data, loading, error }] = useOpenPostMutation({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useOpenPostMutation(baseOptions?: Apollo.MutationHookOptions<OpenPostMutation, OpenPostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<OpenPostMutation, OpenPostMutationVariables>(OpenPostDocument, options);
+      }
+export type OpenPostMutationHookResult = ReturnType<typeof useOpenPostMutation>;
+export type OpenPostMutationResult = Apollo.MutationResult<OpenPostMutation>;
+export type OpenPostMutationOptions = Apollo.BaseMutationOptions<OpenPostMutation, OpenPostMutationVariables>;
 export const ApplyToPostDocument = gql`
     mutation ApplyToPost($postId: String!, $message: String!) {
   applyToPost(postId: $postId, message: $message) {
@@ -2712,3 +2890,54 @@ export type LoadPeopleByFilterQueryHookResult = ReturnType<typeof useLoadPeopleB
 export type LoadPeopleByFilterLazyQueryHookResult = ReturnType<typeof useLoadPeopleByFilterLazyQuery>;
 export type LoadPeopleByFilterSuspenseQueryHookResult = ReturnType<typeof useLoadPeopleByFilterSuspenseQuery>;
 export type LoadPeopleByFilterQueryResult = Apollo.QueryResult<LoadPeopleByFilterQuery, LoadPeopleByFilterQueryVariables>;
+export const LoadPersonByIdDocument = gql`
+    query LoadPersonById($id: String!) {
+  loadPersonById(id: $id) {
+    _id
+    first_name
+    last_name
+    photo
+    location_id
+    title
+    bio
+    top_skills {
+      _id
+      skill_name
+      proficiency_level
+    }
+  }
+}
+    `;
+
+/**
+ * __useLoadPersonByIdQuery__
+ *
+ * To run a query within a React component, call `useLoadPersonByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoadPersonByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLoadPersonByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useLoadPersonByIdQuery(baseOptions: Apollo.QueryHookOptions<LoadPersonByIdQuery, LoadPersonByIdQueryVariables> & ({ variables: LoadPersonByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LoadPersonByIdQuery, LoadPersonByIdQueryVariables>(LoadPersonByIdDocument, options);
+      }
+export function useLoadPersonByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LoadPersonByIdQuery, LoadPersonByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LoadPersonByIdQuery, LoadPersonByIdQueryVariables>(LoadPersonByIdDocument, options);
+        }
+export function useLoadPersonByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LoadPersonByIdQuery, LoadPersonByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LoadPersonByIdQuery, LoadPersonByIdQueryVariables>(LoadPersonByIdDocument, options);
+        }
+export type LoadPersonByIdQueryHookResult = ReturnType<typeof useLoadPersonByIdQuery>;
+export type LoadPersonByIdLazyQueryHookResult = ReturnType<typeof useLoadPersonByIdLazyQuery>;
+export type LoadPersonByIdSuspenseQueryHookResult = ReturnType<typeof useLoadPersonByIdSuspenseQuery>;
+export type LoadPersonByIdQueryResult = Apollo.QueryResult<LoadPersonByIdQuery, LoadPersonByIdQueryVariables>;

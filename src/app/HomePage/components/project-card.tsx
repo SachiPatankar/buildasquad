@@ -32,10 +32,11 @@ interface ProjectCardProps {
     description?: string
     is_applied?: "pending" | "accepted" | "rejected" | "withdrawn" | null
     is_saved?: boolean
-  }
+  };
+  onUnsave?: () => void; // Optional callback for unsave
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
   const creatorName = `${project.first_name} ${project.last_name}`
   const creatorAvatar = project.photo
   const skills = project.tech_stack || []
@@ -59,7 +60,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   const [unsavePost] = useMutation(UNSAVE_POST, {
     variables: { postId: project._id },
-    onCompleted: () => setIsSaved(false),
+    onCompleted: () => {
+      setIsSaved(false);
+      if (onUnsave) onUnsave();
+    },
   })
 
   const [applyToPost, { loading: applying }] = useMutation(APPLY_TO_POST, {

@@ -50,9 +50,11 @@ export function Navbar() {
                 <MessageSquare className="h-5 w-5" />
               </Button>
             </Link>
+            <Link to="/notifications">
             <Button variant="ghost" size="icon">
               <Bell className="h-5 w-5" />
             </Button>
+            </Link>
             <ModeToggle />
             <UserMenu />
           </div>
@@ -123,10 +125,10 @@ function UserMenu() {
           <Link to="/myposts">My Posts</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/applications">My Applications</Link>
+          <Link to="/my-applications">My Applications</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/saved">My Saved Posts</Link>
+          <Link to="/saved-posts">My Saved Posts</Link>
         </DropdownMenuItem>
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuSeparator />

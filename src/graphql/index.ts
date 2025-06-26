@@ -91,9 +91,23 @@ export const GET_SAVED_POSTS = gql`
   query GetSavedPosts {
     getSavedPosts {
       _id
-      post_id
-      user_id
+      title
+      description
+      posted_by
+      first_name
+      last_name
+      photo
+      tech_stack
+      work_mode
+      experience_level
+      location_id
+      status
+      views_count
+      applications_count
+      is_saved
+      is_applied
       created_at
+      updated_at
     }
   }
 `
@@ -102,12 +116,35 @@ export const GET_SAVED_POSTS = gql`
 export const GET_APPLICATIONS_BY_USER = gql`
   query GetApplicationsByUser {
     getApplicationsByUser {
-      _id
-      post_id
-      applicant_id
-      message
-      status
-      created_at
+      post {
+        _id
+        title
+        description
+        posted_by
+        first_name
+        last_name
+        photo
+        tech_stack
+        work_mode
+        experience_level
+        location_id
+        status
+        views_count
+        applications_count
+        is_saved
+        is_applied
+        created_at
+        updated_at
+      }
+      application {
+        _id
+        post_id
+        applicant_id
+        message
+        status
+        created_at
+        updated_at
+      }
     }
   }
 `
@@ -580,5 +617,203 @@ export const LOAD_PERSON_BY_ID = gql`
         proficiency_level
       }
     }
+  }
+`;
+
+// -------------------- CONNECTIONS --------------------
+
+export const LOAD_CONNECTIONS_LIST = gql`
+  query LoadConnectionsList($userId: String) {
+    loadConnectionsList(userId: $userId) {
+      _id
+      requester_user_id
+      addressee_user_id
+      status
+      message
+      chat_id
+      created_at
+      updated_at
+      responded_at
+      first_name
+      last_name
+      photo
+    }
+  }
+`;
+
+export const LOAD_PENDING_FRIEND_REQUESTS = gql`
+  query LoadPendingFriendRequests {
+    loadPendingFriendRequests {
+      _id
+      requester_user_id
+      addressee_user_id
+      status
+      message
+      chat_id
+      created_at
+      updated_at
+      responded_at
+      first_name
+      last_name
+      photo
+    }
+  }
+`;
+
+export const LOAD_SENT_FRIEND_REQUESTS = gql`
+  query LoadSentFriendRequests {
+    loadSentFriendRequests {
+      _id
+      requester_user_id
+      addressee_user_id
+      status
+      message
+      chat_id
+      created_at
+      updated_at
+      responded_at
+      first_name
+      last_name
+      photo
+    }
+  }
+`;
+
+export const CHECK_CONNECTION_STATUS = gql`
+  query CheckConnectionStatus($addresseeUserId: String!) {
+    checkConnectionStatus(addresseeUserId: $addresseeUserId)
+  }
+`;
+
+export const SEND_FRIEND_REQ = gql`
+  mutation SendFriendReq($addresseeUserId: String!, $message: String) {
+    sendFriendReq(addresseeUserId: $addresseeUserId, message: $message) {
+      _id
+      requester_user_id
+      addressee_user_id
+      status
+      message
+      chat_id
+      created_at
+      updated_at
+      responded_at
+    }
+  }
+`;
+
+export const ACCEPT_FRIEND_REQ = gql`
+  mutation AcceptFriendReq($connectionId: String!) {
+    acceptFriendReq(connectionId: $connectionId) {
+      _id
+      requester_user_id
+      addressee_user_id
+      status
+      message
+      chat_id
+      created_at
+      updated_at
+      responded_at
+    }
+  }
+`;
+
+export const DECLINE_FRIEND_REQ = gql`
+  mutation DeclineFriendReq($connectionId: String!) {
+    declineFriendReq(connectionId: $connectionId)
+  }
+`;
+
+export const BLOCK_USER = gql`
+  mutation BlockUser($addresseeUserId: String!) {
+    blockUser(addresseeUserId: $addresseeUserId) {
+      _id
+      requester_user_id
+      addressee_user_id
+      status
+      message
+      chat_id
+      created_at
+      updated_at
+      responded_at
+    }
+  }
+`;
+
+export const REMOVE_CONNECTION = gql`
+  mutation RemoveConnection($connectionId: String!) {
+    removeConnection(connectionId: $connectionId)
+  }
+`;
+
+// -------------------- CHAT --------------------
+
+export const GET_MESSAGES_FOR_CHAT = gql`
+  query GetMessagesForChat($chatId: String!, $page: Int, $limit: Int) {
+    getMessagesForChat(chatId: $chatId, page: $page, limit: $limit) {
+      _id
+      chat_id
+      sender_id
+      content
+      created_at
+      updated_at
+    }
+  }
+`;
+
+export const GET_CHAT_LIST_FOR_USER = gql`
+  query GetChatListForUser {
+    getChatListForUser {
+      _id
+      participant_ids
+      is_active
+      created_at
+      updated_at
+      first_name
+      last_name
+      photo
+      last_message_content
+      last_message_at
+    }
+  }
+`;
+
+export const GET_UNREAD_COUNT_FOR_CHATS = gql`
+  query GetUnreadCountForChats {
+    getUnreadCountForChats {
+      chat_id
+      unread_count
+    }
+  }
+`;
+
+export const SEND_MESSAGE = gql`
+  mutation SendMessage($chatId: String!, $content: String!) {
+    sendMessage(chatId: $chatId, content: $content) {
+      _id
+      chat_id
+      sender_id
+      content
+      created_at
+      updated_at
+    }
+  }
+`;
+
+export const EDIT_MESSAGE = gql`
+  mutation EditMessage($messageId: String!, $content: String!) {
+    editMessage(messageId: $messageId, content: $content) {
+      _id
+      chat_id
+      sender_id
+      content
+      created_at
+      updated_at
+    }
+  }
+`;
+
+export const DELETE_MESSAGE = gql`
+  mutation DeleteMessage($messageId: String!) {
+    deleteMessage(messageId: $messageId)
   }
 `;

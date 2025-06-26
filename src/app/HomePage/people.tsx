@@ -65,6 +65,7 @@ export default function PeoplePage() {
                       title: user.title,
                       bio: user.bio,
                       top_skills: Array.isArray(user.top_skills) ? user.top_skills : [],
+                      is_connection: user.is_connection,
                     }}
                   />
                 );

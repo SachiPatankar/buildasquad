@@ -4,6 +4,9 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useNavigate } from "react-router-dom"
+import { useMutation } from '@apollo/client';
+import { SEND_FRIEND_REQ } from '@/graphql';
+import { useState } from 'react';
 
 interface UserCardProps {
   user: {
@@ -19,17 +22,29 @@ interface UserCardProps {
       skill_name: string
       proficiency_level: string
     }[]
+    is_connection?: string | null
   }
 }
 
 export function UserCard({ user }: UserCardProps) {
   const navigate = useNavigate()
+  const [sendFriendReq, { loading }] = useMutation(SEND_FRIEND_REQ);
+  const [connectionStatus, setConnectionStatus] = useState(user.is_connection);
   const name = `${user.first_name} ${user.last_name ?? ""}`.trim()
   const avatar = user.photo || "/placeholder.svg"
   const skills = Array.isArray(user.top_skills) ? user.top_skills : []
   const location = user.location_id || "Unknown location"
   const title = user.title || "No title"
   const bio = user.bio || ""
+
+  const handleConnect = async () => {
+    try {
+      await sendFriendReq({ variables: { addresseeUserId: user.id } });
+      setConnectionStatus('pending');
+    } catch (e) {
+      // Optionally show error
+    }
+  };
 
   return (
     <Card className="w-full hover:shadow-lg transition-all duration-300">
@@ -89,10 +104,22 @@ export function UserCard({ user }: UserCardProps) {
           <User className="h-4 w-4" />
           View Profile
         </Button>
-        <Button variant="outline" size="sm" className="flex-1 gap-2">
-          <MessageCircle className="h-4 w-4" />
-          Connect
-        </Button>
+        {connectionStatus === 'accepted' ? (
+          <Button variant="outline" size="sm" className="flex-1 gap-2">
+            <MessageCircle className="h-4 w-4" />
+            Message
+          </Button>
+        ) : connectionStatus === 'pending' ? (
+          <Button variant="outline" size="sm" className="flex-1 gap-2" disabled>
+            <MessageCircle className="h-4 w-4" />
+            Pending
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={handleConnect} disabled={loading}>
+            <MessageCircle className="h-4 w-4" />
+            {loading ? 'Connecting...' : 'Connect'}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )
