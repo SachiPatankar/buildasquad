@@ -551,6 +551,7 @@ export const LOAD_USER_BY_ID = gql`
       title
       bio
       location_id
+      is_connection
       connections_count
       links {
         name
@@ -573,6 +574,7 @@ export const LOAD_PEOPLE = gql`
       location_id
       title
       bio
+      is_connection
       top_skills {
         _id
         skill_name
@@ -592,6 +594,7 @@ export const LOAD_PEOPLE_BY_FILTER = gql`
       location_id
       title
       bio
+      is_connection
       top_skills {
         _id
         skill_name

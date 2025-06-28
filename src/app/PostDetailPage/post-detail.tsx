@@ -9,8 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
-import { LOAD_POST_BY_ID, SAVE_POST, UNSAVE_POST, APPLY_TO_POST } from "@/graphql"
+import { LOAD_POST_BY_ID, SAVE_POST, UNSAVE_POST, APPLY_TO_POST, INCREMENT_POST_VIEW } from "@/graphql"
 import { toast } from "react-toastify"
+import { format, parseISO } from "date-fns"
 
 export default function PostDetailPage() {
   const { postId } = useParams<{ postId: string }>()
@@ -22,6 +23,7 @@ export default function PostDetailPage() {
   const [savePost] = useMutation(SAVE_POST)
   const [unsavePost] = useMutation(UNSAVE_POST)
   const [applyToPost] = useMutation(APPLY_TO_POST)
+  const [incrementPostView] = useMutation(INCREMENT_POST_VIEW)
 
   const [isSaved, setIsSaved] = useState(false)
   const [isApplied, setIsApplied] = useState<"pending" | "accepted" | "rejected" | "withdrawn" | null>(null)
@@ -101,6 +103,17 @@ export default function PostDetailPage() {
     }
   }, [data])
 
+  // Increment post view count when postId changes, only once per session
+  useEffect(() => {
+    if (postId) {
+      const viewedKey = `viewed_post_${postId}`;
+      if (!sessionStorage.getItem(viewedKey)) {
+        incrementPostView({ variables: { postId } });
+        sessionStorage.setItem(viewedKey, "true");
+      }
+    }
+  }, [postId, incrementPostView]);
+
   if (loading) return <div>Loading...</div>
   if (error) return <div>Error loading post.</div>
   if (!data?.loadPostById) return <div>Post not found.</div>
@@ -112,7 +125,9 @@ export default function PostDetailPage() {
     description: data?.loadPostById?.description || 'No description available.',
     creatorName: data?.loadPostById?.first_name + " " + data?.loadPostById?.last_name || "Unknown", // Replace with actual data if available
     creatorAvatar: data?.loadPostById?.photo || "",
-    datePosted: data?.loadPostById?.created_at || "Unknown Date",
+    datePosted: data?.loadPostById?.created_at
+      ? format(parseISO(data.loadPostById.created_at), "PPpp")
+      : "Unknown Date",
     location: data?.loadPostById?.location_id || "Unknown Location",
     applicantsCount: data?.loadPostById?.applications_count || 0,
     skills: data?.loadPostById?.requirements?.desired_skills || [],
@@ -175,7 +190,7 @@ export default function PostDetailPage() {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    Posted {post.datePosted}
+                     {post.datePosted}
                   </div>
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />

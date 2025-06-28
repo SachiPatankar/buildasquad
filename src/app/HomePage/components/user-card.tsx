@@ -47,7 +47,7 @@ export function UserCard({ user }: UserCardProps) {
   };
 
   return (
-    <Card className="w-full hover:shadow-lg transition-all duration-300">
+    <Card className="w-full min-h-[320px] flex flex-col hover:shadow-lg transition-all duration-300">
       <CardHeader className="">
         <div className="flex items-start gap-4">
           <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
@@ -66,14 +66,16 @@ export function UserCard({ user }: UserCardProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="">
-        <div className="space-y-1">
+      <CardContent className="flex-1 flex flex-col">
+        <div className="space-y-1 flex-1 flex flex-col">
           {/* Bio section */}
-          {bio && (
-            <div className="text-sm text-muted-foreground line-clamp-3">
-              {bio}
-            </div>
-          )}
+          <div className="flex-1">
+            {bio ? (
+              <div className="text-sm text-muted-foreground line-clamp-3 min-h-[3.5em]">{bio}</div>
+            ) : (
+              <div className="min-h-[3.5em]" />
+            )}
+          </div>
           <div>
             <h4 className="text-sm font-medium text-muted-foreground mb-2">Skills</h4>
             <div className="flex flex-wrap gap-1.5">
@@ -91,8 +93,7 @@ export function UserCard({ user }: UserCardProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="pt-0 gap-2">
-      
+      <CardFooter className="pt-0 gap-2 mt-auto">
         <Button
           variant="default"
           size="sm"

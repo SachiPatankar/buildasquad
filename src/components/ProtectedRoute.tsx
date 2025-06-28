@@ -2,6 +2,18 @@ import { Navigate, Outlet } from 'react-router-dom';
 import useAuthStore from '@/stores/userAuthStore';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
+
+const isTokenValid = (token: string | null) => {
+  if (!token) return false;
+  try {
+    const decoded: any = jwtDecode(token);
+    if (!decoded.exp) return false;
+    return decoded.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+};
 
 const ProtectedRoute = () => {
   const { token, initialize, isInitialized } = useAuthStore();
@@ -26,7 +38,7 @@ const ProtectedRoute = () => {
     );
   }
 
-  if (!token) {
+  if (!isTokenValid(token)) {
     return <Navigate to="/login" replace state={{ from: window.location.pathname }} />;
   }
 

@@ -1,24 +1,52 @@
-import { useState } from "react"
-import { useQuery, gql } from "@apollo/client"
+import { useState, useCallback } from "react"
+import { useQuery } from "@apollo/client"
 import { SearchBar } from "@/app/HomePage/layout/search-bar"
 import { FilterSidebar } from "@/app/HomePage/layout/sidebar-filter"
 import { ProjectCard } from "@/app/HomePage/components/project-card"
-import { LOAD_POSTS } from "@/graphql"
+import { LOAD_POST_BY_FILTER } from "@/graphql"
 
+interface FilterState {
+  selectedSkills: string[]
+  selectedRoles: string[]
+  selectedProjectTypes: string[]
+  selectedWorkModes: string[]
+  selectedExperienceLevels: string[]
+}
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const { data, loading, error } = useQuery(LOAD_POSTS, {
-    variables: { page: 1, limit: 10 },
+  const [filter, setFilter] = useState<FilterState>({
+    selectedSkills: [],
+    selectedRoles: [],
+    selectedProjectTypes: [],
+    selectedWorkModes: [],
+    selectedExperienceLevels: [],
   })
 
-  const projects = data?.loadPosts ?? []
+  // Build PostFilterInput for GraphQL
+  const postFilterInput = {
+    tech_stack: filter.selectedSkills,
+    desired_roles: filter.selectedRoles,
+    project_type: filter.selectedProjectTypes,
+    work_mode: filter.selectedWorkModes,
+    experience_level: filter.selectedExperienceLevels,
+  }
+
+  const { data, loading, error } = useQuery(LOAD_POST_BY_FILTER, {
+    variables: { filter: postFilterInput },
+  })
+
+  const projects = data?.loadPostByFilter ?? []
+
+  const handleFilterChange = useCallback((newFilter: FilterState) => {
+    setFilter(newFilter)
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto flex">
         {/* Desktop Sidebar */}
-        <FilterSidebar type="projects" />
+        <FilterSidebar type="projects" filter={filter} onFilterChange={handleFilterChange} />
 
         {/* Main Content */}
         <div className="flex-1">
@@ -34,16 +62,25 @@ export default function HomePage() {
                 />
               </div>
               <div className="lg:hidden">
-                <FilterSidebar type="projects" />
+                <FilterSidebar type="projects" filter={filter} onFilterChange={handleFilterChange} />
               </div>
             </div>
           </div>
 
           {/* Projects Content */}
           <div className="p-4 lg:p-6">
-            <div className="space-y-6">
-              {loading && <div>Loading...</div>}
-              {error && <div>Error loading projects.</div>}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {loading && <div className="col-span-full">Loading...</div>}
+              {error && <div className="col-span-full">Error loading projects.</div>}
+              {!loading && !error && projects.length === 0 && (
+                <div className="col-span-full flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
+                  <svg width="64" height="64" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="mb-4 opacity-40">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <h2 className="text-xl font-semibold mb-2">No posts found</h2>
+                  <p className="text-sm">Try adjusting your filters or search to find more projects.</p>
+                </div>
+              )}
               {!loading && !error && projects.map((project: any) => (
                 <ProjectCard key={project._id} project={project} />
               ))}

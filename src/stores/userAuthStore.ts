@@ -1,5 +1,4 @@
 // src/stores/userAuthStore.ts
-import { getMe } from '@/api'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -42,17 +41,20 @@ const useAuthStore = create<AuthState>()(
           return
         }
         
-        try {
-          const res = await getMe()
-          set({ user: res.data, isInitialized: true })
-        } catch (error) {
-          console.error('Failed to initialize auth:', error)
-          get().clearAuth()
-          set({ isInitialized: true })
-        }
+        // No getMe logic for now
+        set({ isInitialized: true })
       },
-      setAuth: (token, user) => set({ token, user, isInitialized: true }),
-      clearAuth: () => set({ token: null, user: null, isInitialized: true }),
+      setAuth: (token, user) => {
+        set({ token, user, isInitialized: true });
+      },
+      clearAuth: () => {
+        set({ token: null, user: null, isInitialized: true });
+        // Call backend to clear refresh token
+        fetch(`${import.meta.env.VITE_API_URL}/v1/auth/logout`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+      },
     }),
     {
       name: 'auth-storage',

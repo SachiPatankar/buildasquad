@@ -15,6 +15,9 @@ import { Separator } from "@/components/ui/separator"
 import { Link } from "react-router-dom"
 import { useState } from "react"
 import { APPLY_TO_POST, SAVE_POST, UNSAVE_POST } from "@/graphql"
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { formatDistanceToNow, parseISO } from "date-fns"
 
 interface ProjectCardProps {
   project: {
@@ -44,13 +47,15 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
   const viewCount = project.views_count ?? 0
   const difficulty = project.experience_level || "Beginner"
   const isRemote = project.work_mode?.toLowerCase() === "remote"
-  const datePosted = new Date(project.created_at).toLocaleDateString()
+  const datePosted = formatDistanceToNow(parseISO(project.created_at), { addSuffix: true })
 
   // ✅ Local state for UI updates after mutation
   const [isSaved, setIsSaved] = useState(project.is_saved || false)
   const [applicationStatus, setApplicationStatus] = useState<
     "pending" | "accepted" | "rejected" | "withdrawn" | null
   >(project.is_applied ?? null)
+  const [applicationMessage, setApplicationMessage] = useState("")
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   // ✅ Mutations
   const [savePost] = useMutation(SAVE_POST, {
@@ -69,9 +74,13 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
   const [applyToPost, { loading: applying }] = useMutation(APPLY_TO_POST, {
     variables: {
       postId: project._id,
-      message: "Looking forward to this opportunity!", // You could make this dynamic later
+      message: applicationMessage || "Looking forward to this opportunity!", // Use dialog message
     },
-    onCompleted: (data) => setApplicationStatus(data.applyToPost.status),
+    onCompleted: (data) => {
+      setApplicationStatus(data.applyToPost.status)
+      setDialogOpen(false)
+      setApplicationMessage("")
+    },
   })
 
   const handleSaveToggle = () => {
@@ -83,6 +92,13 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
   }
 
   const handleApply = () => {
+    if (!applicationStatus) {
+      setDialogOpen(true)
+    }
+  }
+
+  const handleDialogApply = (e: React.FormEvent) => {
+    e.preventDefault()
     if (!applicationStatus) {
       applyToPost()
     }
@@ -107,7 +123,7 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
   }
 
   return (
-    <Card className="w-full hover:shadow-xl transition-all duration-300">
+    <Card className="w-full min-h-[400px] flex flex-col hover:shadow-xl transition-all duration-300">
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -151,12 +167,15 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="pb-4">
-        <div className="space-y-4">
+      <CardContent className="pb-4 flex-1 flex flex-col">
+        <div className="space-y-4 flex-1 flex flex-col">
           <div>
-            <h3 className="font-bold text-xl mb-2 leading-tight">{project.title}</h3>
+            <h3 className="font-bold text-xl mb-2 leading-tight line-clamp-1">{project.title}</h3>
             {project.description && (
-              <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">{project.description}</p>
+              <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed min-h-[2.5em]">{project.description}</p>
+            )}
+            {!project.description && (
+              <div className="min-h-[2.5em]" />
             )}
           </div>
 
@@ -182,9 +201,9 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
         </div>
       </CardContent>
 
-      <Separator className="mx-6" />
+      <Separator />
 
-      <CardFooter className="pt-4">
+      <CardFooter className="pt-4 mt-auto">
         <div className="flex items-center justify-between w-full gap-3">
           <Link to={`/post/${project._id}`} className="flex-1">
             <Button variant="default" size="sm" className="w-full gap-2">
@@ -217,6 +236,36 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
           </div>
         </div>
       </CardFooter>
+
+      {/* Application Message Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <form onSubmit={handleDialogApply}>
+            <DialogHeader>
+              <DialogTitle>Apply to Project</DialogTitle>
+              <DialogDescription>
+                Optionally include a message with your application.
+              </DialogDescription>
+            </DialogHeader>
+            <Textarea
+              value={applicationMessage}
+              onChange={e => setApplicationMessage(e.target.value)}
+              placeholder="Write a message (optional)"
+              className="mt-2"
+              rows={4}
+              disabled={applying}
+            />
+            <DialogFooter className="mt-4 flex gap-2">
+              <DialogClose asChild>
+                <Button type="button" variant="ghost">Cancel</Button>
+              </DialogClose>
+              <Button type="submit" variant="default" disabled={applying}>
+                {applying ? "Applying..." : "Send Application"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

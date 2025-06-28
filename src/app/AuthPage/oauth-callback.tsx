@@ -1,36 +1,24 @@
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/stores/userAuthStore';
 import { Loader2 } from 'lucide-react';
 
 export default function OAuthCallback() {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const error = searchParams.get('error');
-  const token = searchParams.get('token');
-  const userParam = searchParams.get('user');
 
   useEffect(() => {
-    if (error) {
-      console.error('OAuth error:', error);
-      navigate(`/login?error=${encodeURIComponent('OAuth authentication failed')}`);
-      return;
-    }
-
-    if (token && userParam) {
-      try {
-        const user = JSON.parse(decodeURIComponent(userParam));
-        setAuth(token, user);
-        navigate('/');
-      } catch (err) {
-        console.error('Error parsing user data:', err);
-        navigate('/login?error=invalid_response');
-      }
+    // Extract token from URL hash (e.g. #token=...)
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.replace(/^#/, ''));
+    const token = params.get('token');
+    if (token) {
+      setAuth(token, null); // User info will be fetched on initialize
+      navigate('/');
     } else {
       navigate('/login?error=missing_token');
     }
-  }, [error, token, userParam, navigate, setAuth]);
+  }, [navigate, setAuth]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">

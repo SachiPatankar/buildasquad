@@ -59,8 +59,3 @@ export const getUsers = () =>
 
 export const deleteUser = (data: DeleteUserParams) =>
   api.post<{ message: string }>(`${AUTH}/deleteUser`, data)
-
-export const getMe = () =>
-  api.post<{ _id: string; email: string; first_name?: string; last_name?: string; photo?: string }>(
-    `${AUTH}/me`
-  )
