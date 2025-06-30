@@ -51,7 +51,7 @@ export default function ProfilePage() {
       year: new Date(user?.created_at).getFullYear(),
       connections: user?.connections_count ?? 0,
       email: user?.email,
-      portfolio: user?.links?.find(l => l.name.toLowerCase() === "portfolio")?.url,
+      links: user?.links,
       bio: user?.bio ?? "",
     }
   }, [userData])

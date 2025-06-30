@@ -3,7 +3,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Plus, Pencil, Trash2 } from "lucide-react"
+import { Plus, Pencil, Trash2, MoreVertical, GripVertical } from "lucide-react"
 import EducationModal from "./EducationModal"
 import ExperienceModal from "./ExperienceModal"
 import ProjectModal from "./ProjectModal"
@@ -16,7 +16,9 @@ import type { Skill } from "./SkillModal"
 import type { Achievement } from "./AchievementModal"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useMutation } from "@apollo/client"
-import { DELETE_EDUCATION, DELETE_EXPERIENCE, DELETE_PROJECT, DELETE_USER_SKILL, GET_EDUCATION_BY_USER, GET_EXPERIENCE_BY_USER, GET_PROJECTS_BY_USER, GET_SKILLS_BY_USER, DELETE_ACHIEVEMENT, GET_ACHIEVEMENTS_BY_USER } from "@/graphql"
+import { DELETE_EDUCATION, DELETE_EXPERIENCE, DELETE_PROJECT, DELETE_USER_SKILL, GET_EDUCATION_BY_USER, GET_EXPERIENCE_BY_USER, GET_PROJECTS_BY_USER, GET_SKILLS_BY_USER, DELETE_ACHIEVEMENT, GET_ACHIEVEMENTS_BY_USER, UPDATE_EDUCATION, UPDATE_EXPERIENCE, UPDATE_PROJECT, UPDATE_USER_SKILL, UPDATE_ACHIEVEMENT } from "@/graphql"
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { ReactSortable } from 'react-sortablejs'
 
 interface ProfileTabsProps {
   isOwnProfile: boolean
@@ -40,7 +42,10 @@ export default function ProfileTabs({
   const [showProjModal, setShowProjModal] = useState(false)
   const [showSkillModal, setShowSkillModal] = useState(false)
   const [showAchievementModal, setShowAchievementModal] = useState(false)
- 
+  const [showOrderDialog, setShowOrderDialog] = useState<null | 'education' | 'experience' | 'projects' | 'skills' | 'achievements'>(null)
+  const [orderList, setOrderList] = useState<any[]>([])
+  const [savingOrder, setSavingOrder] = useState(false)
+  const [orderError, setOrderError] = useState<string | null>(null)
 
   // Track which item is being edited or deleted
   const [editingEducation, setEditingEducation] = useState<Education | null>(null)
@@ -73,6 +78,13 @@ export default function ProfileTabs({
   const [deleteAchievementMutation] = useMutation(DELETE_ACHIEVEMENT, {
     refetchQueries: [{ query: GET_ACHIEVEMENTS_BY_USER, variables: { userId } }],
   })
+
+  // Update mutations with refetchQueries
+  const [updateEducationMutation] = useMutation(UPDATE_EDUCATION, { refetchQueries: [{ query: GET_EDUCATION_BY_USER, variables: { userId } }] })
+  const [updateExperienceMutation] = useMutation(UPDATE_EXPERIENCE, { refetchQueries: [{ query: GET_EXPERIENCE_BY_USER, variables: { userId } }] })
+  const [updateProjectMutation] = useMutation(UPDATE_PROJECT, { refetchQueries: [{ query: GET_PROJECTS_BY_USER, variables: { userId } }] })
+  const [updateUserSkillMutation] = useMutation(UPDATE_USER_SKILL, { refetchQueries: [{ query: GET_SKILLS_BY_USER, variables: { userId } }] })
+  const [updateAchievementMutation] = useMutation(UPDATE_ACHIEVEMENT, { refetchQueries: [{ query: GET_ACHIEVEMENTS_BY_USER, variables: { userId } }] })
 
   // Delete handlers (to be implemented with GraphQL mutations)
   const handleDelete = async () => {
@@ -119,6 +131,49 @@ export default function ProfileTabs({
         })
     } 
 
+  const openOrderDialog = (type: typeof showOrderDialog) => {
+    setShowOrderDialog(type)
+    let arr: any[] = []
+    switch(type) {
+      case 'education': arr = [...education].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)); break;
+      case 'experience': arr = [...experience].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)); break;
+      case 'projects': arr = [...projects].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)); break;
+      case 'skills': arr = [...skills].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)); break;
+      case 'achievements': arr = [...achievements].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)); break;
+    }
+    setOrderList(arr.map(item => ({ ...item })))
+  }
+  const closeOrderDialog = () => { setShowOrderDialog(null); setOrderList([]); setOrderError(null); }
+
+  const handleOrderChange = (newOrder: any[]) => {
+    setOrderList(newOrder.map(item => ({ ...item })))
+  }
+
+  const handleSaveOrder = async () => {
+    setSavingOrder(true)
+    setOrderError(null)
+    try {
+      for (let i = 0; i < orderList.length; i++) {
+        const item = orderList[i]
+        if (showOrderDialog === 'education') {
+          await updateEducationMutation({ variables: { educationId: item._id, input: { order: i } } })
+        } else if (showOrderDialog === 'experience') {
+          await updateExperienceMutation({ variables: { experienceId: item._id, input: { order: i } } })
+        } else if (showOrderDialog === 'projects') {
+          await updateProjectMutation({ variables: { projectId: item._id, input: { order: i } } })
+        } else if (showOrderDialog === 'skills') {
+          await updateUserSkillMutation({ variables: { userSkillId: item._id, input: { order: i } } })
+        } else if (showOrderDialog === 'achievements') {
+          await updateAchievementMutation({ variables: { achievementId: item._id, input: { order: i } } })
+        }
+      }
+      closeOrderDialog()
+    } catch (err: any) {
+      setOrderError('Failed to save order')
+    }
+    setSavingOrder(false)
+  }
+
   return (
     <>
       <Tabs defaultValue="education" className="space-y-6">
@@ -135,28 +190,41 @@ export default function ProfileTabs({
             <CardHeader className="flex justify-between items-center">
               <CardTitle>Education</CardTitle>
               {isOwnProfile && (
-                <Button variant="ghost" size="sm" onClick={() => { setEditingEducation(null); setShowEduModal(true) }}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => { setEditingEducation(null); setShowEduModal(true) }}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openOrderDialog('education')}>Edit Order</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               )}
             </CardHeader>
             <CardContent className="space-y-4">
-              {education.map((e) => (
-                <div key={e._id} className="p-4 border rounded-lg space-y-1 flex justify-between items-start">
-                  <div>
-                    <h4 className="font-semibold">{e.institution_name}</h4>
-                    <p className="text-muted-foreground">{e.degree} — {e.field_of_study}</p>
-                    {e.grade && <p className="text-sm text-muted-foreground">Grade: {e.grade}</p>}
-                    {e.description && <p className="text-sm">{e.description}</p>}
-                  </div>
-                  {isOwnProfile && (
-                    <div className="flex flex-col gap-2 ml-2">
-                      <Button variant="ghost" size="icon" onClick={() => { setEditingEducation(e); setShowEduModal(true) }}><Pencil className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleting({ type: "education", item: e })}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+              {education
+                .slice()
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                .map((e) => (
+                  <div key={e._id} className="p-4 border rounded-lg space-y-1 flex justify-between items-start">
+                    <div>
+                      <h4 className="font-semibold">{e.institution_name}</h4>
+                      <p className="text-muted-foreground">{e.degree} — {e.field_of_study}</p>
+                      {e.grade && <p className="text-sm text-muted-foreground">Grade: {e.grade}</p>}
+                      {e.description && <p className="text-sm">{e.description}</p>}
                     </div>
-                  )}
-                </div>
-              ))}
+                    {isOwnProfile && (
+                      <div className="flex flex-col gap-2 ml-2">
+                        <Button variant="ghost" size="icon" onClick={() => { setEditingEducation(e); setShowEduModal(true) }}><Pencil className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => setDeleting({ type: "education", item: e })}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
             </CardContent>
           </Card>
         </TabsContent>
@@ -166,31 +234,44 @@ export default function ProfileTabs({
             <CardHeader className="flex justify-between items-center">
               <CardTitle>Experience</CardTitle>
               {isOwnProfile && (
-                <Button variant="ghost" size="sm" onClick={() => { setEditingExperience(null); setShowExpModal(true) }}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => { setEditingExperience(null); setShowExpModal(true) }}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openOrderDialog('experience')}>Edit Order</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               )}
             </CardHeader>
             <CardContent className="space-y-4">
-              {experience.map((e) => (
-                <div key={e._id} className="p-4 border rounded-lg space-y-1 flex justify-between items-start">
-                  <div>
-                    <h4 className="font-semibold">{e.position}</h4>
-                    <p className="text-muted-foreground">{e.company_name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDate(e.start_date)} - {e.is_current ? 'Present' : e.end_date ? formatDate(e.end_date) : 'N/A'}
-                      {e.employment_type && ` • ${e.employment_type}`}
-                    </p>
-                    {e.description && <p className="text-sm">{e.description}</p>}
-                  </div>
-                  {isOwnProfile && (
-                    <div className="flex flex-col gap-2 ml-2">
-                      <Button variant="ghost" size="icon" onClick={() => { setEditingExperience(e); setShowExpModal(true) }}><Pencil className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleting({ type: "experience", item: e })}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+              {experience
+                .slice()
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                .map((e) => (
+                  <div key={e._id} className="p-4 border rounded-lg space-y-1 flex justify-between items-start">
+                    <div>
+                      <h4 className="font-semibold">{e.position}</h4>
+                      <p className="text-muted-foreground">{e.company_name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(e.start_date)} - {e.is_current ? 'Present' : e.end_date ? formatDate(e.end_date) : 'N/A'}
+                        {e.employment_type && ` • ${e.employment_type}`}
+                      </p>
+                      {e.description && <p className="text-sm">{e.description}</p>}
                     </div>
-                  )}
-                </div>
-              ))}
+                    {isOwnProfile && (
+                      <div className="flex flex-col gap-2 ml-2">
+                        <Button variant="ghost" size="icon" onClick={() => { setEditingExperience(e); setShowExpModal(true) }}><Pencil className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => setDeleting({ type: "experience", item: e })}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
             </CardContent>
           </Card>
         </TabsContent>
@@ -200,42 +281,55 @@ export default function ProfileTabs({
             <CardHeader className="flex justify-between items-center">
               <CardTitle>Projects</CardTitle>
               {isOwnProfile && (
-                <Button variant="ghost" size="sm" onClick={() => { setEditingProject(null); setShowProjModal(true) }}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => { setEditingProject(null); setShowProjModal(true) }}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openOrderDialog('projects')}>Edit Order</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               )}
             </CardHeader>
             <CardContent className="space-y-4">
-              {projects.map((p) => (
-                <div key={p._id} className="p-4 border rounded-lg space-y-1 flex justify-between items-start">
-                  <div>
-                    <h4 className="font-semibold">{p.title}</h4>
-                    {p.description && <p className="text-muted-foreground">{p.description}</p>}
-                    {p.technologies && p.technologies.length > 0 && (
-                      <p className="text-sm">Tech: {p.technologies.join(', ')}</p>
+              {projects
+                .slice()
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                .map((p) => (
+                  <div key={p._id} className="p-4 border rounded-lg space-y-1 flex justify-between items-start">
+                    <div>
+                      <h4 className="font-semibold">{p.title}</h4>
+                      {p.description && <p className="text-muted-foreground">{p.description}</p>}
+                      {p.technologies && p.technologies.length > 0 && (
+                        <p className="text-sm">Tech: {p.technologies.join(', ')}</p>
+                      )}
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {p.github_url && (
+                          <a href={p.github_url} target="_blank" className="text-blue-600 text-sm underline">
+                            GitHub
+                          </a>
+                        )}
+                        {p.project_url && (
+                          <a href={p.project_url} target="_blank" className="text-blue-600 text-sm underline">
+                            Live
+                          </a>
+                        )}
+                        {p.is_current && <Badge>Ongoing</Badge>}
+                      </div>
+                    </div>
+                    {isOwnProfile && (
+                      <div className="flex flex-col gap-2 ml-2">
+                        <Button variant="ghost" size="icon" onClick={() => { setEditingProject(p); setShowProjModal(true) }}><Pencil className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => setDeleting({ type: "project", item: p })}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                      </div>
                     )}
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {p.github_url && (
-                        <a href={p.github_url} target="_blank" className="text-blue-600 text-sm underline">
-                          GitHub
-                        </a>
-                      )}
-                      {p.project_url && (
-                        <a href={p.project_url} target="_blank" className="text-blue-600 text-sm underline">
-                          Live
-                        </a>
-                      )}
-                      {p.is_current && <Badge>Ongoing</Badge>}
-                    </div>
                   </div>
-                  {isOwnProfile && (
-                    <div className="flex flex-col gap-2 ml-2">
-                      <Button variant="ghost" size="icon" onClick={() => { setEditingProject(p); setShowProjModal(true) }}><Pencil className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleting({ type: "project", item: p })}><Trash2 className="w-4 h-4 text-red-500" /></Button>
-                    </div>
-                  )}
-                </div>
-              ))}
+                ))}
             </CardContent>
           </Card>
         </TabsContent>
@@ -245,85 +339,111 @@ export default function ProfileTabs({
             <CardHeader className="flex justify-between items-center">
               <CardTitle>Skills</CardTitle>
               {isOwnProfile && (
-                <Button variant="ghost" size="sm" onClick={() => { setEditingSkill(null); setShowSkillModal(true) }}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => { setEditingSkill(null); setShowSkillModal(true) }}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openOrderDialog('skills')}>Edit Order</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               )}
             </CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {skills.map((s) => (
-                <div key={s._id} className="flex justify-between items-center p-3 border rounded-lg">
-                  <span>{s.skill_name}</span>
-                  <div className="flex items-center gap-2">
-                    <Badge className={getSkillColor(s.proficiency_level)}>
-                      {s.proficiency_level}
-                    </Badge>
-                    {isOwnProfile && (
-                      <>
-                        <Button variant="ghost" size="icon" onClick={() => { setEditingSkill(s); setShowSkillModal(true) }}><Pencil className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => setDeleting({ type: "skill", item: s })}><Trash2 className="w-4 h-4 text-red-500" /></Button>
-                      </>
-                    )}
+              {skills
+                .slice()
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                .map((s) => (
+                  <div key={s._id} className="flex justify-between items-center p-3 border rounded-lg">
+                    <span>{s.skill_name}</span>
+                    <div className="flex items-center gap-2">
+                      <Badge className={getSkillColor(s.proficiency_level)}>
+                        {s.proficiency_level}
+                      </Badge>
+                      {isOwnProfile && (
+                        <>
+                          <Button variant="ghost" size="icon" onClick={() => { setEditingSkill(s); setShowSkillModal(true) }}><Pencil className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => setDeleting({ type: "skill", item: s })}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="achievements">
-  <Card>
-    <CardHeader className="flex justify-between items-center">
-      <CardTitle>Achievements</CardTitle>
-      {isOwnProfile && (
-        <Button variant="ghost" size="sm" onClick={() => {
-          setEditingAchievement(null);
-          setShowAchievementModal(true);
-        }}>
-          <Plus className="h-4 w-4" />
-        </Button>
-      )}
-    </CardHeader>
-    <CardContent className="space-y-4">
-      {achievements.map((a) => (
-        <div
-          key={a._id}
-          className="flex justify-between items-start p-4 border rounded-lg"
-        >
-          <div className="space-y-1">
-            <h4 className="font-semibold">{a.title}</h4>
-            {a.description && (
-              <p className="text-sm text-muted-foreground">{a.description}</p>
-            )}
-          </div>
-          {isOwnProfile && (
-            <div className="flex flex-col gap-2 ml-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  setEditingAchievement(a);
-                  setShowAchievementModal(true);
-                }}
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() =>
-                  setDeleting({ type: "achievement", item: a })
-                }
-              >
-                <Trash2 className="w-4 h-4 text-red-500" />
-              </Button>
-            </div>
-          )}
-        </div>
-      ))}
-    </CardContent>
-  </Card>
-</TabsContent>
+          <Card>
+            <CardHeader className="flex justify-between items-center">
+              <CardTitle>Achievements</CardTitle>
+              {isOwnProfile && (
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => {
+                    setEditingAchievement(null);
+                    setShowAchievementModal(true);
+                  }}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openOrderDialog('achievements')}>Edit Order</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {achievements
+                .slice()
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                .map((a) => (
+                  <div
+                    key={a._id}
+                    className="flex justify-between items-start p-4 border rounded-lg"
+                  >
+                    <div className="space-y-1">
+                      <h4 className="font-semibold">{a.title}</h4>
+                      {a.description && (
+                        <p className="text-sm text-muted-foreground">{a.description}</p>
+                      )}
+                    </div>
+                    {isOwnProfile && (
+                      <div className="flex flex-col gap-2 ml-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setEditingAchievement(a);
+                            setShowAchievementModal(true);
+                          }}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            setDeleting({ type: "achievement", item: a })
+                          }
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
       </Tabs>
 
@@ -346,6 +466,36 @@ export default function ProfileTabs({
           </div>
         </DialogContent>
       </Dialog>
+      {showOrderDialog && (
+        <Dialog open={!!showOrderDialog} onOpenChange={open => { if (!open) closeOrderDialog() }}>
+          <DialogContent className="max-w-md w-full">
+            <DialogHeader>
+              <DialogTitle>Edit Order</DialogTitle>
+            </DialogHeader>
+            <div className="py-2">
+              <ReactSortable
+                tag="div"
+                list={orderList}
+                setList={handleOrderChange}
+                animation={200}
+                handle=".drag-handle"
+              >
+                {orderList.map((item, idx) => (
+                  <div key={item._id} className="flex items-center justify-between p-2 border rounded mb-2 bg-muted">
+                    <span>{item.title || item.institution_name || item.position || item.skill_name}</span>
+                    <GripVertical className="drag-handle cursor-grab" />
+                  </div>
+                ))}
+              </ReactSortable>
+            </div>
+            {orderError && <div className="text-red-500 text-sm mb-2">{orderError}</div>}
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={closeOrderDialog} disabled={savingOrder}>Cancel</Button>
+              <Button variant="default" onClick={handleSaveOrder} disabled={savingOrder}>{savingOrder ? 'Saving...' : 'Save Order'}</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   )
 }

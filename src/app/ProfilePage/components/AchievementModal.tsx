@@ -11,6 +11,8 @@ export type Achievement = {
   _id?: string
   title: string
   description?: string
+  user_id?: string
+  order?: number
 }
 
 export default function AchievementModal({

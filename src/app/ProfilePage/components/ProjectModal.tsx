@@ -9,14 +9,16 @@ import { Trash2 } from "lucide-react"
 
 export type Project = {
   _id?: string
+  user_id?: string
   title: string
   description?: string
   technologies?: string[]
-  github_url?: string
   project_url?: string
-  is_current?: boolean
+  github_url?: string
   start_date?: string
   end_date?: string
+  is_current?: boolean
+  order?: number
 }
 
 export default function ProjectModal({

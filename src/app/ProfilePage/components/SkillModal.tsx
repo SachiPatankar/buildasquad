@@ -8,9 +8,12 @@ import { Trash2 } from "lucide-react"
 
 export type Skill = {
   _id?: string
+  user_id?: string
   skill_name: string
   proficiency_level: string
   years_experience?: number
+  is_top?: boolean
+  order?: number
 }
 
 const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced"]

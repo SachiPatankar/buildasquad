@@ -317,6 +317,7 @@ export const GET_ACHIEVEMENTS_BY_USER = gql`
       title
       description
       user_id
+      order
       created_at
       updated_at
     }
@@ -330,6 +331,7 @@ export const CREATE_ACHIEVEMENT = gql`
       title
       description
       user_id
+      order
       created_at
       updated_at
     }
@@ -342,6 +344,7 @@ export const UPDATE_ACHIEVEMENT = gql`
       _id
       title
       description
+      order
       updated_at
     }
   }
@@ -366,6 +369,7 @@ export const GET_EDUCATION_BY_USER = gql`
       is_current
       grade
       description
+      order
       created_at
       updated_at
     }
@@ -382,6 +386,7 @@ export const CREATE_EDUCATION = gql`
       start_date
       end_date
       is_current
+      order
       created_at
       updated_at
     }
@@ -393,6 +398,7 @@ export const UPDATE_EDUCATION = gql`
     updateEducation(educationId: $educationId, input: $input) {
       _id
       institution_name
+      order
       updated_at
     }
   }
@@ -416,6 +422,7 @@ export const GET_EXPERIENCE_BY_USER = gql`
       description
       location_id
       employment_type
+      order
       created_at
       updated_at
     }
@@ -431,6 +438,7 @@ export const CREATE_EXPERIENCE = gql`
       start_date
       end_date
       is_current
+      order
       created_at
       updated_at
     }
@@ -442,6 +450,7 @@ export const UPDATE_EXPERIENCE = gql`
     updateExperience(experienceId: $experienceId, input: $input) {
       _id
       position
+      order
       updated_at
     }
   }
@@ -465,6 +474,7 @@ export const GET_PROJECTS_BY_USER = gql`
       start_date
       end_date
       is_current
+      order
       created_at
       updated_at
     }
@@ -477,6 +487,7 @@ export const CREATE_PROJECT = gql`
       _id
       title
       technologies
+      order
       created_at
       updated_at
     }
@@ -488,6 +499,7 @@ export const UPDATE_PROJECT = gql`
     updateProject(projectId: $projectId, input: $input) {
       _id
       title
+      order
       updated_at
     }
   }
@@ -506,6 +518,7 @@ export const GET_SKILLS_BY_USER = gql`
       skill_name
       proficiency_level
       years_experience
+      order
       created_at
       updated_at
     }
@@ -519,6 +532,7 @@ export const CREATE_USER_SKILL = gql`
       skill_name
       proficiency_level
       years_experience
+      order
       created_at
       updated_at
     }
@@ -530,6 +544,7 @@ export const UPDATE_USER_SKILL = gql`
     updateUserSkill(userSkillId: $userSkillId, input: $input) {
       _id
       skill_name
+      order
       updated_at
     }
   }
@@ -564,6 +579,63 @@ export const LOAD_USER_BY_ID = gql`
     }
   }
 `
+
+export const CREATE_USER = gql`
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      _id
+      first_name
+      last_name
+      email
+      photo
+      title
+      bio
+      location_id
+      connections_count
+      links {
+        name
+        url
+      }
+      is_online
+      is_connection
+      last_seen
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_USER = gql`
+  mutation UpdateUser($input: UpdateUserInput!) {
+    updateUser(input: $input) {
+      _id
+      first_name
+      last_name
+      email
+      photo
+      title
+      bio
+      location_id
+      connections_count
+      links {
+        name
+        url
+      }
+      is_online
+      is_connection
+      last_seen
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($userId: String!) {
+    deleteUser(userId: $userId)
+  }
+`
+
 export const LOAD_PEOPLE = gql`
   query LoadPeople($page: Int, $limit: Int) {
     loadPeople(page: $page, limit: $limit) {
@@ -820,3 +892,12 @@ export const DELETE_MESSAGE = gql`
     deleteMessage(messageId: $messageId)
   }
 `;
+
+export const GET_PRESIGNED_URL = gql`
+  query GetPresignedUrl($fileType: String!, $folder: String) {
+    getPresignedUrl(fileType: $fileType, folder: $folder) {
+      upload_url
+      file_url
+    }
+  }
+`

@@ -16,6 +16,8 @@ export type Experience = {
   employment_type?: string
   description?: string
   is_current: boolean
+  location_id?: string
+  order?: number
 }
 
 export default function ExperienceModal({
