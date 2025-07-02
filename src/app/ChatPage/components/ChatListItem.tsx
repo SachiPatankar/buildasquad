@@ -1,16 +1,18 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useNavigate } from 'react-router-dom';
+
 interface ChatListItemProps {
   chat: any;
-  selected: boolean;
-  onClick: () => void;
+  chatId: string | null | undefined;
 }
 
-export default function ChatListItem({ chat, selected, onClick }: ChatListItemProps) {
+export default function ChatListItem({ chat, chatId }: ChatListItemProps) {
+  const navigate = useNavigate();
   const name = `${chat.first_name} ${chat.last_name}`.trim();
   return (
     <div
-      onClick={onClick}
-      className={`cursor-pointer px-4 py-3 border-b hover:bg-muted/40 transition-colors ${selected ? 'bg-muted' : ''}`}
+      className={`cursor-pointer px-4 py-3 border-b hover:bg-muted/40 transition-colors ${chatId === chat._id ? 'bg-muted' : ''}`}
+      onClick={() => navigate(`/chat/${chat._id}`)}
     >
       <div className="flex items-center gap-3">
         <div className="relative">

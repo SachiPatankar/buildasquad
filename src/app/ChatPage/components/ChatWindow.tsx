@@ -7,23 +7,28 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { GET_MESSAGES_FOR_CHAT, SEND_MESSAGE } from '@/graphql';
 import MessageBubble from './MessageBubble';
 import useAuthStore from '@/stores/userAuthStore';
+import { io, Socket } from 'socket.io-client';
 
 interface ChatWindowProps {
-  chat: any;
+  chatId: string | null | undefined;
+  firstName: string;
+  lastName: string | null | undefined;
+  photo: string | null | undefined;
 }
 
-function ChatWindow({ chat }: ChatWindowProps) {
+function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
   const authUser = useAuthStore((s) => s.user);
   const userId = authUser?._id;
   const [message, setMessage] = useState('');
   const { data, loading, refetch } = useQuery(GET_MESSAGES_FOR_CHAT, {
-    variables: { chatId: chat._id, page: 1, limit: 50 },
+    variables: { chatId: chatId, page: 1, limit: 50 },
     fetchPolicy: 'cache-and-network',
-    skip: !chat?._id,
+    skip: !chatId,
   });
   const [sendMessage] = useMutation(SEND_MESSAGE);
   const messages = data?.getMessagesForChat || [];
   const scrollRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -31,21 +36,53 @@ function ChatWindow({ chat }: ChatWindowProps) {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (!chatId) return;
+    if (!socketRef.current) {
+      socketRef.current = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000', {
+        withCredentials: true,
+      });
+    }
+    const socket = socketRef.current;
+    socket.emit('joinChat', chatId);
+    socket.on('receiveMessage', (msg: any) => {
+      if (msg.chat_id === chatId) {
+        refetch();
+      }
+    });
+    socket.on('updateMessage', (msg: any) => {
+      if (msg.chat_id === chatId) {
+        refetch();
+      }
+    });
+    socket.on('deleteMessage', (msg: any) => {
+      if (msg.chat_id === chatId) {
+        refetch();
+      }
+    });
+    return () => {
+      socket.emit('leaveChat', chatId);
+      socket.off('receiveMessage');
+      socket.off('updateMessage');
+      socket.off('deleteMessage');
+    };
+  }, [chatId, refetch]);
+
   const handleSend = async () => {
     if (!message.trim()) return;
-    await sendMessage({ variables: { chatId: chat._id, content: message } });
+    await sendMessage({ variables: { chatId: chatId, content: message } });
     setMessage('');
     refetch();
   };
 
-  const name = `${chat.first_name} ${chat.last_name}`.trim();
+  const name = `${firstName} ${lastName}`.trim();
 
   return (
     <div className="flex-1 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b bg-card flex items-center gap-3">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={chat.photo || '/placeholder.svg'} />
+          <AvatarImage src={photo || '/placeholder.svg'} />
           <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
         </Avatar>
         <div>

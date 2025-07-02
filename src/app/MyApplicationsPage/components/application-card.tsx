@@ -161,7 +161,7 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="pb-4">
+      <CardContent className="">
         <div className="space-y-4">
           <div>
             <h3 className="font-bold text-xl mb-2 leading-tight">{post.title}</h3>
@@ -170,19 +170,8 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
             )}
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-2">Tech Stack</h4>
-              <div className="flex flex-wrap gap-1.5">
-                {skills.map((skill) => (
-                  <Badge key={skill} variant="outline" className="text-xs">
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="">
+            <div className="flex items-center text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <MessageCircle className="h-4 w-4" />
                 <span>{interestedCount} applications</span>
@@ -192,10 +181,10 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
         </div>
       </CardContent>
 
-      <Separator className="mx-6" />
+   
 
       {/* Application details section */}
-      <CardContent className="pt-2 pb-4">
+      <CardContent className="">
         <div className="bg-muted rounded p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="font-semibold">Your Application</span>
@@ -212,9 +201,8 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
         </div>
       </CardContent>
 
-      <Separator className="mx-6" />
 
-      <CardFooter className="pt-4">
+      <CardFooter className="">
         <div className="flex items-center justify-between w-full gap-3">
           <Link to={`/post/${post._id}`} className="flex-1">
             <Button variant="default" size="sm" className="w-full gap-2">

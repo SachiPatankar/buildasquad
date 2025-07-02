@@ -162,6 +162,7 @@ export const LOAD_APPLICATIONS_BY_POST_ID = gql`
       location_id
       title
       bio
+      is_connection
       top_skills {
         _id
         skill_name
@@ -829,6 +830,15 @@ export const GET_MESSAGES_FOR_CHAT = gql`
       chat_id
       sender_id
       content
+      read_by {
+        user_id
+        read_at
+      }
+      edited_at
+      is_deleted
+      deleted_for
+      reply_to_message_id
+      reply_to_message_content
       created_at
       updated_at
     }
@@ -840,6 +850,7 @@ export const GET_CHAT_LIST_FOR_USER = gql`
     getChatListForUser {
       _id
       participant_ids
+      other_user_id
       is_active
       created_at
       updated_at

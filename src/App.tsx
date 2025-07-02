@@ -24,6 +24,8 @@ import ProtectedRoute from "@/components/ProtectedRoute"
 import SavedPostsPage from "./app/SavedPostPage/saved-posts"
 import MyApplicationsPage from "./app/MyApplicationsPage/my-applications"
 import NotificationsPage from "./app/NotificationsPage/page"
+import ContactsPage from "./app/ChatPage/contacts"
+import ContactsRequestsPage from "./app/ChatPage/contacts-requests"
 
 
 
@@ -64,6 +66,7 @@ function App() {
                 <Route path="projects" element={<HomePage />} />
                 <Route path="people" element={<PeoplePage />} />
                 <Route path="chat" element={<ChatPage />} />
+                <Route path="chat/:chatId" element={<ChatPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                  <Route path="profile/me" element={<ProfilePage />} />
                 <Route path="profile/:userId" element={<ProfilePage />} />
@@ -77,6 +80,9 @@ function App() {
                 <Route path="saved-posts" element={<SavedPostsPage />} />
                 <Route path="my-applications" element={<MyApplicationsPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="contacts/requests" element={<ContactsRequestsPage />} />
+                <Route path="contacts" element={<ContactsPage />} />
+                
               </Route>
             </Route>
             

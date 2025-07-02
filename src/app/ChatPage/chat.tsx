@@ -1,48 +1,37 @@
-import { useState } from "react"
-import { Search, Send, MoreVertical, Phone, Video, Paperclip, Smile } from "lucide-react"
+import { useState, useEffect } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { BookUser } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import ChatSidebar from './components/ChatSidebar'
 import ChatWindow from './components/ChatWindow'
-import ContactListDrawer from './components/ContactListDrawer'
+import { useQuery } from '@apollo/client';
+import { GET_CHAT_LIST_FOR_USER } from '@/graphql';
 
 // TODO: Replace with real user auth context/store
 const CURRENT_USER_ID = 'CURRENT_USER_ID' // Replace with actual current user id
 
 export default function ChatPage() {
-  const [selectedChat, setSelectedChat] = useState<any>(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)
-
-  const handleStartChat = (connection: any) => {
-    // Simulate starting a new chat with the connection (could trigger a mutation in a real app)
-    setSelectedChat({
-      _id: 'new',
-      participant_ids: [connection.requester_user_id, connection.addressee_user_id],
-      first_name: connection.first_name,
-      last_name: connection.last_name,
-      photo: connection.photo,
-      // Add any other fields as needed
-    })
-    setDrawerOpen(false)
-  }
+  const navigate = useNavigate();
+  const { chatId } = useParams();
+  const { data, loading } = useQuery(GET_CHAT_LIST_FOR_USER, { fetchPolicy: 'cache-and-network' });
+  const chats = data?.getChatListForUser || [];
+  const currentChat = chatId
+    ? chats.find((chat: any) => chat._id === chatId)
+    : undefined;
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto h-[calc(100vh-4rem)] flex">
         {/* Chat List Sidebar */}
         <ChatSidebar
-          selectedChatId={selectedChat?._id || null}
-          onSelectChat={setSelectedChat}
+          chats={chats}
+          chatId={chatId}
         />
         {/* Chat Window */}
         <div className="hidden md:flex flex-1 flex-col">
-          {selectedChat ? (
-            <ChatWindow chat={selectedChat} />
+          {chatId ? (
+            <ChatWindow chatId={chatId} firstName={currentChat?.first_name || ''} lastName={currentChat?.last_name || ''} photo={currentChat?.photo || ''} />
+
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
               Select a conversation to start messaging
@@ -55,14 +44,15 @@ export default function ChatPage() {
             <p>Select a conversation to start messaging</p>
           </div>
         </div>
-        {/* Floating Contacts Button */}
-        <button
-          className="fixed bottom-8 right-8 z-50 bg-primary text-white rounded-full shadow-lg p-4 hover:bg-primary/90"
-          onClick={() => setDrawerOpen(true)}
-        >
-          Contacts
-        </button>
-        <ContactListDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} onStartChat={handleStartChat} />
+        {/* Floating Contacts and Pending Requests Buttons */}
+        <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-3">
+          <Button
+            className="bg-primary text-white shadow-lg hover:bg-primary/90 w-16 h-16 rounded-full flex items-center justify-center"
+            onClick={() => navigate('/contacts')}
+          >
+            <BookUser className="w-14 h-14" />
+          </Button>
+        </div>
       </div>
     </div>
   )

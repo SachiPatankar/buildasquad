@@ -79,7 +79,10 @@ export default function ProfileHeader({ profileData, isOwnProfile }: Props) {
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex flex-col sm:flex-row flex-1 gap-4">
             <div className="relative">
-              <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+              <Avatar className="h-24 w-24 border-4 border-background shadow-lg"
+                onClick={isOwnProfile ? () => setShowAvatarDialog(true) : undefined}
+                style={isOwnProfile ? { cursor: 'pointer' } : {}}
+              >
                 <AvatarImage src={avatar} />
                 <AvatarFallback className="text-lg">
                   {profileData.name.split(' ').map(n => n[0]).join('')}
@@ -90,16 +93,6 @@ export default function ProfileHeader({ profileData, isOwnProfile }: Props) {
                   </div>
                 )}
               </Avatar>
-              {isOwnProfile && (
-                <button
-                  type="button"
-                  className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-2 shadow-lg hover:bg-primary/90 transition-colors border-2 border-background"
-                  onClick={() => setShowAvatarDialog(true)}
-                  title="Edit profile picture"
-                >
-                  <Pencil className="h-3 w-3" />
-                </button>
-              )}
             </div>
 
             <div className="flex-1">
