@@ -93,7 +93,7 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-4">
           {loading ? <div>Loading...</div> : messages.map((msg: any) => (
-            <MessageBubble key={msg._id} message={msg} isMe={msg.sender_id === userId} />
+            <MessageBubble key={msg._id} message={msg} isMe={String(msg.sender_id) === String(userId)} />
           ))}
         </div>
       </ScrollArea>

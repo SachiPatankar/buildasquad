@@ -7,8 +7,6 @@ import ChatWindow from './components/ChatWindow'
 import { useQuery } from '@apollo/client';
 import { GET_CHAT_LIST_FOR_USER } from '@/graphql';
 
-// TODO: Replace with real user auth context/store
-const CURRENT_USER_ID = 'CURRENT_USER_ID' // Replace with actual current user id
 
 export default function ChatPage() {
   const navigate = useNavigate();

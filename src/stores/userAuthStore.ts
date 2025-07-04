@@ -110,7 +110,16 @@ const useAuthStore = create<AuthState>()(
             // Import api here to avoid circular dependency
             const { getMe } = await import('@/api/index')
             const response = await getMe()
-            set({ user: response.data.user, isInitialized: true })
+            set({ 
+              user: {
+                _id: response.data.user.id || response.data.user._id,
+                email: response.data.user.email,
+                first_name: response.data.user.first_name,
+                last_name: response.data.user.last_name,
+                photo: response.data.user.photo,
+              }, 
+              isInitialized: true 
+            })
           } catch (error) {
             console.error('Failed to get user info:', error)
             // Token might be invalid, clear auth
@@ -123,7 +132,17 @@ const useAuthStore = create<AuthState>()(
       },
       
       setAuth: (token, user) => {
-        set({ token, user, isInitialized: true })
+        set({ 
+          token, 
+          user: user ? {
+            _id: user._id,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            photo: user.photo,
+          } : null, 
+          isInitialized: true 
+        })
       },
       
       clearAuth: () => {
