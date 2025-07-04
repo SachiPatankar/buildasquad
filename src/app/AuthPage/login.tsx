@@ -53,15 +53,15 @@ export default function LoginPage() {
   
     try {
       const response = await loginUser({ email, password })
-      const { token, user } = response.data
-  
+      const { accessToken, user } = response.data // Change from 'token' to 'accessToken'
+    
       // Store both token and user data directly
       const store = useAuthStore.getState()
-      store.setAuth(token, user)
-  
+      store.setAuth(accessToken, user) // Use accessToken
+    
       navigate('/projects')
     } catch (err: any) {
-      const message = err.response?.data?.error || 'Login failed'
+      const message = err.response?.data?.message || 'Login failed' // Change from 'error' to 'message'
       setError(message)
     }
   }

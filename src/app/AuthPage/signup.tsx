@@ -39,18 +39,11 @@ export default function SignupPage() {
         email,
         password,
       })
-  
-      const { token, email: userEmail } = response.data
-  
-      const user: User = {
-        _id: '', // You may want to fetch full user info later via /me
-        email: userEmail,
-        first_name: firstName,
-        last_name: lastName,
-      }
-  
-      useAuthStore.getState().setAuth(token, user)
-  
+    
+      const { accessToken, user } = response.data // Use accessToken and user from response
+    
+      useAuthStore.getState().setAuth(accessToken, user)
+    
       navigate('/') // Or wherever you want after signup
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Signup failed'

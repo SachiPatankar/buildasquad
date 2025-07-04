@@ -2,8 +2,6 @@
 
 import api from './api'
 
-/* AUTH API ENDPOINTS */
-const AUTH = '/v1/auth'
 
 export interface LoginParams {
   email: string
@@ -15,6 +13,20 @@ export interface SignupParams {
   email: string
   password: string
 }
+export interface LoginResponse {
+  user: any; // or define proper user interface
+  accessToken: string;
+  refreshToken: string;
+  message: string;
+}
+
+export interface SignupResponse {
+  user: any; // or define proper user interface
+  accessToken: string;
+  refreshToken: string;
+  message: string;
+}
+
 export interface ForgotPasswordParams {
   email: string
 }
@@ -26,10 +38,10 @@ export interface DeleteUserParams {
 }
 
 export const loginUser = (data: LoginParams) =>
-  api.post<{ email: string; token: string }>(`${AUTH}/login`, data)
+  api.post<LoginResponse>(`/v1/auth/login`, data)
 
 export const signupUser = (data: SignupParams) =>
-  api.post<{ email: string; token: string }>(`${AUTH}/signup`, data)
+  api.post<SignupResponse>(`/v1/auth/signup`, data)
 
 export const googleLogin = () => {
   window.location.href = `${import.meta.env.VITE_API_URL}/v1/auth/google`
@@ -40,7 +52,7 @@ export const githubLogin = () => {
 }
 
 export const forgotPassword = (data: ForgotPasswordParams) =>
-  api.post<{ status: string; message?: string }>(`${AUTH}/forgot-password`, data)
+  api.post<{ status: string; message?: string }>(`/v1/auth/forgot-password`, data)
 
 export const resetPassword = (
   id: string,
@@ -48,14 +60,9 @@ export const resetPassword = (
   data: ResetPasswordParams
 ) =>
   api.post<{ status: string }>(
-    `${AUTH}/reset-password/${id}/${token}`,
+    `/v1/auth/reset-password/${id}/${token}`,
     data
   )
 
-export const getUsers = () =>
-  api.get<Array<{ _id: string; first_name: string; last_name?: string; email: string }>>(
-    `${AUTH}/getUsers`
-    )
+export const getMe = () => api.get<{user:any}>('/v1/auth/me');
 
-export const deleteUser = (data: DeleteUserParams) =>
-  api.post<{ message: string }>(`${AUTH}/deleteUser`, data)

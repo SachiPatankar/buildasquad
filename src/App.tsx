@@ -13,7 +13,7 @@ import LoginPage from "./app/AuthPage/login"
 import SignupPage from "./app/AuthPage/signup"
 import ResetPasswordPage from "./app/AuthPage/reset-password"
 import ForgotPasswordPage from "./app/AuthPage/forgot-password"
-import OAuthCallbackPage from "@/app/AuthPage/oauth-callback"
+// import OAuthCallbackPage from "@/app/AuthPage/oauth-callback"
 
 import useAuthStore from "@/stores/userAuthStore"
 import { useEffect } from "react"
@@ -57,7 +57,7 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:id/:token" element={<ResetPasswordPage />} />
-            <Route path="/auth/callback" element={<OAuthCallbackPage />} />
+            {/* <Route path="/auth/callback" element={<OAuthCallbackPage />} /> */}
 
             {/* ── Protected Routes with Layout ───────────────────────── */}
             <Route element={<ProtectedRoute />}>
@@ -87,7 +87,7 @@ function App() {
             </Route>
             
             {/* Redirect any unknown paths to home or login */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
           </Routes>
         </div>
       </ThemeProvider>
