@@ -26,6 +26,7 @@ import MyApplicationsPage from "./app/MyApplicationsPage/my-applications"
 import NotificationsPage from "./app/NotificationsPage/page"
 import ContactsPage from "./app/ChatPage/contacts"
 import ContactsRequestsPage from "./app/ChatPage/contacts-requests"
+import OAuthCallback from "./app/AuthPage/oauth-callback"
 
 
 
@@ -57,7 +58,7 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:id/:token" element={<ResetPasswordPage />} />
-            {/* <Route path="/auth/callback" element={<OAuthCallbackPage />} /> */}
+            <Route path="/oauth-callback" element={<OAuthCallback />} />
 
             {/* ── Protected Routes with Layout ───────────────────────── */}
             <Route element={<ProtectedRoute />}>

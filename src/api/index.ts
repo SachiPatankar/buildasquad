@@ -66,3 +66,6 @@ export const resetPassword = (
 
 export const getMe = () => api.get<{user:any}>('/v1/auth/me');
 
+export const logout = () =>
+  api.post(`/v1/auth/logout`)
+
