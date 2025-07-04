@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,12 +20,31 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
   const authUser = useAuthStore((s) => s.user);
   const userId = authUser?._id;
   const [message, setMessage] = useState('');
-  const { data, loading, refetch } = useQuery(GET_MESSAGES_FOR_CHAT, {
+  const { data, loading } = useQuery(GET_MESSAGES_FOR_CHAT, {
     variables: { chatId: chatId, page: 1, limit: 50 },
     fetchPolicy: 'cache-and-network',
     skip: !chatId,
   });
-  const [sendMessage] = useMutation(SEND_MESSAGE);
+  const client = useApolloClient();
+  const [sendMessage] = useMutation(SEND_MESSAGE, {
+    update(cache, { data }) {
+      if (!data?.sendMessage) return;
+      const newMsg = data.sendMessage;
+      const existing = cache.readQuery({
+        query: GET_MESSAGES_FOR_CHAT,
+        variables: { chatId, page: 1, limit: 50 },
+      }) as { getMessagesForChat: any[] } | null;
+      if (existing && existing.getMessagesForChat) {
+        cache.writeQuery({
+          query: GET_MESSAGES_FOR_CHAT,
+          variables: { chatId, page: 1, limit: 50 },
+          data: {
+            getMessagesForChat: [...existing.getMessagesForChat, newMsg],
+          },
+        });
+      }
+    },
+  });
   const messages = data?.getMessagesForChat || [];
   const scrollRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -45,19 +64,43 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
     }
     const socket = socketRef.current;
     socket.emit('joinChat', chatId);
+    // Helper to update cache for new/updated/deleted messages
+    const updateCache = (msg: any, type: 'add' | 'update' | 'delete') => {
+      const existing = client.readQuery({
+        query: GET_MESSAGES_FOR_CHAT,
+        variables: { chatId, page: 1, limit: 50 },
+      }) as { getMessagesForChat: any[] } | null;
+      if (!existing || !existing.getMessagesForChat) return;
+      let updatedMessages = existing.getMessagesForChat;
+      if (type === 'add') {
+        // Avoid duplicates
+        if (!updatedMessages.some((m: any) => m._id === msg._id)) {
+          updatedMessages = [...updatedMessages, msg];
+        }
+      } else if (type === 'update') {
+        updatedMessages = updatedMessages.map((m: any) => m._id === msg._id ? { ...m, ...msg } : m);
+      } else if (type === 'delete') {
+        updatedMessages = updatedMessages.filter((m: any) => m._id !== msg._id);
+      }
+      client.writeQuery({
+        query: GET_MESSAGES_FOR_CHAT,
+        variables: { chatId, page: 1, limit: 50 },
+        data: { getMessagesForChat: updatedMessages },
+      });
+    };
     socket.on('receiveMessage', (msg: any) => {
       if (msg.chat_id === chatId) {
-        refetch();
+        updateCache(msg, 'add');
       }
     });
     socket.on('updateMessage', (msg: any) => {
       if (msg.chat_id === chatId) {
-        refetch();
+        updateCache(msg, 'update');
       }
     });
     socket.on('deleteMessage', (msg: any) => {
       if (msg.chat_id === chatId) {
-        refetch();
+        updateCache(msg, 'delete');
       }
     });
     return () => {
@@ -66,13 +109,13 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
       socket.off('updateMessage');
       socket.off('deleteMessage');
     };
-  }, [chatId, refetch]);
+  }, [chatId, client]);
 
   const handleSend = async () => {
     if (!message.trim()) return;
     await sendMessage({ variables: { chatId: chatId, content: message } });
     setMessage('');
-    refetch();
+    // No refetch needed, cache is updated optimistically
   };
 
   const name = `${firstName} ${lastName}`.trim();
