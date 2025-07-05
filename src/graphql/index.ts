@@ -326,8 +326,8 @@ export const GET_ACHIEVEMENTS_BY_USER = gql`
 `
 
 export const CREATE_ACHIEVEMENT = gql`
-  mutation CreateAchievement($userId: String, $input: CreateAchievementInput!) {
-    createAchievement(userId: $userId, input: $input) {
+  mutation CreateAchievement($input: CreateAchievementInput!) {
+    createAchievement(input: $input) {
       _id
       title
       description
@@ -378,8 +378,8 @@ export const GET_EDUCATION_BY_USER = gql`
 `
 
 export const CREATE_EDUCATION = gql`
-  mutation CreateEducation($userId: String, $input: CreateEducationInput!) {
-    createEducation(userId: $userId, input: $input) {
+  mutation CreateEducation($input: CreateEducationInput!) {
+    createEducation(input: $input) {
       _id
       institution_name
       degree
@@ -399,6 +399,11 @@ export const UPDATE_EDUCATION = gql`
     updateEducation(educationId: $educationId, input: $input) {
       _id
       institution_name
+      degree
+      field_of_study
+      start_date
+      end_date
+      is_current
       order
       updated_at
     }
@@ -431,14 +436,17 @@ export const GET_EXPERIENCE_BY_USER = gql`
 `
 
 export const CREATE_EXPERIENCE = gql`
-  mutation CreateExperience($userId: String, $input: CreateExperienceInput!) {
-    createExperience(userId: $userId, input: $input) {
+  mutation CreateExperience($input: CreateExperienceInput!) {
+    createExperience(input: $input) {
       _id
       company_name
       position
       start_date
       end_date
       is_current
+      description
+      location_id
+      employment_type
       order
       created_at
       updated_at
@@ -450,7 +458,14 @@ export const UPDATE_EXPERIENCE = gql`
   mutation UpdateExperience($experienceId: String!, $input: UpdateExperienceInput!) {
     updateExperience(experienceId: $experienceId, input: $input) {
       _id
+      company_name
       position
+      start_date
+      end_date
+      is_current
+      description
+      location_id
+      employment_type
       order
       updated_at
     }
@@ -483,11 +498,17 @@ export const GET_PROJECTS_BY_USER = gql`
 `
 
 export const CREATE_PROJECT = gql`
-  mutation CreateProject($userId: String, $input: CreateProjectInput!) {
-    createProject(userId: $userId, input: $input) {
+  mutation CreateProject($input: CreateProjectInput!) {
+    createProject(input: $input) {
       _id
-      title
+       title
+      description
       technologies
+      project_url
+      github_url
+      start_date
+      end_date
+      is_current
       order
       created_at
       updated_at
@@ -500,6 +521,13 @@ export const UPDATE_PROJECT = gql`
     updateProject(projectId: $projectId, input: $input) {
       _id
       title
+      description
+      technologies
+      project_url
+      github_url
+      start_date
+      end_date
+      is_current
       order
       updated_at
     }
@@ -527,8 +555,8 @@ export const GET_SKILLS_BY_USER = gql`
 `
 
 export const CREATE_USER_SKILL = gql`
-  mutation CreateUserSkill($userId: String, $input: CreateUserSkillInput!) {
-    createUserSkill(userId: $userId, input: $input) {
+  mutation CreateUserSkill($input: CreateUserSkillInput!) {
+    createUserSkill( input: $input) {
       _id
       skill_name
       proficiency_level
@@ -545,6 +573,8 @@ export const UPDATE_USER_SKILL = gql`
     updateUserSkill(userSkillId: $userSkillId, input: $input) {
       _id
       skill_name
+      proficiency_level
+      years_experience
       order
       updated_at
     }

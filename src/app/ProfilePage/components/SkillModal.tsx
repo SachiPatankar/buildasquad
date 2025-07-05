@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_USER_SKILL, UPDATE_USER_SKILL, DELETE_USER_SKILL } from "@/graphql"
+import { CREATE_USER_SKILL, UPDATE_USER_SKILL, DELETE_USER_SKILL, GET_SKILLS_BY_USER } from "@/graphql"
 import { Trash2 } from "lucide-react"
+import { useParams } from "react-router-dom"
 
 export type Skill = {
   _id?: string
@@ -21,7 +22,7 @@ const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced"]
 export default function SkillModal({
   open,
   onClose,
-  userId,
+  userId: userIdProp,
   skill,
 }: {
   open: boolean
@@ -29,6 +30,8 @@ export default function SkillModal({
   userId?: string
   skill?: Skill | null
 }) {
+  const { userId: userIdFromParams } = useParams<{ userId?: string }>()
+  const userId = userIdProp || userIdFromParams
   const [skillName, setSkillName] = useState("")
   const [proficiencyLevel, setProficiencyLevel] = useState("")
   const [yearsExperience, setYearsExperience] = useState("")
@@ -47,20 +50,23 @@ export default function SkillModal({
 
   const [createSkill, { loading: creating, error: createError }] = useMutation(CREATE_USER_SKILL, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_SKILLS_BY_USER, variables: { userId } }],
   })
   const [updateSkill, { loading: updating, error: updateError }] = useMutation(UPDATE_USER_SKILL, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_SKILLS_BY_USER, variables: { userId } }],
   })
   const [deleteSkill, { loading: deleting, error: deleteError }] = useMutation(DELETE_USER_SKILL, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_SKILLS_BY_USER, variables: { userId } }],
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const input = {
       skill_name: skillName,
-      proficiency_level: proficiencyLevel,
-      years_experience: yearsExperience ? Number(yearsExperience) : undefined,
+      proficiency_level: proficiencyLevel.toLowerCase(),
+      years_experience: yearsExperience ? Number(yearsExperience) : null,
     }
     if (skill && skill._id) {
       updateSkill({ variables: { userSkillId: skill._id, input } })

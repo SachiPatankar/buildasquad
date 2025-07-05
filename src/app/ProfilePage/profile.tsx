@@ -16,7 +16,7 @@ export default function ProfilePage() {
   const { userId } = useParams<{ userId?: string }>()
   const isOwnProfile = !userId
 
-  const { data: userData } = useQuery(LOAD_USER_BY_ID, {
+  const { data: userData, refetch: refetchUserData } = useQuery(LOAD_USER_BY_ID, {
     variables: userId ? { userId } : undefined,
     skip: !isOwnProfile && !userId,
   })
@@ -59,7 +59,11 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto p-4 lg:p-6 space-y-6">
-        <ProfileHeader profileData={profile} isOwnProfile={isOwnProfile} />
+        <ProfileHeader 
+          profileData={profile} 
+          isOwnProfile={isOwnProfile} 
+          onUserDataUpdate={refetchUserData}
+        />
         <ProfileTabs
           isOwnProfile={isOwnProfile}
           education={educationData?.getEducationByUser ?? []}

@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_EXPERIENCE, UPDATE_EXPERIENCE, DELETE_EXPERIENCE } from "@/graphql"
+import { CREATE_EXPERIENCE, UPDATE_EXPERIENCE, DELETE_EXPERIENCE, GET_EXPERIENCE_BY_USER } from "@/graphql"
 import { Trash2 } from "lucide-react"
+import { useParams } from "react-router-dom"
 
 export type Experience = {
   _id?: string
@@ -23,7 +24,7 @@ export type Experience = {
 export default function ExperienceModal({
   open,
   onClose,
-  userId,
+  userId: userIdProp,
   experience,
 }: {
   open: boolean
@@ -31,6 +32,8 @@ export default function ExperienceModal({
   userId?: string
   experience?: Experience | null
 }) {
+  const { userId: userIdFromParams } = useParams<{ userId?: string }>()
+  const userId = userIdProp || userIdFromParams
   const [companyName, setCompanyName] = useState("")
   const [position, setPosition] = useState("")
   const [startDate, setStartDate] = useState("")
@@ -59,14 +62,25 @@ export default function ExperienceModal({
     }
   }, [experience, open])
 
+  // Handle isCurrent toggle - clear endDate when current
+  const handleIsCurrentChange = (checked: boolean) => {
+    setIsCurrent(checked)
+    if (checked) {
+      setEndDate("")
+    }
+  }
+
   const [createExperience, { loading: creating, error: createError }] = useMutation(CREATE_EXPERIENCE, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_EXPERIENCE_BY_USER, variables: { userId } }],
   })
   const [updateExperience, { loading: updating, error: updateError }] = useMutation(UPDATE_EXPERIENCE, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_EXPERIENCE_BY_USER, variables: { userId } }],
   })
   const [deleteExperience, { loading: deleting, error: deleteError }] = useMutation(DELETE_EXPERIENCE, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_EXPERIENCE_BY_USER, variables: { userId } }],
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,10 +89,10 @@ export default function ExperienceModal({
       company_name: companyName,
       position,
       start_date: startDate,
-      end_date: isCurrent ? null : endDate,
+      end_date: isCurrent ? null : (endDate || null),
       is_current: isCurrent,
-      description: description || undefined,
-      employment_type: employmentType || undefined,
+      description: description || null,
+      employment_type: employmentType || null,
     }
     if (experience && experience._id) {
       updateExperience({ variables: { experienceId: experience._id, input } })
@@ -131,7 +145,7 @@ export default function ExperienceModal({
             <input
               type="checkbox"
               checked={isCurrent}
-              onChange={e => setIsCurrent(e.target.checked)}
+              onChange={e => handleIsCurrentChange(e.target.checked)}
               id="isCurrent"
             />
             <label htmlFor="isCurrent">I currently work here</label>

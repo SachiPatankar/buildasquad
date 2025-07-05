@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_ACHIEVEMENT, UPDATE_ACHIEVEMENT, DELETE_ACHIEVEMENT } from "@/graphql"
+import { CREATE_ACHIEVEMENT, UPDATE_ACHIEVEMENT, DELETE_ACHIEVEMENT, GET_ACHIEVEMENTS_BY_USER } from "@/graphql"
 import { Trash2 } from "lucide-react"
+import { useParams } from "react-router-dom"
 
 export type Achievement = {
   _id?: string
@@ -18,7 +19,7 @@ export type Achievement = {
 export default function AchievementModal({
   open,
   onClose,
-  userId,
+  userId: userIdProp,
   achievement,
 }: {
   open: boolean
@@ -26,6 +27,8 @@ export default function AchievementModal({
   userId?: string
   achievement?: Achievement | null
 }) {
+  const { userId: userIdFromParams } = useParams<{ userId?: string }>()
+  const userId = userIdProp || userIdFromParams
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
 
@@ -41,19 +44,22 @@ export default function AchievementModal({
 
   const [createAchievement, { loading: creating, error: createError }] = useMutation(CREATE_ACHIEVEMENT, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_ACHIEVEMENTS_BY_USER, variables: { userId } }],
   })
   const [updateAchievement, { loading: updating, error: updateError }] = useMutation(UPDATE_ACHIEVEMENT, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_ACHIEVEMENTS_BY_USER, variables: { userId } }],
   })
   const [deleteAchievement, { loading: deleting, error: deleteError }] = useMutation(DELETE_ACHIEVEMENT, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_ACHIEVEMENTS_BY_USER, variables: { userId } }],
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const input = {
       title,
-      description: description || undefined,
+      description: description || null,
     }
     if (achievement && achievement._id) {
       updateAchievement({ variables: { achievementId: achievement._id, input } })

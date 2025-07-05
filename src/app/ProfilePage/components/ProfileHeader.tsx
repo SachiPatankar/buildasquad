@@ -23,9 +23,10 @@ interface Props {
     links?: { name: string; url: string }[]
   }
   isOwnProfile: boolean
+  onUserDataUpdate?: () => Promise<any>
 }
 
-export default function ProfileHeader({ profileData, isOwnProfile }: Props) {
+export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpdate }: Props) {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showAvatarDialog, setShowAvatarDialog] = useState(false)
   const [avatar, setAvatar] = useState(profileData.avatar)
@@ -60,6 +61,10 @@ export default function ProfileHeader({ profileData, isOwnProfile }: Props) {
       // 3. Update user profile with new photo URL
       await updateUser({ variables: { input: { photo: file_url } } })
       setAvatar(file_url)
+      // 4. Refetch user data to update the profile
+      if (onUserDataUpdate) {
+        await onUserDataUpdate()
+      }
     } catch (err) {
       console.error("Avatar upload failed", err)
     } finally {
@@ -67,10 +72,25 @@ export default function ProfileHeader({ profileData, isOwnProfile }: Props) {
     }
   }
 
-  const handleAvatarRemove = () => {
-    setAvatar("")
-    // TODO: Remove from server here
-    console.log('Avatar removed')
+  const handleAvatarRemove = async () => {
+    try {
+      await updateUser({ variables: { input: { photo: null } } })
+      setAvatar("")
+      // Refetch user data to update the profile
+      if (onUserDataUpdate) {
+        await onUserDataUpdate()
+      }
+    } catch (err) {
+      console.error("Avatar removal failed", err)
+    }
+  }
+
+  const handleUserInfoUpdate = async () => {
+    setShowEditModal(false)
+    // Refetch user data to update the profile
+    if (onUserDataUpdate) {
+      await onUserDataUpdate()
+    }
   }
 
   return (
@@ -160,10 +180,7 @@ export default function ProfileHeader({ profileData, isOwnProfile }: Props) {
             open={showEditModal}
             onClose={() => setShowEditModal(false)}
             initialData={userInfo}
-            onUpdated={() => {
-              setShowEditModal(false)
-              // Optionally trigger a refetch or update parent state here
-            }}
+            onUpdated={handleUserInfoUpdate}
           />
           <AvatarCropDialog
             open={showAvatarDialog}

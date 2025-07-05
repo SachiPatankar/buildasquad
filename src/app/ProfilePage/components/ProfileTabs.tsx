@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,6 +19,7 @@ import { useMutation } from "@apollo/client"
 import { DELETE_EDUCATION, DELETE_EXPERIENCE, DELETE_PROJECT, DELETE_USER_SKILL, GET_EDUCATION_BY_USER, GET_EXPERIENCE_BY_USER, GET_PROJECTS_BY_USER, GET_SKILLS_BY_USER, DELETE_ACHIEVEMENT, GET_ACHIEVEMENTS_BY_USER, UPDATE_EDUCATION, UPDATE_EXPERIENCE, UPDATE_PROJECT, UPDATE_USER_SKILL, UPDATE_ACHIEVEMENT } from "@/graphql"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { ReactSortable } from 'react-sortablejs'
+import { useSearchParams, useParams } from "react-router-dom"
 
 interface ProfileTabsProps {
   isOwnProfile: boolean
@@ -37,6 +38,14 @@ export default function ProfileTabs({
   skills, 
   achievements,
 }: ProfileTabsProps) {
+  const { userId } = useParams<{ userId?: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [activeTab, setActiveTab] = useState(() => {
+    const tabParam = searchParams.get('tab')
+    const validTabs = ['education', 'experience', 'projects', 'skills', 'achievements']
+    return validTabs.includes(tabParam || '') ? (tabParam as string) : 'education'
+  })
+
   const [showEduModal, setShowEduModal] = useState(false)
   const [showExpModal, setShowExpModal] = useState(false)
   const [showProjModal, setShowProjModal] = useState(false)
@@ -59,9 +68,6 @@ export default function ProfileTabs({
     item: any
   }>({ type: null, item: null })
 
-  // TODO: Replace with actual userId if available in props or context
-  const userId = undefined;
-
   // Delete mutations with refetchQueries
   const [deleteEducationMutation] = useMutation(DELETE_EDUCATION, {
     refetchQueries: [{ query: GET_EDUCATION_BY_USER, variables: { userId } }],
@@ -80,11 +86,21 @@ export default function ProfileTabs({
   })
 
   // Update mutations with refetchQueries
-  const [updateEducationMutation] = useMutation(UPDATE_EDUCATION, { refetchQueries: [{ query: GET_EDUCATION_BY_USER, variables: { userId } }] })
-  const [updateExperienceMutation] = useMutation(UPDATE_EXPERIENCE, { refetchQueries: [{ query: GET_EXPERIENCE_BY_USER, variables: { userId } }] })
-  const [updateProjectMutation] = useMutation(UPDATE_PROJECT, { refetchQueries: [{ query: GET_PROJECTS_BY_USER, variables: { userId } }] })
-  const [updateUserSkillMutation] = useMutation(UPDATE_USER_SKILL, { refetchQueries: [{ query: GET_SKILLS_BY_USER, variables: { userId } }] })
-  const [updateAchievementMutation] = useMutation(UPDATE_ACHIEVEMENT, { refetchQueries: [{ query: GET_ACHIEVEMENTS_BY_USER, variables: { userId } }] })
+  const [updateEducationMutation] = useMutation(UPDATE_EDUCATION, { 
+    refetchQueries: [{ query: GET_EDUCATION_BY_USER, variables: { userId } }] 
+  })
+  const [updateExperienceMutation] = useMutation(UPDATE_EXPERIENCE, { 
+    refetchQueries: [{ query: GET_EXPERIENCE_BY_USER, variables: { userId } }] 
+  })
+  const [updateProjectMutation] = useMutation(UPDATE_PROJECT, { 
+    refetchQueries: [{ query: GET_PROJECTS_BY_USER, variables: { userId } }] 
+  })
+  const [updateUserSkillMutation] = useMutation(UPDATE_USER_SKILL, { 
+    refetchQueries: [{ query: GET_SKILLS_BY_USER, variables: { userId } }] 
+  })
+  const [updateAchievementMutation] = useMutation(UPDATE_ACHIEVEMENT, { 
+    refetchQueries: [{ query: GET_ACHIEVEMENTS_BY_USER, variables: { userId } }] 
+  })
 
   // Delete handlers (to be implemented with GraphQL mutations)
   const handleDelete = async () => {
@@ -174,9 +190,14 @@ export default function ProfileTabs({
     setSavingOrder(false)
   }
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    setSearchParams({ tab: value })
+  }
+
   return (
     <>
-      <Tabs defaultValue="education" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="flex overflow-x-auto space-x-2 sm:justify-center">
           <TabsTrigger value="education">Education</TabsTrigger>
           <TabsTrigger value="experience">Experience</TabsTrigger>
@@ -214,6 +235,9 @@ export default function ProfileTabs({
                     <div>
                       <h4 className="font-semibold">{e.institution_name}</h4>
                       <p className="text-muted-foreground">{e.degree} — {e.field_of_study}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(e.start_date)} - {e.is_current ? 'Present' : e.end_date ? formatDate(e.end_date) : 'N/A'}
+                      </p>
                       {e.grade && <p className="text-sm text-muted-foreground">Grade: {e.grade}</p>}
                       {e.description && <p className="text-sm">{e.description}</p>}
                     </div>
@@ -448,11 +472,11 @@ export default function ProfileTabs({
       </Tabs>
 
       {/* Modals */}
-      <EducationModal open={showEduModal} onClose={() => { setShowEduModal(false); setEditingEducation(null) }} userId={undefined} education={editingEducation as Education | null | undefined} />
-      <ExperienceModal open={showExpModal} onClose={() => { setShowExpModal(false); setEditingExperience(null) }} userId={undefined} experience={editingExperience as Experience | null | undefined} />
-      <ProjectModal open={showProjModal} onClose={() => { setShowProjModal(false); setEditingProject(null) }} userId={undefined} project={editingProject as Project | null | undefined} />
-      <SkillModal open={showSkillModal} onClose={() => { setShowSkillModal(false); setEditingSkill(null) }} userId={undefined} skill={editingSkill as Skill | null | undefined} />
-      <AchievementModal open={showAchievementModal} onClose={() => { setShowAchievementModal(false); setEditingAchievement(null) }} userId={undefined} achievement={editingAchievement as Achievement | null | undefined} />
+      <EducationModal open={showEduModal} onClose={() => { setShowEduModal(false); setEditingEducation(null) }} education={editingEducation as Education | null | undefined} />
+      <ExperienceModal open={showExpModal} onClose={() => { setShowExpModal(false); setEditingExperience(null) }} experience={editingExperience as Experience | null | undefined} />
+      <ProjectModal open={showProjModal} onClose={() => { setShowProjModal(false); setEditingProject(null) }} project={editingProject as Project | null | undefined} />
+      <SkillModal open={showSkillModal} onClose={() => { setShowSkillModal(false); setEditingSkill(null) }} skill={editingSkill as Skill | null | undefined} />
+      <AchievementModal open={showAchievementModal} onClose={() => { setShowAchievementModal(false); setEditingAchievement(null) }} achievement={editingAchievement as Achievement | null | undefined} />
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleting.type} onOpenChange={open => { if (!open) setDeleting({ type: null, item: null }) }}>
         <DialogContent>

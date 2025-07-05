@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_PROJECT, UPDATE_PROJECT, DELETE_PROJECT } from "@/graphql"
+import { CREATE_PROJECT, UPDATE_PROJECT, DELETE_PROJECT, GET_PROJECTS_BY_USER } from "@/graphql"
 import { Trash2 } from "lucide-react"
+import { useParams } from "react-router-dom"
 
 export type Project = {
   _id?: string
@@ -24,7 +25,7 @@ export type Project = {
 export default function ProjectModal({
   open,
   onClose,
-  userId,
+  userId: userIdProp,
   project,
 }: {
   open: boolean
@@ -32,6 +33,8 @@ export default function ProjectModal({
   userId?: string
   project?: Project | null
 }) {
+  const { userId: userIdFromParams } = useParams<{ userId?: string }>()
+  const userId = userIdProp || userIdFromParams
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [technologies, setTechnologies] = useState<string[]>([])
@@ -65,27 +68,38 @@ export default function ProjectModal({
     setTechInput("")
   }, [project, open])
 
+  // Handle isCurrent toggle - clear endDate when current
+  const handleIsCurrentChange = (checked: boolean) => {
+    setIsCurrent(checked)
+    if (checked) {
+      setEndDate("")
+    }
+  }
+
   const [createProject, { loading: creating, error: createError }] = useMutation(CREATE_PROJECT, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_PROJECTS_BY_USER, variables: { userId } }],
   })
   const [updateProject, { loading: updating, error: updateError }] = useMutation(UPDATE_PROJECT, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_PROJECTS_BY_USER, variables: { userId } }],
   })
   const [deleteProject, { loading: deleting, error: deleteError }] = useMutation(DELETE_PROJECT, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_PROJECTS_BY_USER, variables: { userId } }],
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const input = {
       title,
-      description: description || undefined,
-      technologies,
-      github_url: githubUrl || undefined,
-      project_url: projectUrl || undefined,
+      description: description || null,
+      technologies: technologies.length > 0 ? technologies : null,
+      github_url: githubUrl || null,
+      project_url: projectUrl || null,
       is_current: isCurrent,
-      start_date: startDate || undefined,
-      end_date: isCurrent ? null : endDate || undefined,
+      start_date: startDate || null,
+      end_date: isCurrent ? null : (endDate || null),
     }
     if (project && project._id) {
       updateProject({ variables: { projectId: project._id, input } })
@@ -185,7 +199,7 @@ export default function ProjectModal({
             <input
               type="checkbox"
               checked={isCurrent}
-              onChange={e => setIsCurrent(e.target.checked)}
+              onChange={e => handleIsCurrentChange(e.target.checked)}
               id="projIsCurrent"
             />
             <label htmlFor="projIsCurrent">Ongoing project</label>

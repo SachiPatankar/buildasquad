@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_EDUCATION, UPDATE_EDUCATION, DELETE_EDUCATION } from "@/graphql"
+import { CREATE_EDUCATION, UPDATE_EDUCATION, DELETE_EDUCATION, GET_EDUCATION_BY_USER } from "@/graphql"
 import { Trash2 } from "lucide-react"
+import { useParams } from "react-router-dom"
 
 export type Education = {
   _id?: string
@@ -23,14 +24,13 @@ export type Education = {
 export default function EducationModal({
   open,
   onClose,
-  userId,
   education,
 }: {
   open: boolean
   onClose: () => void
-  userId?: string
   education?: Education | null
 }) {
+  const { userId } = useParams<{ userId?: string }>()
   const [institutionName, setInstitutionName] = useState("")
   const [degree, setDegree] = useState("")
   const [fieldOfStudy, setFieldOfStudy] = useState("")
@@ -62,14 +62,25 @@ export default function EducationModal({
     }
   }, [education, open])
 
+  // Handle isCurrent toggle - clear endDate when current
+  const handleIsCurrentChange = (checked: boolean) => {
+    setIsCurrent(checked)
+    if (checked) {
+      setEndDate("")
+    }
+  }
+
   const [createEducation, { loading: creating, error: createError }] = useMutation(CREATE_EDUCATION, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_EDUCATION_BY_USER, variables: { userId } }],
   })
   const [updateEducation, { loading: updating, error: updateError }] = useMutation(UPDATE_EDUCATION, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_EDUCATION_BY_USER, variables: { userId } }],
   })
   const [deleteEducation, { loading: deleting, error: deleteError }] = useMutation(DELETE_EDUCATION, {
     onCompleted: onClose,
+    refetchQueries: [{ query: GET_EDUCATION_BY_USER, variables: { userId } }],
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -78,16 +89,16 @@ export default function EducationModal({
       institution_name: institutionName,
       degree,
       field_of_study: fieldOfStudy,
-      grade: grade || undefined,
-      description: description || undefined,
+      grade: grade || null, // Send null instead of empty string
+      description: description || null, // Send null instead of empty string
       start_date: startDate,
-      end_date: isCurrent ? null : endDate,
+      end_date: isCurrent ? null : (endDate || null), // Send null instead of empty string
       is_current: isCurrent,
     }
     if (education && education._id) {
       updateEducation({ variables: { educationId: education._id, input } })
     } else {
-      createEducation({ variables: { userId, input } })
+      createEducation({ variables: {  input } })
     }
   }
 
@@ -146,7 +157,7 @@ export default function EducationModal({
             <input
               type="checkbox"
               checked={isCurrent}
-              onChange={e => setIsCurrent(e.target.checked)}
+              onChange={e => handleIsCurrentChange(e.target.checked)}
               id="eduIsCurrent"
             />
             <label htmlFor="eduIsCurrent">I currently study here</label>

@@ -13,7 +13,7 @@ export type UserInfo = {
   bio?: string;
   location_id?: string;
   photo?: string;
-  links?: { name: string; url: string }[];
+  links?: { __typename?: string; name: string; url: string }[];
 };
 
 export default function UserInfoModal({
@@ -41,7 +41,11 @@ export default function UserInfoModal({
       setTitle(initialData.title || "");
       setBio(initialData.bio || "");
       setLocationId(initialData.location_id || "");
-      setLinks(initialData.links || []);
+      // Strip __typename from links to match LinkInput type
+      setLinks((initialData.links || []).map(link => ({
+        name: link.name,
+        url: link.url
+      })));
     }
   }, [initialData, open]);
 
@@ -75,24 +79,26 @@ export default function UserInfoModal({
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
         <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="firstName" className="block mb-1 font-medium">First Name</label>
-            <Input
-              id="firstName"
-              placeholder="First Name"
-              value={firstName}
-              onChange={e => setFirstName(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="lastName" className="block mb-1 font-medium">Last Name</label>
-            <Input
-              id="lastName"
-              placeholder="Last Name"
-              value={lastName}
-              onChange={e => setLastName(e.target.value)}
-            />
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label htmlFor="firstName" className="block mb-1 font-medium">First Name</label>
+              <Input
+                id="firstName"
+                placeholder="First Name"
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex-1">
+              <label htmlFor="lastName" className="block mb-1 font-medium">Last Name</label>
+              <Input
+                id="lastName"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+              />
+            </div>
           </div>
           <div>
             <label htmlFor="title" className="block mb-1 font-medium">Title</label>
