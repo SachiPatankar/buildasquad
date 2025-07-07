@@ -7,7 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { APPLY_TO_POST, SAVE_POST, UNSAVE_POST, CANCEL_APPLY_TO_POST } from '@/graphql';
+import { APPLY_TO_POST, CANCEL_APPLY_TO_POST } from '@/graphql';
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 
 interface ApplicationCardProps {
   post: {
@@ -47,28 +49,17 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
   const isRemote = post.work_mode?.toLowerCase() === 'remote';
   const datePosted = new Date(post.created_at).toLocaleDateString();
 
-  const [isSaved, setIsSaved] = useState(post.is_saved || false);
   const [applicationStatus, setApplicationStatus] = useState<string | null>(application.status);
   const [canceling, setCanceling] = useState(false);
-
-  const [savePost] = useMutation(SAVE_POST, {
-    variables: { postId: post._id },
-    onCompleted: () => setIsSaved(true),
-  });
-
-  const [unsavePost] = useMutation(UNSAVE_POST, {
-    variables: { postId: post._id },
-    onCompleted: () => {
-      setIsSaved(false);
-    },
-  });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [applicationMessage, setApplicationMessage] = useState(application.message || "");
 
   const [applyToPost, { loading: applying }] = useMutation(APPLY_TO_POST, {
-    variables: {
-      postId: post._id,
-      message: 'Looking forward to this opportunity!',
+    onCompleted: (data) => {
+      setApplicationStatus(data.applyToPost.status);
+      setDialogOpen(false);
+      setApplicationMessage("");
     },
-    onCompleted: (data) => setApplicationStatus(data.applyToPost.status),
   });
 
   const [cancelApplyToPost] = useMutation(CANCEL_APPLY_TO_POST, {
@@ -79,18 +70,16 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
     },
   });
 
-  const handleSaveToggle = () => {
-    if (isSaved) {
-      unsavePost();
-    } else {
-      savePost();
+  const handleApply = () => {
+    if (!applicationStatus || applicationStatus === 'withdrawn') {
+      setApplicationMessage(application.message || "");
+      setDialogOpen(true);
     }
   };
 
-  const handleApply = () => {
-    if (!applicationStatus || applicationStatus === 'withdrawn') {
-      applyToPost();
-    }
+  const handleDialogApply = (e: React.FormEvent) => {
+    e.preventDefault();
+    applyToPost({ variables: { postId: post._id, message: applicationMessage } });
   };
 
   const handleCancelApplication = () => {
@@ -212,16 +201,6 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
 
           <div className="flex items-center gap-2">
             <Button
-              variant={isSaved ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={handleSaveToggle}
-              className={`gap-1 ${isSaved ? 'text-blue-600' : ''}`}
-              title={isSaved ? 'Unsave Post' : 'Save Post'}
-            >
-              {isSaved ? 'Saved' : 'Save'}
-            </Button>
-
-            <Button
               variant={applicationStatus && applicationStatus !== 'withdrawn' ? 'secondary' : 'outline'}
               size="sm"
               className={`gap-1 px-6 py-2 border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950 ${applicationStatus && applicationStatus !== 'withdrawn' ? 'opacity-60 cursor-not-allowed' : ''}`}
@@ -243,6 +222,38 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
           </div>
         </div>
       </CardFooter>
+
+      {/* Application Message Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <form onSubmit={handleDialogApply}>
+            <DialogHeader>
+              <DialogTitle>Apply to Project</DialogTitle>
+              <DialogDescription>
+                Optionally include a message with your application.
+              </DialogDescription>
+            </DialogHeader>
+            <Textarea
+              value={applicationMessage}
+              onChange={e => setApplicationMessage(e.target.value)}
+              placeholder="Write a message (optional)"
+              className="mt-2"
+              rows={4}
+              disabled={applying}
+            />
+            <DialogFooter className="mt-4 flex gap-2">
+              <DialogClose asChild>
+                <Button type="button" variant="ghost" disabled={applying}>
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" variant="default" disabled={applying}>
+                {applying ? "Applying..." : "Send Application"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

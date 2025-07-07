@@ -11,10 +11,14 @@ import {
 import { useMemo } from "react"
 import ProfileHeader from "./components/ProfileHeader"
 import ProfileTabs from "./components/ProfileTabs"
+import useAuthStore from "@/stores/userAuthStore"
 
 export default function ProfilePage() {
   const { userId } = useParams<{ userId?: string }>()
-  const isOwnProfile = !userId
+  const currentUser = useAuthStore((s) => s.user)
+
+  // Determine if viewing own profile (either /me or /profile/:id where id matches current user)
+  const isOwnProfile = Boolean((!userId && !!currentUser) || (userId && currentUser && userId === currentUser._id))
 
   const { data: userData, refetch: refetchUserData } = useQuery(LOAD_USER_BY_ID, {
     variables: userId ? { userId } : undefined,
@@ -53,6 +57,8 @@ export default function ProfilePage() {
       email: user?.email,
       links: user?.links,
       bio: user?.bio ?? "",
+      is_connection: user?.is_connection,
+      chat_id: user?.chat_id,
     }
   }, [userData])
 
@@ -61,11 +67,11 @@ export default function ProfilePage() {
       <div className="max-w-6xl mx-auto p-4 lg:p-6 space-y-6">
         <ProfileHeader 
           profileData={profile} 
-          isOwnProfile={isOwnProfile} 
+          isOwnProfile={!!isOwnProfile} 
           onUserDataUpdate={refetchUserData}
         />
         <ProfileTabs
-          isOwnProfile={isOwnProfile}
+          isOwnProfile={!!isOwnProfile}
           education={educationData?.getEducationByUser ?? []}
           experience={experienceData?.getExperienceByUser ?? []}
           projects={projectsData?.getProjectsByUser ?? []}

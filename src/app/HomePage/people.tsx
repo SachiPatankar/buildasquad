@@ -97,6 +97,7 @@ export default function PeoplePage() {
                             bio: user.bio,
                             top_skills: Array.isArray(user.top_skills) ? user.top_skills : [],
                             is_connection: user.is_connection,
+                            chat_id: user.chat_id,
                           }}
                         />
                       );

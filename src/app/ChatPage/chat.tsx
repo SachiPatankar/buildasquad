@@ -18,18 +18,16 @@ export default function ChatPage() {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto h-[calc(100vh-4rem)] flex">
+      <div className="max-w-7xl mx-auto h-[calc(100vh-65px)] flex overflow-hidden">
         {/* Chat List Sidebar */}
         <ChatSidebar
           chats={chats}
           chatId={chatId}
         />
         {/* Chat Window */}
-        <div className="hidden md:flex flex-1 flex-col">
+        <div className="hidden md:flex flex-1 flex-col h-full min-h-0">
           {chatId ? (
             <ChatWindow chatId={chatId} firstName={currentChat?.first_name || ''} lastName={currentChat?.last_name || ''} photo={currentChat?.photo || ''} />
-
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
               Select a conversation to start messaging
@@ -42,16 +40,6 @@ export default function ChatPage() {
             <p>Select a conversation to start messaging</p>
           </div>
         </div>
-        {/* Floating Contacts and Pending Requests Buttons */}
-        <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-3">
-          <Button
-            className="bg-primary text-white shadow-lg hover:bg-primary/90 w-16 h-16 rounded-full flex items-center justify-center"
-            onClick={() => navigate('/contacts')}
-          >
-            <BookUser className="w-14 h-14" />
-          </Button>
-        </div>
       </div>
-    </div>
   )
 }

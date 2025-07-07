@@ -33,7 +33,7 @@ export default function HomePage() {
   }
 
   const { data, loading, error } = useQuery(LOAD_POST_BY_FILTER, {
-    variables: { filter: postFilterInput },
+    variables: { filter: postFilterInput, page: 1, limit: 20 },
   })
 
   const projects = data?.loadPostByFilter ?? []

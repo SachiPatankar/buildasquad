@@ -13,11 +13,12 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Link } from "react-router-dom"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { APPLY_TO_POST, SAVE_POST, UNSAVE_POST } from "@/graphql"
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { formatDistanceToNow, parseISO } from "date-fns"
+import useAuthStore from "@/stores/userAuthStore"
 
 interface ProjectCardProps {
   project: {
@@ -35,6 +36,7 @@ interface ProjectCardProps {
     description?: string
     is_applied?: "pending" | "accepted" | "rejected" | "withdrawn" | null
     is_saved?: boolean
+    posted_by: string
   };
   onUnsave?: () => void; // Optional callback for unsave
 }
@@ -57,10 +59,22 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
   const [applicationMessage, setApplicationMessage] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
 
+  // ✅ Sync local state with props changes
+  useEffect(() => {
+    setApplicationStatus(project.is_applied ?? null)
+  }, [project.is_applied])
+
+  useEffect(() => {
+    setIsSaved(project.is_saved || false)
+  }, [project.is_saved])
+
   // ✅ Mutations
   const [savePost] = useMutation(SAVE_POST, {
     variables: { postId: project._id },
     onCompleted: () => setIsSaved(true),
+    onError: (error) => {
+      console.error('Save failed:', error)
+    }
   })
 
   const [unsavePost] = useMutation(UNSAVE_POST, {
@@ -69,18 +83,26 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
       setIsSaved(false);
       if (onUnsave) onUnsave();
     },
+    onError: (error) => {
+      console.error('Unsave failed:', error)
+    }
   })
 
   const [applyToPost, { loading: applying }] = useMutation(APPLY_TO_POST, {
     variables: {
       postId: project._id,
-      message: applicationMessage || "Looking forward to this opportunity!", // Use dialog message
+      message: applicationMessage,
     },
     onCompleted: (data) => {
       setApplicationStatus(data.applyToPost.status)
       setDialogOpen(false)
       setApplicationMessage("")
     },
+    onError: (error) => {
+      console.error('Application failed:', error)
+      // Keep dialog open on error so user can retry
+      // Optionally show error message to user
+    }
   })
 
   const handleSaveToggle = () => {
@@ -99,8 +121,15 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
 
   const handleDialogApply = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!applicationStatus) {
+    if (!applicationStatus && !applying) {
       applyToPost()
+    }
+  }
+
+  const handleDialogClose = () => {
+    if (!applying) {
+      setDialogOpen(false)
+      setApplicationMessage("")
     }
   }
 
@@ -119,8 +148,22 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
 
   const getApplyButtonLabel = () => {
     if (!applicationStatus) return "Apply"
-    return applicationStatus.charAt(0).toUpperCase() + applicationStatus.slice(1)
+    
+    switch(applicationStatus) {
+      case "pending":
+        return "Pending"
+      case "accepted":
+        return "Accepted"
+      case "rejected":
+        return "Rejected"
+      case "withdrawn":
+        return "Withdrawn"
+      default:
+        return "Apply"
+    }
   }
+
+  const currentUser = useAuthStore((s) => s.user)
 
   return (
     <Card className="w-full min-h-[400px] flex flex-col hover:shadow-xl transition-all duration-300">
@@ -223,22 +266,28 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
               {isSaved ? <BookmarkCheck className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
               {isSaved ? "Saved" : "Save"}
             </Button>
-
-            <Button
-              variant={applicationStatus ? "secondary" : "outline"}
-              size="sm"
-              className={`gap-1 px-6 py-2 border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950 ${applicationStatus ? "opacity-60 cursor-not-allowed" : ""}`}
-              disabled={!!applicationStatus || applying}
-              onClick={handleApply}
-            >
-              {getApplyButtonLabel()}
-            </Button>
+            
+            {currentUser?._id !== project.posted_by && (
+              <Button
+                variant={applicationStatus ? "secondary" : "outline"}
+                size="sm"
+                className={`gap-1 px-6 py-2 ${
+                  applicationStatus 
+                    ? "opacity-60 cursor-not-allowed" 
+                    : "border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950"
+                }`}
+                disabled={!!applicationStatus || applying}
+                onClick={handleApply}
+              >
+                {applying ? "Applying..." : getApplyButtonLabel()}
+              </Button>
+            )}
           </div>
         </div>
       </CardFooter>
 
       {/* Application Message Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent>
           <form onSubmit={handleDialogApply}>
             <DialogHeader>
@@ -257,7 +306,9 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
             />
             <DialogFooter className="mt-4 flex gap-2">
               <DialogClose asChild>
-                <Button type="button" variant="ghost">Cancel</Button>
+                <Button type="button" variant="ghost" disabled={applying}>
+                  Cancel
+                </Button>
               </DialogClose>
               <Button type="submit" variant="default" disabled={applying}>
                 {applying ? "Applying..." : "Send Application"}

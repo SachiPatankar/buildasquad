@@ -21,6 +21,8 @@ interface Props {
     email: string
     bio: string
     links?: { name: string; url: string }[]
+    is_connection?: string
+    chat_id?: string
   }
   isOwnProfile: boolean
   onUserDataUpdate?: () => Promise<any>
@@ -104,6 +106,17 @@ export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpd
     }
   }
 
+  const handleConnect = () => {
+    // Implement connect logic or call a prop
+    alert('Connect feature coming soon!');
+  };
+
+  const handleMessage = () => {
+    if (profileData.chat_id) {
+      window.location.href = `/chat/${profileData.chat_id}`;
+    }
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -158,13 +171,19 @@ export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpd
           <div className="space-y-2">
             {!isOwnProfile && (
               <>
-                <Button className="w-full">
-                  <Users className="h-4 w-4 mr-2" />
-                  Connect
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Message
-                </Button>
+                {profileData.is_connection === 'accepted' && profileData.chat_id ? (
+                  <Button variant="outline" className="w-full" onClick={handleMessage}>
+                    Message
+                  </Button>
+                ) : profileData.is_connection === 'pending' ? (
+                  <Button variant="outline" className="w-full" disabled>
+                    Pending
+                  </Button>
+                ) : (
+                  <Button className="w-full" onClick={handleConnect}>
+                    Connect
+                  </Button>
+                )}
               </>
             )}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">

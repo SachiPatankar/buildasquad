@@ -103,27 +103,33 @@ export function Navbar() {
 function UserMenu() {
   const navigate = useNavigate()
   const clearAuth = useAuthStore((state) => state.clearAuth)
+  const user = useAuthStore((state) => state.user)
 
   const handleLogout = async () => {
     clearAuth() // This will also call backend logout
     navigate('/login')
   }
 
+  const fullName = user ? [user.first_name, user.last_name].filter(Boolean).join(' ') : 'User';
+  const email = user?.email || 'user@example.com';
+  const photo = user?.photo;
+  const initials = user ? ((user.first_name?.[0] || '') + (user.last_name?.[0] || '')).toUpperCase() : 'UN';
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder.svg?height=32&width=32" alt="@username" />
-            <AvatarFallback>UN</AvatarFallback>
+            <AvatarImage src={photo || "/placeholder.svg?height=32&width=32"} alt={fullName} />
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Username</p>
-            <p className="text-xs leading-none text-muted-foreground">user@example.com</p>
+            <p className="text-sm font-medium leading-none">{fullName}</p>
+            <p className="text-xs leading-none text-muted-foreground">{email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

@@ -39,6 +39,8 @@ export const LOAD_POST_BY_ID = gql`
       first_name
       last_name
       photo
+      is_connection
+      chat_id
       requirements {
         desired_skills
         desired_roles
@@ -62,9 +64,9 @@ export const LOAD_POST_BY_ID = gql`
 
 // Load posts by filter
 export const LOAD_POST_BY_FILTER = gql`
-  query LoadPostByFilter($filter: PostFilterInput!) {
-    loadPostByFilter(filter: $filter) {
-       _id
+  query LoadPostByFilter($filter: PostFilterInput!, $page: Int, $limit: Int) {
+    loadPostByFilter(filter: $filter, page: $page, limit: $limit) {
+      _id
       title
       description
       posted_by
@@ -598,6 +600,7 @@ export const LOAD_USER_BY_ID = gql`
       bio
       location_id
       is_connection
+      chat_id
       connections_count
       links {
         name
@@ -678,6 +681,7 @@ export const LOAD_PEOPLE = gql`
       title
       bio
       is_connection
+      chat_id
       top_skills {
         _id
         skill_name
@@ -698,6 +702,7 @@ export const LOAD_PEOPLE_BY_FILTER = gql`
       title
       bio
       is_connection
+      chat_id
       top_skills {
         _id
         skill_name
@@ -717,6 +722,8 @@ export const LOAD_PERSON_BY_ID = gql`
       location_id
       title
       bio
+      is_connection
+      chat_id
       top_skills {
         _id
         skill_name

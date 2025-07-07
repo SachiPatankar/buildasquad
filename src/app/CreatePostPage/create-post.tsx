@@ -16,34 +16,13 @@ const skillOptions = [
   "Node.js",
   "Python",
   "Java",
-  "JavaScript",
   "TypeScript",
   "Machine Learning",
   "Data Science",
-  "UI/UX Design",
   "Mobile Development",
   "DevOps",
-  "Blockchain",
-  "Cybersecurity",
-  "Cloud Computing",
-  "MongoDB",
-  "PostgreSQL",
-  "AWS",
-  "Docker",
-  "Kubernetes",
-  "GraphQL",
-  "Vue.js",
-  "Angular",
-  "Flutter",
-  "React Native",
-  "Django",
-  "Flask",
-  "Spring Boot",
+ 
 ]
-
-const projectTypes = ["Academic", "Startup-level", "Hackathon", "Open Source", "Research", "Personal"]
-
-const projectPhases = ["Idea stage", "Planning", "Development", "Testing", "Near completion", "Maintenance"]
 
 const workModes = ["Remote", "In-person", "Hybrid"]
 
@@ -61,7 +40,6 @@ export default function CreatePostPage() {
     requirements: {
       desired_skills: [] as string[],
       desired_roles: [] as string[],
-      preferred_experience: "",
     },
     tech_stack: [] as string[],
     project_phase: "",
@@ -94,7 +72,6 @@ export default function CreatePostPage() {
         requirements: {
           desired_skills: post.requirements?.desired_skills?.filter(Boolean) || [],
           desired_roles: post.requirements?.desired_roles?.filter(Boolean) || [],
-          preferred_experience: post.requirements?.preferred_experience || "",
         },
         tech_stack: post.tech_stack?.filter(Boolean) || [],
         project_phase: post.project_phase || "",
@@ -190,7 +167,6 @@ export default function CreatePostPage() {
       requirements: {
         desired_skills: formData.requirements.desired_skills,
         desired_roles: formData.requirements.desired_roles,
-        preferred_experience: formData.requirements.preferred_experience,
       },
       tech_stack: formData.tech_stack,
       project_phase: formData.project_phase,
@@ -352,28 +328,23 @@ export default function CreatePostPage() {
               {/* Experience Level */}
               <div>
                 <Label>Preferred Experience Level</Label>
-                <RadioGroup
-                  value={formData.experience_level}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, experience_level: value }))}
-                  className="mt-2"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="beginner" id="beginner" />
-                    <Label htmlFor="beginner">Beginner</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="intermediate" id="intermediate" />
-                    <Label htmlFor="intermediate">Intermediate</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="advanced" id="advanced" />
-                    <Label htmlFor="advanced">Advanced</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="any" id="any" />
-                    <Label htmlFor="any">Any level</Label>
-                  </div>
-                </RadioGroup>
+                <div className="flex gap-2 mt-2">
+                  {[
+                    { value: "beginner", label: "Beginner" },
+                    { value: "intermediate", label: "Intermediate" },
+                    { value: "advanced", label: "Advanced" },
+                    { value: "any", label: "Any level" },
+                  ].map((level) => (
+                    <Button
+                      key={level.value}
+                      type="button"
+                      variant={formData.experience_level === level.value ? "default" : "outline"}
+                      onClick={() => setFormData((prev) => ({ ...prev, experience_level: level.value }))}
+                    >
+                      {level.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -414,53 +385,49 @@ export default function CreatePostPage() {
 
               {/* Project Type */}
               <div>
-                <Label>Project Type *</Label>
-                <RadioGroup
+                <Label htmlFor="project_type">Project Type *</Label>
+                <Input
+                  id="project_type"
                   value={formData.project_type}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, project_type: value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, project_type: e.target.value }))}
+                  placeholder="Enter the project type"
                   className="mt-2"
-                >
-                  {projectTypes.map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
-                      <RadioGroupItem value={type.toLowerCase()} id={type} />
-                      <Label htmlFor={type}>{type}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+                />
+                <div className="text-xs text-muted-foreground mt-1">
+                  Examples: Hackathon, Startup, Open Source, School Project
+                </div>
               </div>
 
               {/* Project Phase */}
               <div>
-                <Label>Project Phase</Label>
-                <RadioGroup
+                <Label htmlFor="project_phase">Project Phase</Label>
+                <Input
+                  id="project_phase"
                   value={formData.project_phase}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, project_phase: value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, project_phase: e.target.value }))}
+                  placeholder="Enter the project phase"
                   className="mt-2"
-                >
-                  {projectPhases.map((phase) => (
-                    <div key={phase} className="flex items-center space-x-2">
-                      <RadioGroupItem value={phase.toLowerCase()} id={phase} />
-                      <Label htmlFor={phase}>{phase}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+                />
+                <div className="text-xs text-muted-foreground mt-1">
+                  Examples: Ideation, Development, MVP, Launched
+                </div>
               </div>
 
               {/* Work Mode */}
               <div>
                 <Label>Work Mode *</Label>
-                <RadioGroup
-                  value={formData.work_mode}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, work_mode: value }))}
-                  className="mt-2"
-                >
+                <div className="flex gap-2 mt-2">
                   {workModes.map((mode) => (
-                    <div key={mode} className="flex items-center space-x-2">
-                      <RadioGroupItem value={mode.toLowerCase()} id={mode} />
-                      <Label htmlFor={mode}>{mode}</Label>
-                    </div>
+                    <Button
+                      key={mode}
+                      type="button"
+                      variant={formData.work_mode === mode.toLowerCase() ? "default" : "outline"}
+                      onClick={() => setFormData((prev) => ({ ...prev, work_mode: mode.toLowerCase() }))}
+                    >
+                      {mode}
+                    </Button>
                   ))}
-                </RadioGroup>
+                </div>
               </div>
 
               {/* Location */}

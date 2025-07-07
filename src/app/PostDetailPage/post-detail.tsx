@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { LOAD_POST_BY_ID, SAVE_POST, UNSAVE_POST, APPLY_TO_POST, INCREMENT_POST_VIEW } from "@/graphql"
 import { toast } from "react-toastify"
 import { format, parseISO } from "date-fns"
+import useAuthStore from '@/stores/userAuthStore'
 
 export default function PostDetailPage() {
   const { postId } = useParams<{ postId: string }>()
@@ -29,6 +30,8 @@ export default function PostDetailPage() {
   const [isApplied, setIsApplied] = useState<"pending" | "accepted" | "rejected" | "withdrawn" | null>(null)
   const [applicationMessage, setApplicationMessage] = useState("")
   const [showApplicationForm, setShowApplicationForm] = useState(false)
+
+  const currentUser = useAuthStore.getState().user
 
   const handleApply = async () => {
     if (!postId) {
@@ -65,6 +68,16 @@ export default function PostDetailPage() {
       alert("An error occurred while saving the post. Please try again.")
     }
   }
+
+  const handleConnect = async () => {
+    alert('Connect feature coming soon!');
+  };
+
+  const handleMessage = () => {
+    if (data?.loadPostById?.chat_id) {
+      window.location.href = `/chat/${data.loadPostById.chat_id}`;
+    }
+  };
 
   const getDifficultyColor = (level: string) => {
     switch (level?.toLowerCase()) {
@@ -139,6 +152,8 @@ export default function PostDetailPage() {
     workMode: data?.loadPostById?.work_mode || "Unknown",
     isSaved: data?.loadPostById?.is_saved ?? false,
     isApplied: data?.loadPostById?.is_applied,
+    creatorChatId: data?.loadPostById?.chat_id || null,
+    is_connection: data?.loadPostById?.is_connection || null,
   }
 
   return (
@@ -176,14 +191,26 @@ export default function PostDetailPage() {
                     <h3 className="font-bold text-lg">{post.creatorName}</h3>
                   </div>
                   <div className="flex gap-2">
+                    {currentUser?._id !== post.posted_by && (
+                      post.is_connection === 'accepted' && post.creatorChatId ? (
+                        <Button variant="outline" size="sm" onClick={handleMessage}>
+                          Message
+                        </Button>
+                      ) : post.is_connection === 'pending' ? (
+                        <Button variant="outline" size="sm" disabled>
+                          Pending
+                        </Button>
+                      ) : (
+                        <Button variant="outline" size="sm" onClick={handleConnect}>
+                          Connect
+                        </Button>
+                      )
+                    )}
                     <Link to={`/profile/${post.posted_by}`}>
                       <Button variant="outline" size="sm">
                         View Profile
                       </Button>
                     </Link>
-                    <Button variant="outline" size="sm">
-                      Message
-                    </Button>
                   </div>
                 </div>
 
@@ -299,29 +326,30 @@ export default function PostDetailPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="space-y-3">
-                  {isApplied === null ? (
-  <Button
-    onClick={() => {
-      setShowApplicationForm(true)
-    }}
-    className="w-full gap-2"
-    disabled={showApplicationForm}
-  >
-    <Send className="h-4 w-4" />
-    {showApplicationForm ? "Fill Application Below" : "Apply to Join"}
-  </Button>
-) : (
-  <Button
-    className="w-full gap-2 opacity-60 cursor-not-allowed"
-    variant="secondary"
-    disabled
-  >
-    <Send className="h-4 w-4" />
-    Applied ({isApplied.charAt(0).toUpperCase() + isApplied.slice(1)})
-  </Button>
-)}
-
-
+                  {/* Only show apply button if user is not the post creator */}
+                  {currentUser?._id !== post.posted_by ? (
+                    isApplied === null ? (
+                      <Button
+                        onClick={() => {
+                          setShowApplicationForm(true)
+                        }}
+                        className="w-full gap-2"
+                        disabled={showApplicationForm}
+                      >
+                        <Send className="h-4 w-4" />
+                        {showApplicationForm ? "Fill Application Below" : "Apply to Join"}
+                      </Button>
+                    ) : (
+                      <Button
+                        className="w-full gap-2 opacity-60 cursor-not-allowed"
+                        variant="secondary"
+                        disabled
+                      >
+                        <Send className="h-4 w-4" />
+                        Applied ({isApplied.charAt(0).toUpperCase() + isApplied.slice(1)})
+                      </Button>
+                    )
+                  ) : null}
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={handleSave}>
                       <BookmarkPlus className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />

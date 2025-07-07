@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom"
 import { useMutation } from '@apollo/client';
 import { SEND_FRIEND_REQ } from '@/graphql';
 import { useState } from 'react';
+import useAuthStore from "@/stores/userAuthStore"
 
 interface UserCardProps {
   user: {
@@ -23,6 +24,7 @@ interface UserCardProps {
       proficiency_level: string
     }[]
     is_connection?: string | null
+    chat_id?: string
   }
 }
 
@@ -36,6 +38,8 @@ export function UserCard({ user }: UserCardProps) {
   const location = user.location_id || "Unknown location"
   const title = user.title || "No title"
   const bio = user.bio || ""
+  const currentUser = useAuthStore((s) => s.user)
+  const isOwnProfile = currentUser?._id === user.id;
 
   const handleConnect = async () => {
     try {
@@ -43,6 +47,12 @@ export function UserCard({ user }: UserCardProps) {
       setConnectionStatus('pending');
     } catch (e) {
       // Optionally show error
+    }
+  };
+
+  const handleMessage = () => {
+    if (user.chat_id) {
+      navigate(`/chat/${user.chat_id}`);
     }
   };
 
@@ -94,6 +104,24 @@ export function UserCard({ user }: UserCardProps) {
         </div>
       </CardContent>
       <CardFooter className="pt-0 gap-2 mt-auto">
+        {!isOwnProfile && (
+          connectionStatus === 'accepted' && user.chat_id ? (
+            <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={handleMessage}>
+              <MessageCircle className="h-4 w-4" />
+              Message
+            </Button>
+          ) : connectionStatus === 'pending' ? (
+            <Button variant="outline" size="sm" className="flex-1 gap-2" disabled>
+              <MessageCircle className="h-4 w-4" />
+              Pending
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={handleConnect} disabled={loading}>
+              <MessageCircle className="h-4 w-4" />
+              {loading ? 'Connecting...' : 'Connect'}
+            </Button>
+          )
+        )}
         <Button
           variant="default"
           size="sm"
@@ -105,22 +133,6 @@ export function UserCard({ user }: UserCardProps) {
           <User className="h-4 w-4" />
           View Profile
         </Button>
-        {connectionStatus === 'accepted' ? (
-          <Button variant="outline" size="sm" className="flex-1 gap-2">
-            <MessageCircle className="h-4 w-4" />
-            Message
-          </Button>
-        ) : connectionStatus === 'pending' ? (
-          <Button variant="outline" size="sm" className="flex-1 gap-2" disabled>
-            <MessageCircle className="h-4 w-4" />
-            Pending
-          </Button>
-        ) : (
-          <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={handleConnect} disabled={loading}>
-            <MessageCircle className="h-4 w-4" />
-            {loading ? 'Connecting...' : 'Connect'}
-          </Button>
-        )}
       </CardFooter>
     </Card>
   )
