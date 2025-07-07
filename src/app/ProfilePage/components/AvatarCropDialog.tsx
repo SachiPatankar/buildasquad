@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Cropper from 'react-easy-crop';
 import { Upload, Trash2, X as CloseIcon, Image as PhotoIcon } from 'lucide-react';
 import {
@@ -77,6 +77,13 @@ const AvatarCropDialog: React.FC<AvatarCropDialogProps> = ({
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+
+  // Sync imageSrc with initialImage when dialog opens or initialImage changes
+  useEffect(() => {
+    if (open && initialImage) {
+      setImageSrc(initialImage);
+    }
+  }, [open, initialImage]);
 
   const onCropComplete = useCallback((_: any, croppedAreaPixels: any) => {
     setCroppedAreaPixels(croppedAreaPixels);

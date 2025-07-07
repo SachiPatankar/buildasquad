@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import UserInfoModal, { type UserInfo } from "./UserInfoModal"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import AvatarCropDialog from "./AvatarCropDialog"
 import { useMutation, useLazyQuery } from "@apollo/client"
 import { UPDATE_USER, GET_PRESIGNED_URL } from "@/graphql"
@@ -34,6 +34,12 @@ export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpd
   const [getPresignedUrl] = useLazyQuery(GET_PRESIGNED_URL)
   const [avatarLoading, setAvatarLoading] = useState(false)
 
+  // Sync local avatar state with prop changes
+  useEffect(() => {
+    console.log('Avatar prop changed:', profileData.avatar)
+    setAvatar(profileData.avatar)
+  }, [profileData.avatar])
+
   // Convert profileData to UserInfo type for the modal
   const userInfo: UserInfo = {
     first_name: profileData.name.split(" ")[0] || "",
@@ -41,8 +47,8 @@ export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpd
     title: profileData.title,
     bio: profileData.bio,
     location_id: profileData.location,
-    links: profileData.links
-    // photo, links can be added if needed
+    links: profileData.links,
+    photo: profileData.avatar
   }
 
   const handleAvatarUpload = async (blob: Blob) => {
@@ -52,16 +58,21 @@ export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpd
       const fileType = blob.type
       const { data } = await getPresignedUrl({ variables: { fileType, folder: "profile-picture" } })
       const { upload_url, file_url } = data.getPresignedUrl
+      
       // 2. Upload to S3
       await fetch(upload_url, {
         method: "PUT",
         body: blob,
         headers: { "Content-Type": fileType },
       })
+      
       // 3. Update user profile with new photo URL
       await updateUser({ variables: { input: { photo: file_url } } })
+      
+      // 4. Update local state immediately
       setAvatar(file_url)
-      // 4. Refetch user data to update the profile
+      
+      // 5. Refetch user data to update the profile
       if (onUserDataUpdate) {
         await onUserDataUpdate()
       }
