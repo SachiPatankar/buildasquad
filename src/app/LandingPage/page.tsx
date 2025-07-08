@@ -36,7 +36,7 @@ const DotsBackground = () => {
       dots.push(
         <div
           key={`dot-${x}-${y}`}
-          className={`absolute rounded-full bg-orange-300 opacity-0 animate-dot-fadeup ${dotSize}`}
+          className={`absolute rounded-full bg-orange-300 dark:bg-orange-500/70 opacity-0 animate-dot-fadeup ${dotSize}`}
           style={{
             left: `calc(${(x / (cols - 1)) * 100}% - 0.25rem)`,
             bottom: `${(y / (rows - 1)) * 100}%`,
@@ -66,7 +66,7 @@ export default function LandingPage() {
         {/* Brand logo and name */}
         <div className="flex items-center gap-3 select-none pl-4 md:pl-8">
           <img src={buildasquadLogo} alt="BuildASquad Logo" className="h-8 w-8 md:h-10 md:w-10 object-contain" />
-          <span className="text-lg md:text-2xl font-bold text-black tracking-tight">BuildASquad</span>
+          <span className="text-lg md:text-2xl font-bold text-black dark:text-white tracking-tight">BuildASquad</span>
         </div>
         {/* Login/Signup buttons */}
         <div className="flex gap-2 md:gap-4 pr-4 md:pr-8">
