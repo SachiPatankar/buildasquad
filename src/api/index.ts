@@ -1,6 +1,5 @@
 // src/api/index.ts
 
-import type { User } from '@/stores/userAuthStore'
 import api from './api'
 
 
@@ -15,14 +14,14 @@ export interface SignupParams {
   password: string
 }
 export interface LoginResponse {
-  user: Partial<User>; // or define proper user interface
+  user: any; // or define proper user interface
   accessToken: string;
   refreshToken: string;
   message: string;
 }
 
 export interface SignupResponse {
-  user: Partial<User>; // or define proper user interface
+  user: any; // or define proper user interface
   accessToken: string;
   refreshToken: string;
   message: string;
@@ -65,7 +64,7 @@ export const resetPassword = (
     data
   )
 
-export const getMe = () => api.get<{user:Partial<User>}>('/v1/auth/me');
+export const getMe = () => api.get<{user:any}>('/v1/auth/me');
 
 export const logout = () =>
   api.post(`/v1/auth/logout`)
