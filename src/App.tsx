@@ -1,5 +1,5 @@
 import "./App.css"
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "@/app/Global/theme-provider"
 import HomePage from "@/app/HomePage/home"
 import PeoplePage from "@/app/HomePage/people"
@@ -27,6 +27,7 @@ import NotificationsPage from "./app/NotificationsPage/page"
 import ContactsPage from "./app/ChatPage/contacts"
 import ContactsRequestsPage from "./app/ChatPage/contacts-requests"
 import OAuthCallback from "./app/AuthPage/oauth-callback"
+import LandingPage from "./app/LandingPage/page"
 
 
 
@@ -54,6 +55,7 @@ function App() {
           />
           <Routes>
             {/* ── Public Routes ───────────────────────────────────────── */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -63,7 +65,7 @@ function App() {
             {/* ── Protected Routes with Layout ───────────────────────── */}
             <Route element={<ProtectedRoute />}>
               <Route element={<Layout />}>
-                <Route index element={<Navigate to="projects" replace />} />
+                {/* <Route index element={<Navigate to="projects" replace />} /> */}
                 <Route path="projects" element={<HomePage />} />
                 <Route path="people" element={<PeoplePage />} />
                 <Route path="chat" element={<ChatPage />} />
