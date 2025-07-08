@@ -82,11 +82,11 @@ export default function LandingPage() {
       <main className="flex flex-1 flex-col items-center justify-center text-center px-2 md:px-4 z-10 relative">
         {/* Tagline with Text Generate Effect */}
         <h1
-          className={`text-5xl md:text-7xl lg:text-7xl font-extrabold mb-6 transition-all duration-700 ${
+          className={`text-5xl md:text-7xl lg:text-7xl font-extrabold mb-6 transition-all duration-700 text-black dark:text-white ${
             showSub ? "translate-y-[-32px]" : "translate-y-0"
           }`}
         >
-          <TextGenerateEffect words="Build  Your  Dream  Squad" className="text-black" wordGap="0.5rem" onDone={() => setShowSub(true)} />
+          <TextGenerateEffect words="Build  Your  Dream  Squad" className="text-black dark:text-white" wordGap="0.5rem" onDone={() => setShowSub(true)} />
         </h1>
         {/* Subtagline and CTA appear smoothly after text generate effect completes */}
         <div
