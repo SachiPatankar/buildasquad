@@ -10,7 +10,7 @@ export function AuroraBackground({
   children?: React.ReactNode;
 }) {
   return (
-    <div className={cn("relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background p-0 sm:p-2 md:p-8", className)}>
+    <div className={cn("relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background p-0 sm:p-2 md:p-8", className)}>
       <div className="pointer-events-none fixed inset-0 z-0 w-screen h-screen">
         <svg
           width="100vw"
@@ -35,7 +35,7 @@ export function AuroraBackground({
           </defs>
         </svg>
       </div>
-      <div className="relative z-10 w-full flex flex-col min-h-screen">{children}</div>
+      <div className="relative z-10 w-full flex flex-col h-screen">{children}</div>
     </div>
   );
 } 

@@ -48,7 +48,7 @@ const DotsBackground = () => {
     }
   }
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 w-screen h-screen">
+    <div key={`${cols}-${rows}`} className="pointer-events-none fixed inset-0 z-0 w-screen h-screen">
       <div className="w-full h-full">
         {dots}
       </div>
