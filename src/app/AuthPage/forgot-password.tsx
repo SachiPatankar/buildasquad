@@ -10,7 +10,7 @@ import { forgotPassword } from '@/api'
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [_error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
 

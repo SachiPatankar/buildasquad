@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Cropper from 'react-easy-crop';
-import { Upload, Trash2, X as CloseIcon, Image as PhotoIcon } from 'lucide-react';
+import { Upload, Trash2, Image as PhotoIcon } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogTitle,
-  DialogClose
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

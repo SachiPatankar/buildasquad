@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -184,7 +184,7 @@ export default function ProfileTabs({
         }
       }
       closeOrderDialog()
-    } catch (err: any) {
+    } catch (_err: any) {
       setOrderError('Failed to save order')
     }
     setSavingOrder(false)
@@ -504,7 +504,7 @@ export default function ProfileTabs({
                 animation={200}
                 handle=".drag-handle"
               >
-                {orderList.map((item, idx) => (
+                {orderList.map((item, _idx) => (
                   <div key={item._id} className="flex items-center justify-between p-2 border rounded mb-2 bg-muted">
                     <span>{item.title || item.institution_name || item.position || item.skill_name}</span>
                     <GripVertical className="drag-handle cursor-grab" />

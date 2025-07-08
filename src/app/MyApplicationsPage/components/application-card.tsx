@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { APPLY_TO_POST, CANCEL_APPLY_TO_POST } from '@/graphql';
@@ -42,7 +41,6 @@ interface ApplicationCardProps {
 export function ApplicationCard({ post, application }: ApplicationCardProps) {
   const creatorName = `${post.first_name} ${post.last_name}`;
   const creatorAvatar = post.photo;
-  const skills = post.tech_stack || [];
   const interestedCount = post.applications_count ?? 0;
   const viewCount = post.views_count ?? 0;
   const difficulty = post.experience_level || 'Beginner';

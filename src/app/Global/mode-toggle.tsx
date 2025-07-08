@@ -4,6 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useTheme } from "@/app/Global/theme-provider"
 
 export function ModeToggle() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { theme, setTheme } = useTheme()
 
   return (

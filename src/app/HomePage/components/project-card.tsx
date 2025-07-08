@@ -6,7 +6,7 @@ import {
   BookmarkPlus,
   BookmarkCheck,
 } from "lucide-react"
-import { gql, useMutation } from "@apollo/client"
+import {  useMutation } from "@apollo/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"

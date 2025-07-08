@@ -1,7 +1,4 @@
-import { useState, useEffect } from "react"
-import { useNavigate, useParams } from "react-router-dom"
-import { BookUser } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useParams } from "react-router-dom"
 import ChatSidebar from './components/ChatSidebar'
 import ChatWindow from './components/ChatWindow'
 import { useQuery } from '@apollo/client';
@@ -9,8 +6,8 @@ import { GET_CHAT_LIST_FOR_USER } from '@/graphql';
 
 
 export default function ChatPage() {
-  const navigate = useNavigate();
   const { chatId } = useParams();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data, loading } = useQuery(GET_CHAT_LIST_FOR_USER, { fetchPolicy: 'cache-and-network' });
   const chats = data?.getChatListForUser || [];
   const currentChat = chatId

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useQuery } from '@apollo/client';
 import { LOAD_CONNECTIONS_LIST } from '@/graphql';
-import useAuthStore from '@/stores/userAuthStore';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';

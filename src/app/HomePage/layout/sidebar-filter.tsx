@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import { Filter, Plus } from "lucide-react"
+import {  Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"

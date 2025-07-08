@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Eye, Users, Calendar, MoreVertical, Edit, UserX, Trash2 } from "lucide-react"
+import { Plus, Eye, Users, MoreVertical, Edit, UserX, Trash2 } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -61,7 +61,7 @@ export default function MyPostsPage() {
         toast.success('Post deleted successfully');
       }
       await client.refetchQueries({ include: [LOAD_POSTS_BY_USER_ID] });
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to update post');
     }
     setConfirmDialog({ open: false, postId: null, action: null });

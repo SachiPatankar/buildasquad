@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useQuery, useMutation, useApolloClient } from '@apollo/client';
-import { CREATE_POST, UPDATE_POST, LOAD_POST_BY_ID, LOAD_POSTS_BY_USER_ID } from '@/graphql';
+import { useQuery, useMutation } from '@apollo/client';
+import { CREATE_POST, UPDATE_POST, LOAD_POST_BY_ID } from '@/graphql';
 import { toast } from 'react-toastify';
 
 const skillOptions = [
@@ -26,7 +25,7 @@ const skillOptions = [
 
 const workModes = ["Remote", "In-person", "Hybrid"]
 
-const experience_level = ["Beginner", "Intermediate", "Advanced", "Any level"]
+// const experience_level = ["Beginner", "Intermediate", "Advanced", "Any level"]
 
 export default function CreatePostPage() {
   const navigate = useNavigate()
@@ -54,13 +53,13 @@ export default function CreatePostPage() {
   const [techInput, setTechInput] = useState("")
 
   // Apollo hooks
-  const { data: postData, loading: postLoading } = useQuery(LOAD_POST_BY_ID, {
+  const { data: postData } = useQuery(LOAD_POST_BY_ID, {
     variables: { postId },
     skip: !isEdit,
   })
   const [createPost] = useMutation(CREATE_POST)
   const [updatePost] = useMutation(UPDATE_POST)
-  const client = useApolloClient();
+  // const client = useApolloClient();
 
   // Prefill form in edit mode
   useEffect(() => {
@@ -184,7 +183,7 @@ export default function CreatePostPage() {
         toast.success("Post created successfully")
       }
       navigate("/myposts")
-    } catch (err) {
+    } catch (_err) {
       toast.error("Failed to submit post")
     }
   }

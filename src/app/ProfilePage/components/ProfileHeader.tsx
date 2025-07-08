@@ -1,5 +1,5 @@
 import {
-  MapPin, Calendar, Users, Mail, Link as LinkIcon, Edit, Pencil
+  MapPin, Calendar, Users, Mail, Link as LinkIcon, Edit
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"

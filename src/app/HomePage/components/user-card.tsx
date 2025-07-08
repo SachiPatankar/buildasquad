@@ -46,7 +46,7 @@ export function UserCard({ user }: UserCardProps) {
       await sendFriendReq({ variables: { addresseeUserId: user.id } });
       setConnectionStatus('pending');
     } catch (e) {
-      // Optionally show error
+      console.log(e.message);
     }
   };
 

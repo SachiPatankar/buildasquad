@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@apollo/client';
-import useAuthStore from '@/stores/userAuthStore';
 import { LOAD_PENDING_FRIEND_REQUESTS, ACCEPT_FRIEND_REQ, DECLINE_FRIEND_REQ } from '@/graphql';
 import ConnectionRequestItem from './components/ConnectionRequestItem';
 

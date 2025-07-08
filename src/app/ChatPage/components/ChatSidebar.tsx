@@ -1,8 +1,5 @@
-import { useQuery } from '@apollo/client';
-import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { GET_CHAT_LIST_FOR_USER } from '@/graphql';
 import ChatListItem from './ChatListItem';
 import type { Chat } from '@/graphql/generated';
 import { UserRound } from 'lucide-react';

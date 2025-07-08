@@ -2,12 +2,10 @@
 
 import { useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import { ArrowLeft, MessageCircle, User, Star, Calendar, MapPin } from "lucide-react"
+import { ArrowLeft, MessageCircle, User} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent} from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
 import { LOAD_APPLICATIONS_BY_POST_ID, LOAD_POST_BY_ID, UPDATE_APPLICATION_STATUS, SEND_FRIEND_REQ } from "@/graphql"
 import { useQuery, useMutation } from '@apollo/client';
 import { toast } from 'react-toastify';
@@ -23,7 +21,7 @@ function ApplicantCard({ applicant, onAccept, onReject, acceptLoading, rejectLoa
       await sendFriendReq({ variables: { addresseeUserId: applicant.applicant_id } });
       setConnectionStatus('pending');
       toast.success('Connection request sent');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Failed to send connection request');
     }
   };

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Link, useNavigate } from 'react-router-dom'
 import { signupUser } from '@/api'
-import type { User } from '@/stores/userAuthStore'
 import useAuthStore from '@/stores/userAuthStore'
 
 export default function SignupPage() {

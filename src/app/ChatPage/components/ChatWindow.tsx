@@ -93,7 +93,7 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
     if (!scrollContainer) return;
 
     const handleScroll = async () => {
-      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      const { scrollTop, scrollHeight } = scrollContainer;
       
       // Check if user scrolled to the top (with small threshold)
       if (scrollTop <= 100 && hasMore && !isLoadingMore && !loading) {
@@ -102,7 +102,8 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
         
         try {
           const nextPage = currentPage + 1;
-          const result = await fetchMore({
+          // const result = 
+          await fetchMore({
             variables: {
               chatId: chatId,
               page: nextPage,
