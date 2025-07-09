@@ -9,7 +9,7 @@ interface SearchBarProps {
 
 export function SearchBar({ placeholder, value, onChange }: SearchBarProps) {
   return (
-    <div className="relative w-full max-w-full sm:max-w-2xl mx-auto px-0 sm:px-4 md:px-0">
+    <div className="relative w-full max-w-full mx-auto px-0 sm:px-4 md:px-0">
       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 sm:h-4 sm:w-4" />
       <Input
         type="text"

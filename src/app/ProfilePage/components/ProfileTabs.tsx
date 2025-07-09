@@ -198,13 +198,14 @@ export default function ProfileTabs({
   return (
     <>
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="flex overflow-x-auto space-x-2 sm:justify-center">
-          <TabsTrigger value="education">Education</TabsTrigger>
-          <TabsTrigger value="experience">Experience</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="skills">Skills</TabsTrigger>
-          <TabsTrigger value="achievements">Achievements</TabsTrigger>
-        </TabsList> 
+    
+<TabsList className="flex flex-wrap justify-center gap-1 h-auto p-2">
+  <TabsTrigger value="education" className="flex-shrink-1 flex-grow-0">Education</TabsTrigger>
+  <TabsTrigger value="experience" className="flex-shrink-1 flex-grow-0">Experience</TabsTrigger>
+  <TabsTrigger value="projects" className="flex-shrink-1 flex-grow-0">Projects</TabsTrigger>
+  <TabsTrigger value="skills" className="flex-shrink-1 flex-grow-0">Skills</TabsTrigger>
+  <TabsTrigger value="achievements" className="flex-shrink-1 flex-grow-0">Achievements</TabsTrigger>
+</TabsList>
 
         <TabsContent value="education">
           <Card>
