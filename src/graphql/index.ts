@@ -84,6 +84,38 @@ export const LOAD_POST_BY_FILTER = gql`
       is_applied
       created_at
       updated_at
+      requirements {
+        desired_roles
+      }
+    }
+  }
+`
+
+// Load recommended posts for current user
+export const LOAD_POST_BY_RECOMMENDATION = gql`
+  query LoadPostByRecommendation($page: Int, $limit: Int) {
+    loadByRecommendation(page: $page, limit: $limit) {
+      _id
+      title
+      description
+      posted_by
+      first_name
+      last_name
+      photo
+      tech_stack
+      work_mode
+      experience_level
+      location_id
+      status
+      views_count
+      applications_count
+      is_saved
+      is_applied
+      created_at
+      updated_at
+      requirements {
+        desired_roles
+      }
     }
   }
 `

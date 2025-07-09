@@ -37,6 +37,9 @@ interface ProjectCardProps {
     is_applied?: "pending" | "accepted" | "rejected" | "withdrawn" | null
     is_saved?: boolean
     posted_by: string
+    requirements?: {
+      desired_roles: string[];
+    };
   };
   onUnsave?: () => void; // Optional callback for unsave
 }
@@ -45,6 +48,7 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
   const creatorName = `${project.first_name} ${project.last_name}`
   const creatorAvatar = project.photo
   const skills = project.tech_stack || []
+  const roles = project.requirements?.desired_roles || []
   const interestedCount = project.applications_count ?? 0
   const viewCount = project.views_count ?? 0
   const difficulty = project.experience_level || "Beginner"
@@ -210,7 +214,7 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="pb-4 flex-1 flex flex-col">
+      <CardContent className="pb-2 flex-1 flex flex-col">
         <div className="space-y-4 flex-1 flex flex-col">
           <div>
             <h3 className="font-bold text-xl mb-2 leading-tight line-clamp-1">{project.title}</h3>
@@ -222,7 +226,7 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
             )}
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div>
               <h4 className="text-sm font-medium text-muted-foreground mb-2">Tech Stack</h4>
               <div className="flex flex-wrap gap-1.5">
@@ -232,6 +236,18 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
                   </Badge>
                 ))}
               </div>
+              {roles.length > 0 && (
+                <div className="mt-2">
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2">Roles</h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {roles.map((role: string) => (
+                      <Badge key={role} variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/20">
+                        {role}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -240,13 +256,14 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
                 <span>{interestedCount} applications</span>
               </div>
             </div>
+            
           </div>
         </div>
       </CardContent>
 
       <Separator />
 
-      <CardFooter className="pt-4 mt-auto">
+      <CardFooter className=" mt-auto">
         <div className="flex items-center justify-between w-full gap-3">
           <Link to={`/post/${project._id}`} className="flex-1">
             <Button variant="default" size="sm" className="w-full gap-2">
