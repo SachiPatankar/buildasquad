@@ -211,7 +211,7 @@ export default function CreatePostPage() {
               <CardTitle>Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="title">Project Title *</Label>
                 <Input
                   id="title"
@@ -222,7 +222,7 @@ export default function CreatePostPage() {
                 />
               </div>
 
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="description">Project Description *</Label>
                 <textarea
                   id="description"
@@ -327,7 +327,7 @@ export default function CreatePostPage() {
               {/* Experience Level */}
               <div>
                 <Label>Preferred Experience Level</Label>
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {[
                     { value: "beginner", label: "Beginner" },
                     { value: "intermediate", label: "Intermediate" },

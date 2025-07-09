@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { LOAD_POSTS_BY_USER_ID, CLOSE_POST, OPEN_POST, DELETE_POST } from "@/graphql"
 import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { toast } from 'react-toastify';
@@ -214,30 +215,32 @@ export default function MyPostsPage() {
         )}
 
         {/* Confirmation Dialog */}
-        {confirmDialog.open && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-            <div className="bg-background rounded-lg shadow-lg p-6 w-full max-w-sm">
-              <h3 className="text-lg font-semibold mb-4">
+        <Dialog open={confirmDialog.open} onOpenChange={open => {
+          if (!open) setConfirmDialog({ open: false, postId: null, action: null });
+        }}>
+          <DialogContent className="max-w-sm w-full">
+            <DialogHeader>
+              <DialogTitle>
                 {confirmDialog.action === 'close' ? 'Close Recruitment?' : confirmDialog.action === 'open' ? 'Open Recruitment?' : 'Delete Post?'}
-              </h3>
-              <p className="mb-6">
-                {confirmDialog.action === 'close'
-                  ? 'Are you sure you want to close this post? This action cannot be undone.'
-                  : confirmDialog.action === 'open'
-                  ? 'Are you sure you want to open this post for recruitment?'
-                  : 'Are you sure you want to delete this post? This action cannot be undone.'}
-              </p>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setConfirmDialog({ open: false, postId: null, action: null })}>
-                  Cancel
-                </Button>
-                <Button variant={confirmDialog.action === 'delete' ? 'destructive' : confirmDialog.action === 'close' ? 'destructive' : 'default'} onClick={handleConfirmAction}>
-                  {confirmDialog.action === 'close' ? 'Close Post' : confirmDialog.action === 'open' ? 'Open Post' : 'Delete Post'}
-                </Button>
-              </div>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="mb-6">
+              {confirmDialog.action === 'close'
+                ? 'Are you sure you want to close this post? This action cannot be undone.'
+                : confirmDialog.action === 'open'
+                ? 'Are you sure you want to open this post for recruitment?'
+                : 'Are you sure you want to delete this post? This action cannot be undone.'}
             </div>
-          </div>
-        )}
+            <DialogFooter className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setConfirmDialog({ open: false, postId: null, action: null })}>
+                Cancel
+              </Button>
+              <Button variant={confirmDialog.action === 'delete' ? 'destructive' : confirmDialog.action === 'close' ? 'destructive' : 'default'} onClick={handleConfirmAction}>
+                {confirmDialog.action === 'close' ? 'Close Post' : confirmDialog.action === 'open' ? 'Open Post' : 'Delete Post'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )

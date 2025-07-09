@@ -264,7 +264,7 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
       <Separator />
 
       <CardFooter className=" mt-auto">
-        <div className="flex items-center justify-between w-full gap-3">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between w-full md:gap-3">
           <Link to={`/post/${project._id}`} className="flex-1">
             <Button variant="default" size="sm" className="w-full gap-2">
               <Eye className="h-4 w-4" />
@@ -272,12 +272,12 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
             </Button>
           </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-row flex-wrap items-stretch gap-2 w-full md:w-auto">
             <Button
               variant={isSaved ? "secondary" : "ghost"}
               size="sm"
               onClick={handleSaveToggle}
-              className={`gap-1 ${isSaved ? "text-blue-600" : ""}`}
+              className={`flex-1 min-w-0 md:w-auto gap-1 ${isSaved ? "text-blue-600" : ""}`}
               title={isSaved ? "Unsave Post" : "Save Post"}
             >
               {isSaved ? <BookmarkCheck className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
@@ -288,7 +288,7 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
               <Button
                 variant={applicationStatus ? "secondary" : "outline"}
                 size="sm"
-                className={`gap-1 px-6 py-2 ${
+                className={`flex-1 min-w-0 md:w-auto gap-1 px-6 py-2 ${
                   applicationStatus 
                     ? "opacity-60 cursor-not-allowed" 
                     : "border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950"

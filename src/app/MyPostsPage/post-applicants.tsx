@@ -28,22 +28,22 @@ function ApplicantCard({ applicant, onAccept, onReject, acceptLoading, rejectLoa
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
-      <CardContent className="p-4 flex items-center gap-4">
+      <CardContent className="flex flex-col md:flex-row md:items-center gap-4">
         {/* Photo */}
-        <Avatar className="h-14 w-14 border-2 border-background shadow-lg">
+        <Avatar className="h-14 w-14 border-2 border-background shadow-lg mx-auto md:mx-0" >
           <AvatarImage src={applicant.photo || "/placeholder.svg"} />
           <AvatarFallback className="text-lg font-semibold">
             {applicant.first_name?.[0] || ''}{applicant.last_name?.[0] || ''}
           </AvatarFallback>
         </Avatar>
         {/* Name, Title, and Actions Row */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
+        <div className="flex-1 min-w-0 flex flex-col gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="min-w-0 text-center sm:text-left">
               <h3 className="font-bold text-base truncate">{applicant.first_name} {applicant.last_name}</h3>
               <p className="text-sm text-primary font-medium truncate">{applicant.title || ''}</p>
             </div>
-            <div className="flex gap-2 ml-2">
+            <div className="flex flex-wrap justify-center sm:justify-end gap-2 ml-0 sm:ml-2">
               <Link to={`/profile/${applicant.applicant_id}`}>
                 <Button variant="outline" size="icon" className="h-8 w-auto px-2 flex items-center gap-1">
                   <User className="h-4 w-4" />
@@ -51,10 +51,12 @@ function ApplicantCard({ applicant, onAccept, onReject, acceptLoading, rejectLoa
                 </Button>
               </Link>
               {connectionStatus === 'accepted' ? (
+              <Link to={"/chat"}>
                 <Button variant="outline" size="icon" className="h-8 w-auto px-2 flex items-center gap-1">
                   <MessageCircle className="h-4 w-4" />
                   <span className="text-xs font-medium">Message</span>
                 </Button>
+                </Link>
               ) : connectionStatus === 'pending' ? (
                 <Button variant="outline" size="icon" className="h-8 w-auto px-2 flex items-center gap-1" disabled>
                   <MessageCircle className="h-4 w-4" />

@@ -20,9 +20,9 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">Notifications</h1>
-      <div className="bg-card rounded-lg shadow divide-y">
+    <div className="max-w-2xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
+      <h1 className="text-2xl font-bold mb-4 sm:mb-6">Notifications</h1>
+      <div className="bg-card rounded-lg shadow divide-y overflow-hidden">
         <h2 className="text-lg font-semibold p-4">Connection Requests</h2>
         {loading ? (
           <div className="p-4">Loading...</div>
@@ -31,14 +31,16 @@ export default function NotificationsPage() {
         ) : requests.length === 0 ? (
           <div className="p-4 text-muted-foreground">No pending connection requests.</div>
         ) : (
-          requests.map((req: any) => (
-            <ConnectionRequestItem
-              key={req._id}
-              request={req}
-              onAccept={() => handleAccept(req._id)}
-              onDecline={() => handleDecline(req._id)}
-            />
-          ))
+          <div className="flex flex-col gap-2">
+            {requests.map((req: any) => (
+              <ConnectionRequestItem
+                key={req._id}
+                request={req}
+                onAccept={() => handleAccept(req._id)}
+                onDecline={() => handleDecline(req._id)}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>

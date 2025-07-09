@@ -190,18 +190,18 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
 
 
       <CardFooter className="">
-        <div className="flex items-center justify-between w-full gap-3">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between w-full gap-2 md:gap-3">
           <Link to={`/post/${post._id}`} className="flex-1">
             <Button variant="default" size="sm" className="w-full gap-2">
               View Post
             </Button>
           </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto">
             <Button
               variant={applicationStatus && applicationStatus !== 'withdrawn' ? 'secondary' : 'outline'}
               size="sm"
-              className={`gap-1 px-6 py-2 border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950 ${applicationStatus && applicationStatus !== 'withdrawn' ? 'opacity-60 cursor-not-allowed' : ''}`}
+              className={`w-full md:w-auto gap-1 px-6 py-2 border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950 ${applicationStatus && applicationStatus !== 'withdrawn' ? 'opacity-60 cursor-not-allowed' : ''}`}
               disabled={!!applicationStatus && applicationStatus !== 'withdrawn' || applying}
               onClick={handleApply}
             >

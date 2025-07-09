@@ -161,11 +161,9 @@ export default function PostDetailPage() {
       <div className="max-w-4xl mx-auto p-4 lg:p-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <Link to="/">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
+          <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
           <div className="flex-1">
             <h1 className="text-2xl lg:text-3xl font-bold">{post.title}</h1>
           </div>
@@ -173,12 +171,12 @@ export default function PostDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4">
             {/* Creator Info */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
+              <CardContent className="">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+                  <Avatar className="h-16 w-16 border-2 border-background shadow-lg mx-auto sm:mx-0" >
                     <AvatarImage src={post.creatorAvatar || "/placeholder.svg"} />
                     <AvatarFallback className="text-lg font-semibold">
                       {post.creatorName
@@ -187,10 +185,10 @@ export default function PostDetailPage() {
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
+                  <div className="flex-1 text-center sm:text-left">
                     <h3 className="font-bold text-lg">{post.creatorName}</h3>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap justify-center sm:justify-end gap-2">
                     {currentUser?._id !== post.posted_by && (
                       post.is_connection === 'accepted' && post.creatorChatId ? (
                         <Button variant="outline" size="sm" onClick={handleMessage}>
@@ -214,7 +212,7 @@ export default function PostDetailPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-muted-foreground justify-center sm:justify-start">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
                      {post.datePosted}
@@ -249,7 +247,7 @@ export default function PostDetailPage() {
               <CardContent className="space-y-6">
                 <div>
                   <h4 className="font-medium mb-3">Required Skills</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 w-full min-w-0">
                     {post.skills.length ? (
                       post.skills.map((skill: string) => (
                         <Badge key={skill} variant="outline">
@@ -264,7 +262,7 @@ export default function PostDetailPage() {
 
                 <div>
                   <h4 className="font-medium mb-3">Desired Roles</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 w-full min-w-0">
                     {post.roles.map((role: string) => (
                       <Badge key={role} variant="secondary">
                         {role}
@@ -275,7 +273,7 @@ export default function PostDetailPage() {
 
                 <div>
                   <h4 className="font-medium mb-3">Tech Stack</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 w-full min-w-0">
                     {post.techStack.map((tech: string) => (
                       <Badge key={tech} variant="outline" className="border-primary/20 text-primary">
                         {tech}
@@ -366,24 +364,24 @@ export default function PostDetailPage() {
                 <CardTitle className="text-lg">Project Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center flex-wrap gap-y-2">
                   <span className="text-sm text-muted-foreground">Project Type</span>
-                  <Badge variant="secondary">{post.projectType}</Badge>
+                  <Badge variant="secondary" className="text-xs md:text-sm">{post.projectType}</Badge>
                 </div>
 
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center flex-wrap gap-y-2">
                   <span className="text-sm text-muted-foreground">Phase</span>
-                  <Badge className={getPhaseColor(post.projectPhase)}>{post.projectPhase}</Badge>
+                  <Badge className={getPhaseColor(post.projectPhase) + ' text-xs md:text-sm'}>{post.projectPhase}</Badge>
                 </div>
 
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center flex-wrap gap-y-2">
                   <span className="text-sm text-muted-foreground">Experience Level</span>
-                  <Badge className={getDifficultyColor(post.experienceLevel)}>{post.experienceLevel}</Badge>
+                  <Badge className={getDifficultyColor(post.experienceLevel) + ' text-xs md:text-sm'}>{post.experienceLevel}</Badge>
                 </div>
 
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center flex-wrap gap-y-2">
                   <span className="text-sm text-muted-foreground">Work Mode</span>
-                  <Badge variant="outline">{post.workMode}</Badge>
+                  <Badge variant="outline" className="text-xs md:text-sm">{post.workMode}</Badge>
                 </div>
 
                 <Separator />
