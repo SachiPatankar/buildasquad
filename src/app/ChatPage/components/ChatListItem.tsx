@@ -4,15 +4,16 @@ import { useNavigate } from 'react-router-dom';
 interface ChatListItemProps {
   chat: any;
   chatId: string | null | undefined;
+  onClick?: () => void;
 }
 
-export default function ChatListItem({ chat, chatId }: ChatListItemProps) {
+export default function ChatListItem({ chat, chatId, onClick }: ChatListItemProps) {
   const navigate = useNavigate();
   const name = `${chat.first_name} ${chat.last_name}`.trim();
   return (
     <div
       className={`cursor-pointer px-4 py-3 border-b hover:bg-muted/40 transition-colors ${chatId === chat._id ? 'bg-muted' : ''}`}
-      onClick={() => navigate(`/chat/${chat._id}`)}
+      onClick={onClick ? onClick : () => navigate(`/chat/${chat._id}`)}
     >
       <div className="flex items-center gap-3">
         <div className="relative">

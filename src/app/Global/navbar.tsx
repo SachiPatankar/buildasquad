@@ -33,6 +33,9 @@ export function Navbar() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  const location = useLocation();
+  const isChat = location.pathname.startsWith('/chat');
+
   return (
     <>
       <nav className="border-b bg-background">
@@ -106,8 +109,8 @@ export function Navbar() {
       {isMobile && isMobileUserMenuOpen && (
         <MobileUserMenu onClose={() => setIsMobileUserMenuOpen(false)} />
       )}
-      {/* Bottom navigation for mobile */}
-      <BottomNav />
+      {/* Bottom navigation for mobile, hidden on /chat */}
+      {!isChat && <BottomNav />}
     </>
   )
 }
@@ -210,16 +213,20 @@ function MobileUserMenu({ onClose }) {
 // New BottomNav component for mobile
 function BottomNav() {
   const location = useLocation();
+  const isChat = location.pathname.startsWith('/chat');
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-muted flex justify-around items-center h-14 md:hidden">
       <Link to="/projects" className={`flex flex-col items-center justify-center px-2 ${location.pathname === '/projects' ? 'text-primary' : 'text-muted-foreground'}`}> 
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 3v4M8 3v4M4 11h16" /></svg>
         <span className="text-xs">Projects</span>
       </Link>
-      <Link to="/people" className={`flex flex-col items-center justify-center px-2 ${location.pathname === '/people' ? 'text-primary' : 'text-muted-foreground'}`}> 
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 000 7.75" /></svg>
-        <span className="text-xs">People</span>
-      </Link>
+      {/* Hide People option on /chat route for mobile */}
+      {!isChat && (
+        <Link to="/people" className={`flex flex-col items-center justify-center px-2 ${location.pathname === '/people' ? 'text-primary' : 'text-muted-foreground'}`}> 
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 000 7.75" /></svg>
+          <span className="text-xs">People</span>
+        </Link>
+      )}
     </nav>
   )
 }

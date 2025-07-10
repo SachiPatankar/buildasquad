@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { LOAD_CONNECTIONS_LIST } from '@/graphql';
 import { useNavigate } from 'react-router-dom';
@@ -12,10 +12,34 @@ const ContactsPage: React.FC = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const [selectedContact, setSelectedContact] = useState<any>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // If on mobile and a contact is selected, navigate to chat and render nothing
+  useEffect(() => {
+    if (isMobile && selectedContact) {
+      navigate(`/chat/${selectedContact.chat_id}`);
+    }
+  }, [isMobile, selectedContact, navigate]);
+
   if (loading) return <div>Loading contacts...</div>;
   if (error) return <div>Error loading contacts: {error.message}</div>;
 
   const connections = data?.loadConnectionsList || [];
+
+  // If on mobile and a contact is selected, navigate to chat and render nothing
+  if (isMobile && selectedContact) {
+    return null; // or a loading spinner if you prefer
+  }
 
   return (
     <div className="max-w-lg mx-auto p-4">
@@ -26,7 +50,6 @@ const ContactsPage: React.FC = () => {
         <span className="font-semibold">See pending requests</span>
         <ChevronRight size={20} />
       </div>
-      
       <ul>
         {connections.length === 0 ? (
           <li className="text-gray-500">No connections found.</li>
@@ -42,7 +65,7 @@ const ContactsPage: React.FC = () => {
                 variant="default"
                 size="sm"
                 className="ml-2"
-                onClick={() => navigate(`/chat/${conn.chat_id}`)}
+                onClick={() => isMobile ? setSelectedContact(conn) : navigate(`/chat/${conn.chat_id}`)}
               >
                 Chat
               </Button>

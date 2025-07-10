@@ -9,9 +9,10 @@ import { useNavigate } from 'react-router-dom';
 interface ChatSidebarProps {
   chats: Chat
   chatId: string | null | undefined
+  onChatSelect?: (id: string) => void
 }
 
-export default function ChatSidebar({ chats, chatId }: ChatSidebarProps) {
+export default function ChatSidebar({ chats, chatId, onChatSelect }: ChatSidebarProps) {
   const navigate = useNavigate();
   return (
     <div className="w-full md:w-80 lg:w-96 border-r bg-card flex flex-col h-full relative">
@@ -22,31 +23,35 @@ export default function ChatSidebar({ chats, chatId }: ChatSidebarProps) {
           className="pl-9"
         />
       </div>
-      <ScrollArea className="flex-1">
-        <div>
-          {Array.isArray(chats) && chats.length > 0 ? (
-            chats.map((chat: Chat) => (
-              <ChatListItem
-                key={chat._id}
-                chat={chat}
-                chatId={chatId}
-              />
-            ))
-          ) : (
-            <div className="p-4 text-muted-foreground text-center">
-              No conversations found.
-            </div>
-          )}
+      {/* Only the chat list is scrollable */}
+      <div className="flex-1 relative">
+        <ScrollArea className="h-full">
+          <div>
+            {Array.isArray(chats) && chats.length > 0 ? (
+              chats.map((chat: Chat) => (
+                <ChatListItem
+                  key={chat._id}
+                  chat={chat}
+                  chatId={chatId}
+                  onClick={onChatSelect ? () => onChatSelect(chat._id) : undefined}
+                />
+              ))
+            ) : (
+              <div className="p-4 text-muted-foreground text-center">
+                No conversations found.
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+        {/* Floating contacts button stays fixed at the bottom right */}
+        <div className="absolute bottom-8 right-8 z-50 flex flex-col gap-3">
+          <Button
+            className="bg-primary text-white shadow-lg hover:bg-primary/90 w-12 h-12 rounded-full flex items-center justify-center p-0"
+            onClick={() => navigate('/contacts')}
+          >
+            <UserRound style={{ width: '20px', height: '20px' }} />
+          </Button>
         </div>
-      </ScrollArea>
-      <div className="absolute bottom-8 right-8 z-50 flex flex-col gap-3">
-      <Button
-      className="bg-primary text-white shadow-lg hover:bg-primary/90 w-12 h-12 rounded-full flex items-center justify-center p-0"
-      onClick={() => navigate('/contacts')}
-    >
-<UserRound style={{ width: '20px', height: '20px' }} />
-    </Button>
-
       </div>
     </div>
   );

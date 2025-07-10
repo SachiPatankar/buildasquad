@@ -135,7 +135,8 @@ const useAuthStore = create<AuthState>()(
         set({ 
           token, 
           user: user ? {
-            _id: user._id,
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            _id: user._id || user.id,
             email: user.email,
             first_name: user.first_name,
             last_name: user.last_name,

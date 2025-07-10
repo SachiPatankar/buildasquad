@@ -17,7 +17,8 @@ import ForgotPasswordPage from "./app/AuthPage/forgot-password"
 
 import useAuthStore from "@/stores/userAuthStore"
 import { useEffect } from "react"
-import { ToastContainer } from 'react-toastify'
+import { ToastContainer } from 'react-toastify';
+import { XCircle } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css'
 import Layout from "./app/Global/Layout"
 import ProtectedRoute from "@/components/ProtectedRoute"
@@ -42,16 +43,25 @@ function App() {
         <div className="min-h-screen bg-background">
           <ToastContainer 
             position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
+            autoClose={4000}
+            hideProgressBar
             newestOnTop
             closeOnClick
             rtl={false}
             pauseOnFocusLoss
             draggable
             pauseOnHover
-            toastClassName="bg-background border border-border text-foreground rounded-md shadow-lg p-4"
-            progressClassName="!bg-primary"
+            toastClassName={({ type }) =>
+              `bg-background border border-border text-foreground rounded-md shadow-lg p-4 flex items-center gap-3 ${
+                type === 'error' ? 'border-destructive bg-destructive/10 text-destructive' : ''
+              }`
+            }
+            className="text-sm"
+            progressClassName="hidden"
+            icon={({ type }) =>
+              type === 'error' ? <XCircle className="text-destructive w-5 h-5 mr-2" /> : null
+            }
+            theme="auto"
           />
           <Routes>
             {/* ── Public Routes ───────────────────────────────────────── */}
