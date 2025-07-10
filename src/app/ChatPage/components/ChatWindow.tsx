@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { GET_MESSAGES_FOR_CHAT, SEND_MESSAGE } from '@/graphql';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { GET_MESSAGES_FOR_CHAT, SEND_MESSAGE, MARK_MESSAGES_AS_READ } from '@/graphql';
 import MessageBubble from './MessageBubble';
 import useAuthStore from '@/stores/userAuthStore';
-import { io, Socket } from 'socket.io-client';
-import { Send as SendIcon } from 'lucide-react';
+import socket from '@/lib/socket';
 
 interface ChatWindowProps {
   chatId: string | null | undefined;
@@ -20,23 +20,11 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
   const authUser = useAuthStore((s) => s.user);
   const userId = authUser?._id;
   const [message, setMessage] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [previousScrollHeight, setPreviousScrollHeight] = useState(0);
-  
-  const { data, loading, fetchMore } = useQuery(GET_MESSAGES_FOR_CHAT, {
-    variables: { chatId: chatId, page: 1, limit: 10 },
+  const { data, loading } = useQuery(GET_MESSAGES_FOR_CHAT, {
+    variables: { chatId: chatId, page: 1, limit: 50 },
     fetchPolicy: 'cache-and-network',
     skip: !chatId,
-    onCompleted: (data) => {
-      // If we get less than 10 messages, there are no more to load
-      if (data?.getMessagesForChat && data.getMessagesForChat.length < 10) {
-        setHasMore(false);
-      }
-    },
   });
-  
   const client = useApolloClient();
   const [sendMessage] = useMutation(SEND_MESSAGE, {
     update(cache, { data }) {
@@ -44,12 +32,12 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
       const newMsg = data.sendMessage;
       const existing = cache.readQuery({
         query: GET_MESSAGES_FOR_CHAT,
-        variables: { chatId, page: 1, limit: 10 },
+        variables: { chatId, page: 1, limit: 50 },
       }) as { getMessagesForChat: any[] } | null;
       if (existing && existing.getMessagesForChat) {
         cache.writeQuery({
           query: GET_MESSAGES_FOR_CHAT,
-          variables: { chatId, page: 1, limit: 10 },
+          variables: { chatId, page: 1, limit: 50 },
           data: {
             getMessagesForChat: [...existing.getMessagesForChat, newMsg],
           },
@@ -57,118 +45,26 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
       }
     },
   });
-  
+  const [markMessagesAsRead] = useMutation(MARK_MESSAGES_AS_READ);
   const messages = data?.getMessagesForChat || [];
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<Socket | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Reset pagination when chatId changes
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    if (chatId) {
-      setCurrentPage(1);
-      setHasMore(true);
-      setIsLoadingMore(false);
-    }
-  }, [chatId]);
-
-  // Enhanced scroll to bottom function
-  useEffect(() => {
-    const scrollToBottom = () => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }
-    };
-
-    // Only scroll if we have messages or when switching chats
-    if (messages.length > 0 || chatId) {
-      // Multiple attempts to ensure it works
-      scrollToBottom();
-      setTimeout(scrollToBottom, 150);
-    }
-  }, [messages, loading, chatId]);
-
-  // Scroll event handler for infinite scroll
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-
-    const handleScroll = async () => {
-      const { scrollTop, scrollHeight } = scrollContainer;
-      
-      // Check if user scrolled to the top (with small threshold)
-      if (scrollTop <= 100 && hasMore && !isLoadingMore && !loading) {
-        setIsLoadingMore(true);
-        setPreviousScrollHeight(scrollHeight);
-        
-        try {
-          const nextPage = currentPage + 1;
-          // const result = 
-          await fetchMore({
-            variables: {
-              chatId: chatId,
-              page: nextPage,
-              limit: 10,
-            },
-            updateQuery: (prev, { fetchMoreResult }) => {
-              if (!fetchMoreResult?.getMessagesForChat) return prev;
-              
-              const newMessages = fetchMoreResult.getMessagesForChat;
-              
-              // If we get less than 10 messages, no more to load
-              if (newMessages.length < 10) {
-                setHasMore(false);
-              }
-              
-              // Add older messages to the beginning of the array
-              // Since we're loading older messages, they should come before current messages
-              const existingIds = new Set(prev.getMessagesForChat.map((msg: any) => msg._id));
-              const uniqueNewMessages = newMessages.filter((msg: any) => !existingIds.has(msg._id));
-              
-              return {
-                getMessagesForChat: [...uniqueNewMessages, ...prev.getMessagesForChat],
-              };
-            },
-          });
-          
-          setCurrentPage(nextPage);
-        } catch (error) {
-          console.error('Error loading more messages:', error);
-        } finally {
-          setIsLoadingMore(false);
-        }
-      }
-    };
-
-    scrollContainer.addEventListener('scroll', handleScroll);
-    return () => scrollContainer.removeEventListener('scroll', handleScroll);
-  }, [chatId, currentPage, hasMore, isLoadingMore, loading, fetchMore]);
-
-  // Maintain scroll position after loading more messages
-  useEffect(() => {
-    if (isLoadingMore === false && previousScrollHeight > 0 && scrollRef.current) {
-      const scrollContainer = scrollRef.current;
-      const newScrollHeight = scrollContainer.scrollHeight;
-      const scrollDiff = newScrollHeight - previousScrollHeight;
-      scrollContainer.scrollTop = scrollDiff;
-      setPreviousScrollHeight(0);
-    }
-  }, [isLoadingMore, previousScrollHeight]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   useEffect(() => {
     if (!chatId) return;
-    if (!socketRef.current) {
-      socketRef.current = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000', {
-        withCredentials: true,
-      });
-    }
-    const socket = socketRef.current;
-    socket.emit('joinChat', chatId);
-    
+    // Mark messages as read when chat window loads
+    markMessagesAsRead({ variables: { chatId } });
+    const sock = socket;
+    sock.emit('joinChat', chatId);
     // Helper to update cache for new/updated/deleted messages
     const updateCache = (msg: any, type: 'add' | 'update' | 'delete') => {
       const existing = client.readQuery({
         query: GET_MESSAGES_FOR_CHAT,
-        variables: { chatId, page: 1, limit: 10 },
+        variables: { chatId, page: 1, limit: 50 },
       }) as { getMessagesForChat: any[] } | null;
       if (!existing || !existing.getMessagesForChat) return;
       let updatedMessages = existing.getMessagesForChat;
@@ -184,34 +80,32 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
       }
       client.writeQuery({
         query: GET_MESSAGES_FOR_CHAT,
-        variables: { chatId, page: 1, limit: 10 },
+        variables: { chatId, page: 1, limit: 50 },
         data: { getMessagesForChat: updatedMessages },
       });
     };
-    
-    socket.on('receiveMessage', (msg: any) => {
+    sock.on('receiveMessage', (msg: any) => {
       if (msg.chat_id === chatId) {
         updateCache(msg, 'add');
       }
     });
-    socket.on('updateMessage', (msg: any) => {
+    sock.on('updateMessage', (msg: any) => {
       if (msg.chat_id === chatId) {
         updateCache(msg, 'update');
       }
     });
-    socket.on('deleteMessage', (msg: any) => {
+    sock.on('deleteMessage', (msg: any) => {
       if (msg.chat_id === chatId) {
         updateCache(msg, 'delete');
       }
     });
-    
     return () => {
-      socket.emit('leaveChat', chatId);
-      socket.off('receiveMessage');
-      socket.off('updateMessage');
-      socket.off('deleteMessage');
+      sock.emit('leaveChat', chatId);
+      sock.off('receiveMessage');
+      sock.off('updateMessage');
+      sock.off('deleteMessage');
     };
-  }, [chatId, client]);
+  }, [chatId, client, markMessagesAsRead]);
 
   const handleSend = async () => {
     if (!message.trim()) return;
@@ -223,7 +117,7 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
   const name = `${firstName} ${lastName}`.trim();
 
   return (
-    <div className="flex-1 flex flex-col h-full min-h-0">
+    <div className="flex-1 flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b bg-card flex items-center gap-3 flex-shrink-0">
         <Avatar className="h-10 w-10">
@@ -234,32 +128,21 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
           <h3 className="font-semibold">{name}</h3>
         </div>
       </div>
+      
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-hidden">
-        <div className="h-full overflow-y-auto p-4" ref={scrollRef}>
-          <div className="space-y-4">
-            {/* Loading indicator for older messages */}
-            {isLoadingMore && (
-              <div className="flex justify-center py-2">
-                <div className="text-sm text-muted-foreground">Loading older messages...</div>
-              </div>
-            )}
-            {/* No more messages indicator */}
-            {!hasMore && messages.length > 0 && (
-              <div className="flex justify-center py-2">
-                <div className="text-sm text-muted-foreground">No more messages</div>
-              </div>
-            )}
-            {loading ? (
-              <div>Loading...</div>
-            ) : (
-              messages.map((msg: any) => (
-                <MessageBubble key={msg._id} message={msg} isMe={String(msg.sender_id) === String(userId)} />
-              ))
-            )}
-          </div>
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="p-4 space-y-4">
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            messages.map((msg: any) => (
+              <MessageBubble key={msg._id} message={msg} isMe={String(msg.sender_id) === String(userId)} />
+            ))
+          )}
+          <div ref={messagesEndRef} />
         </div>
-      </div>
+      </ScrollArea>
+      
       {/* Input */}
       <div className="p-4 border-t bg-card flex items-center gap-2 flex-shrink-0">
         <Input
@@ -269,7 +152,7 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
           onKeyDown={e => e.key === 'Enter' && handleSend()}
         />
         <Button onClick={handleSend} size="icon">
-          <SendIcon className="w-5 h-5" />
+          Send
         </Button>
       </div>
     </div>

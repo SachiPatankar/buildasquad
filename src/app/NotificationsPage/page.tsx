@@ -1,6 +1,8 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { LOAD_PENDING_FRIEND_REQUESTS, ACCEPT_FRIEND_REQ, DECLINE_FRIEND_REQ } from '@/graphql';
 import ConnectionRequestItem from './components/ConnectionRequestItem';
+import useNotificationStore from '@/stores/notificationStore';
+import { useEffect } from 'react';
 
 export default function NotificationsPage() {
   const { data, loading, error, refetch } = useQuery(LOAD_PENDING_FRIEND_REQUESTS, {
@@ -9,6 +11,12 @@ export default function NotificationsPage() {
   const [acceptFriendReq] = useMutation(ACCEPT_FRIEND_REQ);
   const [declineFriendReq] = useMutation(DECLINE_FRIEND_REQ);
   const requests = data?.loadPendingFriendRequests || [];
+  const clearUnread = useNotificationStore((state) => state.clearUnread);
+
+  // Mark notifications as read on mount
+  useEffect(() => {
+    clearUnread();
+  }, [clearUnread]);
 
   const handleAccept = async (connectionId: string) => {
     await acceptFriendReq({ variables: { connectionId } });

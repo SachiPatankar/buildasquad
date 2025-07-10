@@ -15,6 +15,7 @@ const ContactsPage: React.FC = () => {
   const [selectedContact, setSelectedContact] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
 
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);

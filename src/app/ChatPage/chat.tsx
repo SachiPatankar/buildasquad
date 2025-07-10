@@ -2,7 +2,8 @@ import { useParams, useNavigate } from "react-router-dom"
 import ChatSidebar from './components/ChatSidebar'
 import ChatWindow from './components/ChatWindow'
 import { useQuery } from '@apollo/client';
-import { GET_CHAT_LIST_FOR_USER } from '@/graphql';
+import { GET_CHAT_LIST_FOR_USER, GET_UNREAD_COUNT_FOR_CHATS } from '@/graphql';
+import useNotificationStore from '@/stores/notificationStore';
 import { useState, useEffect } from 'react';
 import { ArrowLeft } from "lucide-react";
 
@@ -14,6 +15,18 @@ export default function ChatPage() {
   const currentChat = chatId
     ? chats.find((chat: any) => chat._id === chatId)
     : undefined;
+
+  const { data: unreadData } = useQuery(GET_UNREAD_COUNT_FOR_CHATS);
+  const setChatUnreadCounts = useNotificationStore((s) => s.setChatUnreadCounts);
+  useEffect(() => {
+    if (unreadData && Array.isArray(unreadData.getUnreadCountForChats)) {
+      const counts: { [chatId: string]: number } = {};
+      unreadData.getUnreadCountForChats.forEach((item: any) => {
+        if (item && item.chat_id) counts[item.chat_id] = item.unread_count;
+      });
+      setChatUnreadCounts(counts);
+    }
+  }, [unreadData, setChatUnreadCounts]);
 
   // Responsive state: on mobile, control which panel is visible
   const [showSidebar, setShowSidebar] = useState(true);

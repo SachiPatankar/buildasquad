@@ -973,6 +973,12 @@ export const DELETE_MESSAGE = gql`
   }
 `;
 
+export const MARK_MESSAGES_AS_READ = gql`
+  mutation MarkMessagesAsRead($chatId: String!) {
+    markMessagesAsRead(chatId: $chatId)
+  }
+`;
+
 export const GET_PRESIGNED_URL = gql`
   query GetPresignedUrl($fileType: String!, $folder: String) {
     getPresignedUrl(fileType: $fileType, folder: $folder) {
