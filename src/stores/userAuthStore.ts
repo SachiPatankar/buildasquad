@@ -77,6 +77,7 @@ import { jwtDecode } from 'jwt-decode'
 
 export interface User {
   _id: string
+  id?: string
   email: string
   first_name?: string
   last_name?: string
