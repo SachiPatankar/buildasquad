@@ -32,6 +32,8 @@ import LandingPage from "./app/LandingPage/page"
 import { useQuery } from '@apollo/client';
 import { LOAD_PENDING_FRIEND_REQUESTS } from '@/graphql';
 import useNotificationStore from '@/stores/notificationStore';
+import PrivacyPolicyPage from "./app/Global/privacy-policy"
+import TermsOfServicePage from "./app/Global/terms-of-service"
 
 
 function App() {
@@ -80,6 +82,8 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:id/:token" element={<ResetPasswordPage />} />
             <Route path="/oauth-callback" element={<OAuthCallback />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
 
             {/* ── Protected Routes with Layout ───────────────────────── */}
             <Route element={<ProtectedRoute />}>

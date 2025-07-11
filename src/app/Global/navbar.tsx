@@ -185,7 +185,12 @@ function UserMenu() {
         <DropdownMenuItem asChild>
           <Link to="/saved-posts">My Saved Posts</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>Settings</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/privacy-policy">Privacy Policy</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/terms-of-service">Terms of Service</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>Sign out</DropdownMenuItem>
       </DropdownMenuContent>
@@ -227,7 +232,8 @@ function MobileUserMenu({ onClose }) {
         <Link to="/myposts" className="py-2" onClick={onClose}>My Posts</Link>
         <Link to="/my-applications" className="py-2" onClick={onClose}>My Applications</Link>
         <Link to="/saved-posts" className="py-2" onClick={onClose}>My Saved Posts</Link>
-        <button className="py-2 text-left" onClick={onClose}>Settings</button>
+        <Link to="/privacy-policy" className="py-2" onClick={onClose}>Privacy Policy</Link>
+        <Link to="/terms-of-service" className="py-2" onClick={onClose}>Terms of Service</Link>
         <button className="py-2 text-left text-red-600" onClick={handleLogout}>Sign out</button>
       </div>
     </div>
