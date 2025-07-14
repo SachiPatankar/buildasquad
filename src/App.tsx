@@ -29,25 +29,17 @@ import ContactsPage from "./app/ChatPage/contacts"
 import ContactsRequestsPage from "./app/ChatPage/contacts-requests"
 import OAuthCallback from "./app/AuthPage/oauth-callback"
 import LandingPage from "./app/LandingPage/page"
-import { useQuery } from '@apollo/client';
-import { LOAD_PENDING_FRIEND_REQUESTS } from '@/graphql';
-import useNotificationStore from '@/stores/notificationStore';
 import PrivacyPolicyPage from "./app/Global/privacy-policy"
 import TermsOfServicePage from "./app/Global/terms-of-service"
+import useSocket from "./hooks/useSocket"
 
 
 function App() {
   // Theme is managed by ThemeProvider
+  useSocket()
   useEffect(() => {
     useAuthStore.getState().initialize();
   }, []);
-  const setUnreadCount = useNotificationStore((state) => state.setUnreadCount);
-  const { data } = useQuery(LOAD_PENDING_FRIEND_REQUESTS, { fetchPolicy: 'network-only' });
-  useEffect(() => {
-    if (data?.loadPendingFriendRequests) {
-      setUnreadCount(data.loadPendingFriendRequests.length);
-    }
-  }, [data, setUnreadCount]);
   return (
     <BrowserRouter>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">

@@ -17,7 +17,6 @@ import {
 import logo from "@/assets/buildasquad_logo.png"
 import useAuthStore from '@/stores/userAuthStore'
 import useNotificationStore from '@/stores/notificationStore';
-import socket from '@/lib/socket';
 
 export function Navbar() {
   const [isMobileUserMenuOpen, setIsMobileUserMenuOpen] = useState(false)
@@ -26,8 +25,8 @@ export function Navbar() {
   const photo = user?.photo;
   const fullName = user ? [user.first_name, user.last_name].filter(Boolean).join(' ') : 'User';
   const initials = user ? ((user.first_name?.[0] || '') + (user.last_name?.[0] || '')).toUpperCase() : 'UN';
-  const unreadCount = useNotificationStore((state) => state.unreadCount);
-  const incrementUnread = useNotificationStore((state) => state.incrementUnread);
+  const totalUnread = useNotificationStore((s) => s.totalUnread);
+  const friendRequestCount = useNotificationStore((s) => s.friendRequestCount);
 
   // Detect mobile size
   useEffect(() => {
@@ -37,15 +36,15 @@ export function Navbar() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  useEffect(() => {
-    // Listen for notification events
-    socket.on('notification', () => {
-      incrementUnread();
-    });
-    return () => {
-      socket.off('notification');
-    };
-  }, [incrementUnread]);
+  // useEffect(() => {
+  //   // Listen for notification events
+  //   socket.on('notification', () => {
+  //     incrementUnread();
+  //   });
+  //   return () => {
+  //     socket.off('notification');
+  //   };
+  // }, [incrementUnread]);
 
   const location = useLocation();
   const isChat = location.pathname.startsWith('/chat');
@@ -80,16 +79,21 @@ export function Navbar() {
               <Link to="/chat">
                 <Button variant="ghost" size="icon">
                   <MessageSquare className="h-5 w-5" />
+                  {totalUnread > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                    {totalUnread > 99 ? '99+' : totalUnread}
+                  </span>
+                )}
                 </Button>
               </Link>
               <Link to="/notifications">
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
-                      {unreadCount}
-                    </span>
-                  )}
+                  {friendRequestCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                    {friendRequestCount > 99 ? '99+' : friendRequestCount}
+                  </span>
+                )}
                 </Button>
               </Link>
               <ModeToggle />
@@ -101,16 +105,21 @@ export function Navbar() {
               <Link to="/chat">
                 <Button variant="ghost" size="icon">
                   <MessageSquare className="h-5 w-5" />
+                  {totalUnread > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                    {totalUnread > 99 ? '99+' : totalUnread}
+                  </span>
+                )}
                 </Button>
               </Link>
               <Link to="/notifications">
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
-                      {unreadCount}
-                    </span>
-                  )}
+                  {friendRequestCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                    {friendRequestCount > 99 ? '99+' : friendRequestCount}
+                  </span>
+                )}
                 </Button>
               </Link>
               <ModeToggle />
