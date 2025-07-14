@@ -51,10 +51,10 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="border-b bg-background">
+     <nav className="border-b bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Left: Logo and brand name (brand name hidden on mobile) */}
+            {/* Left */}
             <div className="flex items-center">
               <Link to="/projects" className="flex items-center gap-2">
                 <img src={logo} alt="BuildASquad Logo" className="h-8 w-8 rounded-md" />
@@ -62,7 +62,7 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Middle: Navigation links (hidden on mobile) */}
+            {/* Middle nav (desktop) */}
             <div className="hidden md:block">
               <div className="flex items-center space-x-4">
                 <Link to="/projects" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted">
@@ -74,56 +74,55 @@ export function Navbar() {
               </div>
             </div>
 
-            {/* Right: Action icons and profile (hidden on mobile) */}
+            {/* Right (desktop) */}
             <div className="hidden md:flex items-center space-x-4">
               <Link to="/chat">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="relative">
                   <MessageSquare className="h-5 w-5" />
                   {totalUnread > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                    {totalUnread > 99 ? '99+' : totalUnread}
-                  </span>
-                )}
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                      {totalUnread > 99 ? '99+' : totalUnread}
+                    </span>
+                  )}
                 </Button>
               </Link>
               <Link to="/notifications">
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
                   {friendRequestCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                    {friendRequestCount > 99 ? '99+' : friendRequestCount}
-                  </span>
-                )}
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                      {friendRequestCount > 99 ? '99+' : friendRequestCount}
+                    </span>
+                  )}
                 </Button>
               </Link>
               <ModeToggle />
               <UserMenu />
             </div>
 
-            {/* Mobile: Action icons and user avatar menu (no hamburger) */}
+            {/* Right (mobile) */}
             <div className="flex md:hidden items-center space-x-2">
               <Link to="/chat">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="relative">
                   <MessageSquare className="h-5 w-5" />
                   {totalUnread > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                    {totalUnread > 99 ? '99+' : totalUnread}
-                  </span>
-                )}
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                      {totalUnread > 99 ? '99+' : totalUnread}
+                    </span>
+                  )}
                 </Button>
               </Link>
               <Link to="/notifications">
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
                   {friendRequestCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                    {friendRequestCount > 99 ? '99+' : friendRequestCount}
-                  </span>
-                )}
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                      {friendRequestCount > 99 ? '99+' : friendRequestCount}
+                    </span>
+                  )}
                 </Button>
               </Link>
               <ModeToggle />
-              {/* Directly show user avatar as menu trigger */}
               <button
                 className="relative h-8 w-8 rounded-full p-0 focus:outline-none"
                 onClick={() => setIsMobileUserMenuOpen((v) => !v)}

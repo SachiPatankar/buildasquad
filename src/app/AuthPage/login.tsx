@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { githubLogin, googleLogin, loginUser } from '@/api'
 import useAuthStore from '@/stores/userAuthStore'
+import socket from '@/lib/socket';
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -58,6 +59,10 @@ export default function LoginPage() {
       // Store both token and user data directly
       const store = useAuthStore.getState()
       store.setAuth(accessToken, user) // Use accessToken
+      
+      // Reconnect socket to send new cookie
+      socket.disconnect();
+      socket.connect();
     
       navigate('/projects')
     } catch (err: any) {
