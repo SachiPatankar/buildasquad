@@ -20,12 +20,10 @@ const skillOptions = [
   "Data Science",
   "Mobile Development",
   "DevOps",
- 
 ]
 
-const workModes = ["Remote", "In-person", "Hybrid"]
+const workModes = ["Remote", "In person", "Hybrid"]
 
-// const experience_level = ["Beginner", "Intermediate", "Advanced", "Any level"]
 
 export default function CreatePostPage() {
   const navigate = useNavigate()

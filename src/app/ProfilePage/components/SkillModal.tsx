@@ -17,7 +17,7 @@ export type Skill = {
   order?: number
 }
 
-const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced"]
+const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"]
 
 export default function SkillModal({
   open,

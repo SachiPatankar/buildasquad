@@ -1,4 +1,4 @@
-import React, { type FormEvent, useState } from 'react'
+import React, { type FormEvent, useState, useEffect } from 'react'
 import { FaGoogle as Google, FaGithub as GitHub } from 'react-icons/fa'
 import {
   Card,
@@ -24,6 +24,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const user = useAuthStore((state) => state.user)
+
+  useEffect(() => {
+    if (user) {
+      navigate('/projects', { replace: true })
+    }
+  }, [user, navigate])
 
   const handleOAuth = async (provider: 'google' | 'github') => {
     if (provider === 'google') {
