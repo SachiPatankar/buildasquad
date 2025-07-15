@@ -11,12 +11,12 @@ export default function NotificationsPage() {
   const [acceptFriendReq] = useMutation(ACCEPT_FRIEND_REQ);
   const [declineFriendReq] = useMutation(DECLINE_FRIEND_REQ);
   const requests = data?.loadPendingFriendRequests || [];
-  const clearUnread = useNotificationStore((state) => state.clearUnread);
+  const setFriendRequestCount = useNotificationStore((state) => state.setFriendRequestCount);
 
   // Mark notifications as read on mount
   useEffect(() => {
-    clearUnread();
-  }, [clearUnread]);
+    setFriendRequestCount(0);
+  }, []);
 
   const handleAccept = async (connectionId: string) => {
     await acceptFriendReq({ variables: { connectionId } });

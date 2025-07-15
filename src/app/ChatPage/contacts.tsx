@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@apollo/client';
-import { LOAD_CONNECTIONS_LIST } from '@/graphql';
+import { useQuery, useMutation } from '@apollo/client';
+import { LOAD_CONNECTIONS_LIST, REMOVE_CONNECTION } from '@/graphql';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const ContactsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data, loading, error } = useQuery(LOAD_CONNECTIONS_LIST, {
+  const { data, loading, error, refetch } = useQuery(LOAD_CONNECTIONS_LIST, {
     variables: {},
     fetchPolicy: 'cache-and-network',
   });
 
   const [selectedContact, setSelectedContact] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
+
+  const [removeConnection, { loading: removing }] = useMutation(REMOVE_CONNECTION, {
+    onCompleted: () => {
+      // Refetch connections after removal
+      if (typeof refetch === 'function') refetch();
+    },
+  });
+
+  const handleRemoveConnection = async (connectionId: string) => {
+    await removeConnection({ variables: { connectionId } });
+  };
 
 
   useEffect(() => {
@@ -74,7 +85,8 @@ const ContactsPage: React.FC = () => {
                 variant="destructive"
                 size="sm"
                 className="ml-2"
-                // TODO: Add remove connection handler
+                onClick={() => handleRemoveConnection(conn._id)}
+                disabled={removing}
               >
                 Remove Connection
               </Button>

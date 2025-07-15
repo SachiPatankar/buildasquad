@@ -15,18 +15,6 @@ export default function ChatPage() {
     ? chats.find((chat: any) => chat._id === chatId)
     : undefined;
 
-  // const { data: unreadData } = useQuery(GET_UNREAD_COUNT_FOR_CHATS);
-  // const setChatUnreadCounts = useNotificationStore((s) => s.setChatUnreadCounts);
-  // useEffect(() => {
-  //   if (unreadData && Array.isArray(unreadData.getUnreadCountForChats)) {
-  //     const counts: { [chatId: string]: number } = {};
-  //     unreadData.getUnreadCountForChats.forEach((item: any) => {
-  //       if (item && item.chat_id) counts[item.chat_id] = item.unread_count;
-  //     });
-  //     setChatUnreadCounts(counts);
-  //   }
-  // }, [unreadData, setChatUnreadCounts]);
-
   // Responsive state: on mobile, control which panel is visible
   const [showSidebar, setShowSidebar] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
