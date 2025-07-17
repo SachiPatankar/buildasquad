@@ -170,7 +170,7 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
   const currentUser = useAuthStore((s) => s.user)
 
   return (
-    <Card className="w-full min-h-[400px] flex flex-col hover:shadow-xl transition-all duration-300">
+    <Card className="w-full min-h-[400px] h-full flex flex-col hover:shadow-xl transition-all duration-300">
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -277,7 +277,7 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
               variant={isSaved ? "secondary" : "ghost"}
               size="sm"
               onClick={handleSaveToggle}
-              className={`flex-1 min-w-0 md:w-auto gap-1 ${isSaved ? "text-blue-600" : ""}`}
+              className={`flex-1 min-w-0 md:w-auto gap-1 min-w-[80px] ${isSaved ? "text-blue-600" : ""}`}
               title={isSaved ? "Unsave Post" : "Save Post"}
             >
               {isSaved ? <BookmarkCheck className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
@@ -288,7 +288,7 @@ export function ProjectCard({ project, onUnsave }: ProjectCardProps) {
               <Button
                 variant={applicationStatus ? "secondary" : "outline"}
                 size="sm"
-                className={`flex-1 min-w-0 md:w-auto gap-1 px-6 py-2 ${
+                className={`min-w-[100px] ${
                   applicationStatus 
                     ? "opacity-60 cursor-not-allowed" 
                     : "border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950"

@@ -36,9 +36,10 @@ interface ApplicationCardProps {
     created_at: string;
     updated_at: string;
   };
+  refetchApplications?: () => void;
 }
 
-export function ApplicationCard({ post, application }: ApplicationCardProps) {
+export function ApplicationCard({ post, application, refetchApplications }: ApplicationCardProps) {
   const creatorName = `${post.first_name} ${post.last_name}`;
   const creatorAvatar = post.photo;
   const interestedCount = post.applications_count ?? 0;
@@ -65,6 +66,7 @@ export function ApplicationCard({ post, application }: ApplicationCardProps) {
     onCompleted: () => {
       setApplicationStatus('withdrawn');
       setCanceling(false);
+      if (refetchApplications) refetchApplications();
     },
   });
 

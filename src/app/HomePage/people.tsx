@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client"
 import { SearchBar } from "@/app/HomePage/layout/search-bar"
 import { FilterSidebar } from "@/app/HomePage/layout/sidebar-filter"
 import { UserCard } from "@/app/HomePage/components/user-card"
-import { LOAD_PEOPLE, LOAD_PEOPLE_BY_FILTER } from "@/graphql"
+import { LOAD_PEOPLE, LOAD_PEOPLE_BY_FILTER, SEARCH_PEOPLE } from "@/graphql"
 
 interface PeopleFilterState {
   selectedSkills: string[];
@@ -31,11 +31,14 @@ export default function PeoplePage() {
   }
 
   const filterActive = Object.keys(peopleFilterInput).length > 0
+  const useSearch = searchQuery && !filterActive;
   const { data, loading, fetchMore, refetch } = useQuery(
-    filterActive ? LOAD_PEOPLE_BY_FILTER : LOAD_PEOPLE,
-    filterActive
-      ? { variables: { filter: peopleFilterInput, page: 1, limit: 4 }, notifyOnNetworkStatusChange: true }
-      : { variables: { page: 1, limit: 4 }, notifyOnNetworkStatusChange: true }
+    useSearch ? SEARCH_PEOPLE : filterActive ? LOAD_PEOPLE_BY_FILTER : LOAD_PEOPLE,
+    useSearch
+      ? { variables: { search: searchQuery }, notifyOnNetworkStatusChange: true }
+      : filterActive
+        ? { variables: { filter: peopleFilterInput, page: 1, limit: 4 }, notifyOnNetworkStatusChange: true }
+        : { variables: { page: 1, limit: 4 }, notifyOnNetworkStatusChange: true }
   )
 
   // Reset on filter/search change
@@ -49,15 +52,20 @@ export default function PeoplePage() {
   // When data changes (first page), set users
   useEffect(() => {
     if (data) {
-      const newUsers = filterActive
-        ? data.loadPeopleByFilter ?? []
-        : data.loadPeople ?? []
+      let newUsers = [];
+      if (useSearch) {
+        newUsers = data.searchPeople ?? [];
+      } else if (filterActive) {
+        newUsers = data.loadPeopleByFilter ?? [];
+      } else {
+        newUsers = data.loadPeople ?? [];
+      }
       if (page === 1) {
         setUsers(newUsers)
         setHasMore(newUsers.length === 4)
       }
     }
-  }, [data, page, filterActive])
+  }, [data, page, filterActive, useSearch])
 
   // Infinite scroll handler
   const lastUserRef = useCallback(

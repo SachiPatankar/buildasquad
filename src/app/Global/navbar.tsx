@@ -193,12 +193,6 @@ function UserMenu() {
         <DropdownMenuItem asChild>
           <Link to="/saved-posts">My Saved Posts</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/privacy-policy">Privacy Policy</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/terms-of-service">Terms of Service</Link>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>Sign out</DropdownMenuItem>
       </DropdownMenuContent>

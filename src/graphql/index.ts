@@ -987,3 +987,91 @@ export const GET_PRESIGNED_URL = gql`
     }
   }
 `
+
+// -------------------- SEARCH QUERIES --------------------
+
+export const SEARCH_MY_APPLICATIONS = gql`
+  query SearchMyApplications($search: String!) {
+    searchMyApplications(search: $search) {
+      post {
+        _id
+        title
+        description
+        posted_by
+        first_name
+        last_name
+        photo
+        tech_stack
+        work_mode
+        experience_level
+        location_id
+        status
+        views_count
+        applications_count
+        is_saved
+        is_applied
+        created_at
+        updated_at
+      }
+      application {
+        _id
+        post_id
+        applicant_id
+        message
+        status
+        created_at
+        updated_at
+      }
+    }
+  }
+`;
+
+export const SEARCH_PEOPLE = gql`
+  query SearchPeople($search: String!) {
+    searchPeople(search: $search) {
+      _id
+      first_name
+      last_name
+      photo
+      location_id
+      title
+      bio
+      is_connection
+      chat_id
+      top_skills {
+        _id
+        skill_name
+        proficiency_level
+      }
+    }
+  }
+`;
+
+export const SEARCH_PROJECTS = gql`
+  query SearchProjects($search: String!) {
+    searchProjects(search: $search) {
+      _id
+      title
+      description
+      posted_by
+      first_name
+      last_name
+      photo
+      tech_stack
+      work_mode
+      experience_level
+      location_id
+      status
+      views_count
+      applications_count
+      is_saved
+      is_applied
+      created_at
+      updated_at
+      requirements {
+        desired_skills
+        desired_roles
+      }
+    }
+  }
+`;

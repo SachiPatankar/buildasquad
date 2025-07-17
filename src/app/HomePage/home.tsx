@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client"
 import { SearchBar } from "@/app/HomePage/layout/search-bar"
 import { FilterSidebar } from "@/app/HomePage/layout/sidebar-filter"
 import { ProjectCard } from "@/app/HomePage/components/project-card"
-import { LOAD_POST_BY_FILTER, LOAD_POST_BY_RECOMMENDATION } from "@/graphql"
+import { LOAD_POST_BY_FILTER, LOAD_POST_BY_RECOMMENDATION, SEARCH_PROJECTS } from "@/graphql"
 
 interface FilterState {
   selectedSkills: string[]
@@ -48,11 +48,14 @@ export default function HomePage() {
   }
 
   const filterActive = isFilterActive(filter);
+  const useSearch = searchQuery && !filterActive;
   const { data, loading, fetchMore, refetch } = useQuery(
-    filterActive ? LOAD_POST_BY_FILTER : LOAD_POST_BY_RECOMMENDATION,
-    filterActive
-      ? { variables: { filter: postFilterInput, page: 1, limit: 4 }, notifyOnNetworkStatusChange: true }
-      : { variables: { page: 1, limit: 4 }, notifyOnNetworkStatusChange: true }
+    useSearch ? SEARCH_PROJECTS : filterActive ? LOAD_POST_BY_FILTER : LOAD_POST_BY_RECOMMENDATION,
+    useSearch
+      ? { variables: { search: searchQuery }, notifyOnNetworkStatusChange: true }
+      : filterActive
+        ? { variables: { filter: postFilterInput, page: 1, limit: 4 }, notifyOnNetworkStatusChange: true }
+        : { variables: { page: 1, limit: 4 }, notifyOnNetworkStatusChange: true }
   )
 
   // Reset on filter/search change
@@ -66,15 +69,20 @@ export default function HomePage() {
   // When data changes (first page), set projects
   useEffect(() => {
     if (data) {
-      const newProjects = filterActive
-        ? data.loadPostByFilter ?? []
-        : data.loadByRecommendation ?? []
+      let newProjects = [];
+      if (useSearch) {
+        newProjects = data.searchProjects ?? [];
+      } else if (filterActive) {
+        newProjects = data.loadPostByFilter ?? [];
+      } else {
+        newProjects = data.loadByRecommendation ?? [];
+      }
       if (page === 1) {
         setProjects(newProjects)
         setHasMore(newProjects.length === 4)
       }
     }
-  }, [data, page, filterActive])
+  }, [data, page, filterActive, useSearch])
 
   // Infinite scroll handler
   const lastProjectRef = useCallback(
@@ -117,7 +125,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row h-fit">
         {/* Sidebar (responsive) */}
         <FilterSidebar type="projects" filter={filter} onFilterChange={handleFilterChange} />
 
@@ -140,11 +148,11 @@ export default function HomePage() {
 
           {/* Projects Content */}
           <div className="p-2 sm:p-4 lg:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-stretch">
               {projects.map((project: any, idx: number) => {
                 const isLast = idx === projects.length - 1;
                 return (
-                  <div key={project._id} ref={isLast ? lastProjectRef : null}>
+                  <div key={project._id} ref={isLast ? lastProjectRef : null} className="h-full flex flex-col">
                     <ProjectCard project={project} />
                   </div>
                 );

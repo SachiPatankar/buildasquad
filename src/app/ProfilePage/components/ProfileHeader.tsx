@@ -8,7 +8,7 @@ import UserInfoModal, { type UserInfo } from "./UserInfoModal"
 import { useState, useEffect } from "react"
 import AvatarCropDialog from "./AvatarCropDialog"
 import { useMutation, useLazyQuery } from "@apollo/client"
-import { UPDATE_USER, GET_PRESIGNED_URL } from "@/graphql"
+import { UPDATE_USER, GET_PRESIGNED_URL, SEND_FRIEND_REQ } from "@/graphql"
 
 interface Props {
   profileData: {
@@ -26,15 +26,18 @@ interface Props {
   }
   isOwnProfile: boolean
   onUserDataUpdate?: () => Promise<any>
+  userId: string // <-- add this
 }
 
-export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpdate }: Props) {
+export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpdate, userId }: Props) {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showAvatarDialog, setShowAvatarDialog] = useState(false)
   const [avatar, setAvatar] = useState(profileData.avatar)
   const [updateUser] = useMutation(UPDATE_USER)
   const [getPresignedUrl] = useLazyQuery(GET_PRESIGNED_URL)
   const [avatarLoading, setAvatarLoading] = useState(false)
+  const [sendFriendReq, { loading: connectLoading }] = useMutation(SEND_FRIEND_REQ);
+  const [connectionStatus, setConnectionStatus] = useState(profileData.is_connection);
 
   // Sync local avatar state with prop changes
   useEffect(() => {
@@ -106,9 +109,13 @@ export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpd
     }
   }
 
-  const handleConnect = () => {
-    // Implement connect logic or call a prop
-    alert('Connect feature coming soon!');
+  const handleConnect = async () => {
+    try {
+      await sendFriendReq({ variables: { addresseeUserId: userId } });
+      setConnectionStatus('pending');
+    } catch (e: any) {
+      alert(e.message || 'Failed to send connection request.');
+    }
   };
 
   const handleMessage = () => {
@@ -171,17 +178,17 @@ export default function ProfileHeader({ profileData, isOwnProfile, onUserDataUpd
           <div className="space-y-2">
             {!isOwnProfile && (
               <>
-                {profileData.is_connection === 'accepted' && profileData.chat_id ? (
+                {connectionStatus === 'accepted' && profileData.chat_id ? (
                   <Button variant="outline" className="w-full" onClick={handleMessage}>
                     Message
                   </Button>
-                ) : profileData.is_connection === 'pending' ? (
+                ) : connectionStatus === 'pending' ? (
                   <Button variant="outline" className="w-full" disabled>
                     Pending
                   </Button>
                 ) : (
-                  <Button className="w-full" onClick={handleConnect}>
-                    Connect
+                  <Button className="w-full" onClick={handleConnect} disabled={connectLoading}>
+                    {connectLoading ? 'Connecting...' : 'Connect'}
                   </Button>
                 )}
               </>

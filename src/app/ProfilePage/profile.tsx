@@ -69,6 +69,7 @@ export default function ProfilePage() {
           profileData={profile} 
           isOwnProfile={!!isOwnProfile} 
           onUserDataUpdate={refetchUserData}
+          userId={userId || userData?.loadUserById?._id}
         />
         <ProfileTabs
           isOwnProfile={!!isOwnProfile}

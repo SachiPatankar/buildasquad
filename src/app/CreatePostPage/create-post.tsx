@@ -146,13 +146,7 @@ export default function CreatePostPage() {
 
   // Form validation
   const isFormValid = () => {
-    return (
-      formData.title.trim() &&
-      formData.description.trim() &&
-      formData.requirements.desired_skills.length > 0 &&
-      formData.project_type &&
-      formData.work_mode
-    )
+    return formData.title.trim();
   }
 
   // Submit handler
@@ -221,7 +215,7 @@ export default function CreatePostPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="description">Project Description *</Label>
+                <Label htmlFor="description">Project Description</Label>
                 <textarea
                   id="description"
                   value={formData.description}
@@ -241,7 +235,7 @@ export default function CreatePostPage() {
             <CardContent className="space-y-6">
               {/* Skills */}
               <div>
-                <Label>Required Skills *</Label>
+                <Label>Required Skills</Label>
                 <div className="mt-2 space-y-3">
                   <div className="flex gap-2">
                     <Input
@@ -382,7 +376,7 @@ export default function CreatePostPage() {
 
               {/* Project Type */}
               <div>
-                <Label htmlFor="project_type">Project Type *</Label>
+                <Label htmlFor="project_type">Project Type</Label>
                 <Input
                   id="project_type"
                   value={formData.project_type}
@@ -412,7 +406,7 @@ export default function CreatePostPage() {
 
               {/* Work Mode */}
               <div>
-                <Label>Work Mode *</Label>
+                <Label>Work Mode</Label>
                 <div className="flex gap-2 mt-2">
                   {workModes.map((mode) => (
                     <Button

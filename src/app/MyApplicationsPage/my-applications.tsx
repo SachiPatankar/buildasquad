@@ -1,18 +1,23 @@
 import { useQuery } from '@apollo/client';
-import { GET_APPLICATIONS_BY_USER } from '@/graphql';
+import { GET_APPLICATIONS_BY_USER, SEARCH_MY_APPLICATIONS } from '@/graphql';
 import { ApplicationCard } from './components/application-card';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
 export default function MyApplicationsPage() {
-  const { data, loading, error } = useQuery(GET_APPLICATIONS_BY_USER);
-  const applications = data?.getApplicationsByUser || [];
   const [search, setSearch] = useState('');
-
-  const filteredApplications = applications.filter((item: any) =>
-    item.post.title.toLowerCase().includes(search.toLowerCase())
+  const { data, loading, error, refetch } = useQuery(
+    search
+      ? SEARCH_MY_APPLICATIONS
+      : GET_APPLICATIONS_BY_USER,
+    search
+      ? { variables: { search }, fetchPolicy: 'network-only' }
+      : { fetchPolicy: 'network-only' }
   );
+  const applications = search
+    ? data?.searchMyApplications || []
+    : data?.getApplicationsByUser || [];
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4">
@@ -29,12 +34,12 @@ export default function MyApplicationsPage() {
       </div>
       {loading && <div>Loading...</div>}
       {error && <div className="text-red-500">Error loading applications.</div>}
-      {!loading && filteredApplications.length === 0 && (
+      {!loading && applications.length === 0 && (
         <div className="text-muted-foreground">No applications found.</div>
       )}
       <div className="space-y-6">
-        {filteredApplications.map((item: any) => (
-          <ApplicationCard key={item.application._id} post={item.post} application={item.application} />
+        {applications.map((item: any) => (
+          <ApplicationCard key={item.application._id} post={item.post} application={item.application} refetchApplications={refetch} />
         ))}
       </div>
     </div>

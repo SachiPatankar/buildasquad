@@ -122,9 +122,9 @@ export function FilterSidebar({ type, filter, onFilterChange }: FilterSidebarPro
 
   // Helper: Render all filter controls for current type
   const renderFilters = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-2">
       {type === "projects" && (
-        <>
+        <div>
           {/* Tech (Skills) */}
           <div className="mb-6">
             <h3 className="font-medium mb-2">Tech</h3>
@@ -270,10 +270,10 @@ export function FilterSidebar({ type, filter, onFilterChange }: FilterSidebarPro
               </Button>
             </div>
           )}
-        </>
+        </div>
       )}
       {type === "people" && (
-        <>
+        <div>
           {/* Title Input (with tag adding) */}
           <div className="mb-6">
             <h3 className="font-medium mb-2">Titles</h3>
@@ -369,7 +369,7 @@ export function FilterSidebar({ type, filter, onFilterChange }: FilterSidebarPro
               </Button>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
@@ -378,7 +378,7 @@ export function FilterSidebar({ type, filter, onFilterChange }: FilterSidebarPro
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block w-72 p-6 border-r bg-card/50 sticky top-0 h-screen">
+      <div className="hidden lg:block w-72 p-6 bg-card/50 sticky top-0 h-screen">
         <div className="mb-6">
           <h2 className="font-semibold text-neutral-500 ">Filters</h2>
         </div>
