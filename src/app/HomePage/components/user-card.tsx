@@ -57,7 +57,7 @@ export function UserCard({ user }: UserCardProps) {
   };
 
   return (
-    <Card className="w-full min-h-[320px] flex flex-col hover:shadow-lg transition-all duration-300">
+    <Card className="w-full min-h-[90px] h-full flex flex-col hover:shadow-lg transition-all duration-300">
       <CardHeader className="">
         <div className="flex items-start gap-4">
           <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
@@ -76,18 +76,15 @@ export function UserCard({ user }: UserCardProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        <div className="space-y-1 flex-1 flex flex-col">
-          {/* Bio section */}
-          <div className="flex-1">
-            {bio ? (
-              <div className="text-sm text-muted-foreground line-clamp-3 min-h-[3.5em]">{bio}</div>
-            ) : (
-              <div className="min-h-[3.5em]" />
-            )}
-          </div>
+      <CardContent className="flex flex-col">
+        {/* Only show bio if present */}
+        {bio && (
+          <div className="text-sm text-muted-foreground line-clamp-3 mb-1 min-h-[3.5em]">{bio}</div>
+        )}
+        {/* Only show skills if present */}
+        {skills.length > 0 && (
           <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-2">Skills</h4>
+            <h4 className="text-sm font-medium text-muted-foreground mb-1">Skills</h4>
             <div className="flex flex-wrap gap-1.5">
               {skills.slice(0, 4).map((skill) => (
                 <Badge key={skill._id} variant="secondary" className="text-xs">
@@ -101,7 +98,7 @@ export function UserCard({ user }: UserCardProps) {
               )}
             </div>
           </div>
-        </div>
+        )}
       </CardContent>
       <CardFooter className="pt-0 gap-2 mt-auto">
         {!isOwnProfile && (

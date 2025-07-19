@@ -201,6 +201,7 @@ export const LOAD_APPLICATIONS_BY_POST_ID = gql`
         _id
         skill_name
         proficiency_level
+        is_top
       }
       message
       status
@@ -581,6 +582,7 @@ export const GET_SKILLS_BY_USER = gql`
       skill_name
       proficiency_level
       years_experience
+      is_top
       order
       created_at
       updated_at
@@ -596,6 +598,7 @@ export const CREATE_USER_SKILL = gql`
       proficiency_level
       years_experience
       order
+      is_top
       created_at
       updated_at
     }
@@ -718,6 +721,7 @@ export const LOAD_PEOPLE = gql`
         _id
         skill_name
         proficiency_level
+        is_top
       }
     }
   }
@@ -739,6 +743,7 @@ export const LOAD_PEOPLE_BY_FILTER = gql`
         _id
         skill_name
         proficiency_level
+        is_top
       }
     }
   }
@@ -760,6 +765,7 @@ export const LOAD_PERSON_BY_ID = gql`
         _id
         skill_name
         proficiency_level
+        is_top
       }
     }
   }
@@ -1042,6 +1048,7 @@ export const SEARCH_PEOPLE = gql`
         _id
         skill_name
         proficiency_level
+        is_top
       }
     }
   }

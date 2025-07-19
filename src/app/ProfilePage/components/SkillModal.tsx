@@ -35,16 +35,19 @@ export default function SkillModal({
   const [skillName, setSkillName] = useState("")
   const [proficiencyLevel, setProficiencyLevel] = useState("")
   const [yearsExperience, setYearsExperience] = useState("")
+  const [isTop, setIsTop] = useState(false)
 
   useEffect(() => {
     if (skill) {
       setSkillName(skill.skill_name || "")
       setProficiencyLevel(skill.proficiency_level || "")
       setYearsExperience(skill.years_experience?.toString() || "")
+      setIsTop(skill.is_top || false)
     } else {
       setSkillName("")
       setProficiencyLevel("")
       setYearsExperience("")
+      setIsTop(false)
     }
   }, [skill, open])
 
@@ -67,6 +70,7 @@ export default function SkillModal({
       skill_name: skillName,
       proficiency_level: proficiencyLevel.toLowerCase(),
       years_experience: yearsExperience ? Number(yearsExperience) : null,
+      is_top: isTop,
     }
     if (skill && skill._id) {
       updateSkill({ variables: { userSkillId: skill._id, input } })
@@ -123,6 +127,21 @@ export default function SkillModal({
             value={yearsExperience}
             onChange={e => setYearsExperience(e.target.value)}
           />
+          {/* Add Top Skill Checkbox */}
+          <div className="mt-2">
+            <label className="inline-flex items-center">
+              <input
+                type="checkbox"
+                className="form-checkbox mr-2"
+                checked={isTop}
+                onChange={e => setIsTop(e.target.checked)}
+              />
+              Mark as Top Skill
+            </label>
+            <div className="text-xs text-muted-foreground mt-1">
+              This skill will be shown on your profile
+            </div>
+          </div>
           {error && <div className="text-red-500 text-sm">{error.message}</div>}
           <div className="flex gap-2">
             <Button type="submit" disabled={loading}>
