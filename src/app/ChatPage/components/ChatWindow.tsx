@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
+import { useLocation } from 'react-router-dom';
 
 import {
   GET_MESSAGES_FOR_CHAT,
@@ -15,6 +16,7 @@ import MessageBubble from './MessageBubble';
 import useAuthStore from '@/stores/userAuthStore';
 import useNotificationStore from '@/stores/notificationStore';
 import socket from '@/lib/socket';
+import {  Send } from 'lucide-react';
 
 interface ChatWindowProps {
   chatId: string | null | undefined;
@@ -29,6 +31,12 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
   /* ------------------------------------------------------------------ */
   const authUser = useAuthStore((s) => s.user);
   const userId = authUser?._id;
+
+  const location = useLocation();
+  const routeState = location.state || {};
+  const displayFirstName = firstName || routeState.firstName || '';
+  const displayLastName = lastName || routeState.lastName || '';
+  const displayPhoto = photo || routeState.photo || '';
 
   const [message, setMessage] = useState('');
   const [page, setPage] = useState(1);
@@ -245,7 +253,7 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
   /* ------------------------------------------------------------------ */
   /*                              render                                */
   /* ------------------------------------------------------------------ */
-  const name = `${firstName} ${lastName ?? ''}`.trim();
+  const name = `${displayFirstName} ${displayLastName}`.trim();
 
   // flip once for display (old → new)
   const messages = [...(data?.getMessagesForChat ?? [])].reverse();
@@ -255,7 +263,7 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
       {/* header */}
       <div className="p-4 border-b bg-card flex items-center gap-3 flex-shrink-0">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={photo || '/placeholder.svg'} />
+          <AvatarImage src={displayPhoto || '/placeholder.svg'} />
           <AvatarFallback>
             {name
               .split(' ')
@@ -318,7 +326,7 @@ function ChatWindow({ chatId, firstName, lastName, photo }: ChatWindowProps) {
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
         />
         <Button onClick={handleSend} size="icon" disabled={!message.trim()}>
-          Send
+          <Send/>
         </Button>
       </div>
     </div>

@@ -12,6 +12,7 @@ import { LOAD_POSTS_BY_USER_ID, CLOSE_POST, OPEN_POST, DELETE_POST } from "@/gra
 import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { toast } from 'react-toastify';
 import type { PostSummary } from "@/graphql/generated"
+import { format } from "date-fns"
 
 export default function MyPostsPage() {
   const navigate = useNavigate();
@@ -115,8 +116,8 @@ export default function MyPostsPage() {
         ) : (
           <div className="space-y-6">
             {posts.map((post: PostSummary) => (
-              <Card key={post._id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
+              <Card key={post._id} className="hover:shadow-lg transition-shadow py-6">
+                <CardHeader >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
@@ -193,7 +194,7 @@ export default function MyPostsPage() {
                         <span className="font-medium">Applications:</span> {post.applications_count}
                       </div>
                       <div>
-                        <span className="font-medium">Created:</span> {post.created_at}
+                      <span className="font-medium">Created:</span> {post.created_at ? format(new Date(post.created_at), 'MMMM d, yyyy h:mm a') : '-'}
                       </div>
                     </div>
                     {/* Actions */}

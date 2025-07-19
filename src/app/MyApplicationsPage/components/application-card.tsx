@@ -9,6 +9,8 @@ import { useState } from 'react';
 import { APPLY_TO_POST, CANCEL_APPLY_TO_POST } from '@/graphql';
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'react-toastify';
+
 
 interface ApplicationCardProps {
   post: {
@@ -52,6 +54,7 @@ export function ApplicationCard({ post, application, refetchApplications }: Appl
   const [canceling, setCanceling] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [applicationMessage, setApplicationMessage] = useState(application.message || "");
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   const [applyToPost, { loading: applying }] = useMutation(APPLY_TO_POST, {
     onCompleted: (data) => {
@@ -66,7 +69,14 @@ export function ApplicationCard({ post, application, refetchApplications }: Appl
     onCompleted: () => {
       setApplicationStatus('withdrawn');
       setCanceling(false);
+      setCancelDialogOpen(false);
+      toast.success('Your application has been withdrawn.');
       if (refetchApplications) refetchApplications();
+    },
+    onError: (error) => {
+      setCanceling(false);
+      setCancelDialogOpen(false);
+      toast.error(error.message);
     },
   });
 
@@ -83,6 +93,10 @@ export function ApplicationCard({ post, application, refetchApplications }: Appl
   };
 
   const handleCancelApplication = () => {
+    setCancelDialogOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
     setCanceling(true);
     cancelApplyToPost();
   };
@@ -252,6 +266,28 @@ export function ApplicationCard({ post, application, refetchApplications }: Appl
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Confirmation Dialog */}
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Application</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel your application? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4 flex gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant="ghost" disabled={canceling}>
+                No, keep application
+              </Button>
+            </DialogClose>
+            <Button type="button" variant="destructive" onClick={handleConfirmCancel} disabled={canceling}>
+              {canceling ? 'Cancelling...' : 'Yes, cancel application'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </Card>

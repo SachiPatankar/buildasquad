@@ -77,7 +77,7 @@ function ApplicantCard({ applicant, onAccept, onReject, acceptLoading, rejectLoa
             </div>
           </div>
           {/* Application Message */}
-          <div className="bg-muted/50 rounded-lg p-3 mt-2">
+          <div className="bg-muted/50 rounded-lg p-3">
             <p className="text-sm text-muted-foreground leading-relaxed mb-1">{applicant.message}</p>
             <div className="text-xs text-muted-foreground">
               Applied {formatDistanceToNow(new Date(applicant.created_at), { addSuffix: true })}

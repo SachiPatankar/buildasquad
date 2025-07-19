@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { LOAD_CONNECTIONS_LIST, REMOVE_CONNECTION } from '@/graphql';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 
 const ContactsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ const ContactsPage: React.FC = () => {
 
   const [selectedContact, setSelectedContact] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
 
   const [removeConnection, { loading: removing }] = useMutation(REMOVE_CONNECTION, {
     onCompleted: () => {
@@ -77,23 +80,60 @@ const ContactsPage: React.FC = () => {
                 variant="default"
                 size="sm"
                 className="ml-2"
-                onClick={() => isMobile ? setSelectedContact(conn) : navigate(`/chat/${conn.chat_id}`)}
+                onClick={() => {
+                  if (isMobile) {
+                    setSelectedContact(conn);
+                    navigate(`/chat/${conn.chat_id}`, { state: { firstName: conn.first_name, lastName: conn.last_name, photo: conn.photo } });
+                  } else {
+                    navigate(`/chat/${conn.chat_id}`, { state: { firstName: conn.first_name, lastName: conn.last_name, photo: conn.photo } });
+                  }
+                }}
               >
                 Chat
               </Button>
               <Button
-                variant="destructive"
+                variant="outline"
                 size="sm"
                 className="ml-2"
-                onClick={() => handleRemoveConnection(conn._id)}
+                onClick={() => { setPendingRemoveId(conn._id); setConfirmDialogOpen(true); }}
                 disabled={removing}
               >
-                Remove Connection
+               <Minus className="text-red-500" />
               </Button>
             </li>
           ))
         )}
       </ul>
+      {/* Confirmation Dialog for Remove Connection */}
+      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Connection</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove this connection? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4 flex gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant="ghost" disabled={removing}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                if (pendingRemoveId) handleRemoveConnection(pendingRemoveId);
+                setConfirmDialogOpen(false);
+                setPendingRemoveId(null);
+              }}
+              disabled={removing}
+            >
+              {removing ? 'Removing...' : 'Yes, remove'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

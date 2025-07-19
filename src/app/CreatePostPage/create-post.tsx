@@ -50,6 +50,23 @@ export default function CreatePostPage() {
   const [roleInput, setRoleInput] = useState("")
   const [techInput, setTechInput] = useState("")
 
+  // Options for project type and phase
+  const projectTypeOptions = [
+    "Hackathon",
+    "Startup",
+    "Open Source",
+    "School Project",
+    "Personal Project",
+    "Other",
+  ];
+  const projectPhaseOptions = [
+    "Ideation",
+    "Development",
+    "MVP",
+    "Launched",
+    "Maintenance",
+  ];
+
   // Apollo hooks
   const { data: postData } = useQuery(LOAD_POST_BY_ID, {
     variables: { postId },
@@ -82,7 +99,11 @@ export default function CreatePostPage() {
 
   // Handlers for requirements
   const handleAddSkill = () => {
-    if (skillInput.trim() && !formData.requirements.desired_skills.includes(skillInput.trim())) {
+    if (
+      skillInput.trim() &&
+      !formData.requirements.desired_skills.includes(skillInput.trim()) &&
+      formData.requirements.desired_skills.length < 8
+    ) {
       setFormData((prev) => ({
         ...prev,
         requirements: {
@@ -105,7 +126,10 @@ export default function CreatePostPage() {
   }
 
   const handleAddRole = () => {
-    if (roleInput.trim() && !formData.requirements.desired_roles.includes(roleInput.trim())) {
+    if (
+      roleInput.trim() &&
+      !formData.requirements.desired_roles.includes(roleInput.trim())
+    ) {
       setFormData((prev) => ({
         ...prev,
         requirements: {
@@ -128,7 +152,11 @@ export default function CreatePostPage() {
   }
 
   const handleAddTech = () => {
-    if (techInput.trim() && !formData.tech_stack.includes(techInput.trim())) {
+    if (
+      techInput.trim() &&
+      !formData.tech_stack.includes(techInput.trim()) &&
+      formData.tech_stack.length < 8
+    ) {
       setFormData((prev) => ({
         ...prev,
         tech_stack: [...prev.tech_stack, techInput.trim()],
@@ -146,7 +174,7 @@ export default function CreatePostPage() {
 
   // Form validation
   const isFormValid = () => {
-    return formData.title.trim();
+    return formData.title.trim() && formData.title.length <= 100 && formData.description.length <= 500;
   }
 
   // Submit handler
@@ -208,10 +236,16 @@ export default function CreatePostPage() {
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 100) {
+                      setFormData((prev) => ({ ...prev, title: e.target.value }))
+                    }
+                  }}
                   placeholder="Enter your project title"
                   className="mt-1"
+                  maxLength={100}
                 />
+                <div className="text-xs text-muted-foreground text-right">{formData.title.length}/100</div>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -219,10 +253,16 @@ export default function CreatePostPage() {
                 <textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 500) {
+                      setFormData((prev) => ({ ...prev, description: e.target.value }))
+                    }
+                  }}
                   placeholder="Describe your project, its goals, and what you're looking to build"
                   className="mt-1 w-full min-h-[120px] px-3 py-2 border border-input rounded-md bg-transparent text-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none resize-none"
+                  maxLength={500}
                 />
+                <div className="text-xs text-muted-foreground text-right">{formData.description.length}/500</div>
               </div>
             </CardContent>
           </Card>
@@ -235,7 +275,10 @@ export default function CreatePostPage() {
             <CardContent className="space-y-6">
               {/* Skills */}
               <div>
-                <Label>Required Skills</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Required Skills</Label>
+                  <span className="text-xs text-muted-foreground">{formData.requirements.desired_skills.length}/8</span>
+                </div>
                 <div className="mt-2 space-y-3">
                   <div className="flex gap-2">
                     <Input
@@ -243,8 +286,10 @@ export default function CreatePostPage() {
                       onChange={(e) => setSkillInput(e.target.value)}
                       placeholder="Add a skill"
                       onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddSkill())}
+                      disabled={formData.requirements.desired_skills.length >= 8}
+                      maxLength={30}
                     />
-                    <Button type="button" onClick={handleAddSkill} size="icon" variant="outline">
+                    <Button type="button" onClick={handleAddSkill} size="icon" variant="outline" disabled={formData.requirements.desired_skills.length >= 8}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
@@ -257,7 +302,7 @@ export default function CreatePostPage() {
                         onClick={() => {
                           if (formData.requirements.desired_skills.includes(skill)) {
                             handleRemoveSkill(skill);
-                          } else {
+                          } else if (formData.requirements.desired_skills.length < 8) {
                             setFormData((prev) => ({
                               ...prev,
                               requirements: {
@@ -274,7 +319,7 @@ export default function CreatePostPage() {
                   </div>
                   {formData.requirements.desired_skills.length > 0 && (
                     <div className="space-y-2">
-                      <Label className="text-sm">Selected Skills:</Label>
+                      <Label className="text-sm">Selected Skills ({formData.requirements.desired_skills.length}/8):</Label>
                       <div className="flex flex-wrap gap-2">
                         {formData.requirements.desired_skills.map((skill) => (
                           <Badge key={skill} className="gap-1">
@@ -290,7 +335,10 @@ export default function CreatePostPage() {
 
               {/* Roles */}
               <div>
-                <Label>Desired Roles</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Desired Roles</Label>
+                  <span className="text-xs text-muted-foreground">{formData.requirements.desired_roles.length}/4</span>
+                </div>
                 <div className="mt-2 space-y-3">
                   <div className="flex gap-2">
                     <Input
@@ -298,8 +346,10 @@ export default function CreatePostPage() {
                       onChange={(e) => setRoleInput(e.target.value)}
                       placeholder="e.g., Frontend Developer, UI/UX Designer"
                       onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddRole())}
+                      maxLength={40}
+                      disabled={formData.requirements.desired_roles.length >= 4}
                     />
-                    <Button type="button" onClick={handleAddRole} size="icon" variant="outline">
+                    <Button type="button" onClick={handleAddRole} size="icon" variant="outline" disabled={formData.requirements.desired_roles.length >= 4}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
@@ -348,7 +398,10 @@ export default function CreatePostPage() {
             <CardContent className="space-y-6">
               {/* Tech Stack */}
               <div>
-                <Label>Tech Stack</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Tech Stack</Label>
+                  <span className="text-xs text-muted-foreground">{formData.tech_stack.length}/8</span>
+                </div>
                 <div className="mt-2 space-y-3">
                   <div className="flex gap-2">
                     <Input
@@ -356,8 +409,10 @@ export default function CreatePostPage() {
                       onChange={(e) => setTechInput(e.target.value)}
                       placeholder="Add technology"
                       onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTech())}
+                      disabled={formData.tech_stack.length >= 8}
+                      maxLength={30}
                     />
-                    <Button type="button" onClick={handleAddTech} size="icon" variant="outline">
+                    <Button type="button" onClick={handleAddTech} size="icon" variant="outline" disabled={formData.tech_stack.length >= 8}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
@@ -374,33 +429,41 @@ export default function CreatePostPage() {
                 </div>
               </div>
 
-              {/* Project Type */}
-              <div>
-                <Label htmlFor="project_type">Project Type</Label>
-                <Input
-                  id="project_type"
-                  value={formData.project_type}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, project_type: e.target.value }))}
-                  placeholder="Enter the project type"
-                  className="mt-2"
-                />
-                <div className="text-xs text-muted-foreground mt-1">
-                  Examples: Hackathon, Startup, Open Source, School Project
+              {/* Project Type & Phase (side by side) */}
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <Label htmlFor="project_type">Project Type</Label>
+                  <select
+                    id="project_type"
+                    value={formData.project_type}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, project_type: e.target.value }))}
+                    className="mt-2 border border-input rounded-md bg-transparent text-sm px-3 py-2 w-full"
+                  >
+                    <option value="">Select project type</option>
+                    {projectTypeOptions.map((type) => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Examples: Hackathon, Startup, Open Source, School Project
+                  </div>
                 </div>
-              </div>
-
-              {/* Project Phase */}
-              <div>
-                <Label htmlFor="project_phase">Project Phase</Label>
-                <Input
-                  id="project_phase"
-                  value={formData.project_phase}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, project_phase: e.target.value }))}
-                  placeholder="Enter the project phase"
-                  className="mt-2"
-                />
-                <div className="text-xs text-muted-foreground mt-1">
-                  Examples: Ideation, Development, MVP, Launched
+                <div className="flex-1">
+                  <Label htmlFor="project_phase">Project Phase</Label>
+                  <select
+                    id="project_phase"
+                    value={formData.project_phase}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, project_phase: e.target.value }))}
+                    className="mt-2 border border-input rounded-md bg-transparent text-sm px-3 py-2 w-full"
+                  >
+                    <option value="">Select project phase</option>
+                    {projectPhaseOptions.map((phase) => (
+                      <option key={phase} value={phase}>{phase}</option>
+                    ))}
+                  </select>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Examples: Ideation, Development, MVP, Launched
+                  </div>
                 </div>
               </div>
 
@@ -423,13 +486,21 @@ export default function CreatePostPage() {
 
               {/* Location */}
               <div>
-                <Label htmlFor="location_id">Location</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="location_id">Location</Label>
+                  <span className="text-xs text-muted-foreground">{formData.location_id.length}/50</span>
+                </div>
                 <Input
                   id="location_id"
                   value={formData.location_id}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, location_id: e.target.value }))}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 50) {
+                      setFormData((prev) => ({ ...prev, location_id: e.target.value }))
+                    }
+                  }}
                   placeholder="Enter the location"
                   className="mt-1"
+                  maxLength={50}
                 />
               </div>
             </CardContent>

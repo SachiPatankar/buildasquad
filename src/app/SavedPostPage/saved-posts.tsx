@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { GET_SAVED_POSTS } from '@/graphql';
 import { ProjectCard } from '../HomePage/components/project-card';
+import { useEffect } from 'react';
 
 export default function SavedPostsPage() {
   const { data, loading, error, refetch } = useQuery(GET_SAVED_POSTS);
@@ -10,6 +11,17 @@ export default function SavedPostsPage() {
   const handleUnsave = () => {
     refetch();
   };
+
+  // Refetch when window regains focus (e.g., after navigating from projects)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [refetch]);
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4">
