@@ -4,8 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_EXPERIENCE, UPDATE_EXPERIENCE, DELETE_EXPERIENCE, GET_EXPERIENCE_BY_USER } from "@/graphql"
-import { Trash2 } from "lucide-react"
+import { CREATE_EXPERIENCE, UPDATE_EXPERIENCE, GET_EXPERIENCE_BY_USER } from "@/graphql"
 import { useParams } from "react-router-dom"
 
 export type Experience = {
@@ -78,10 +77,6 @@ export default function ExperienceModal({
     onCompleted: onClose,
     refetchQueries: [{ query: GET_EXPERIENCE_BY_USER, variables: { userId } }],
   })
-  const [deleteExperience, { loading: deleting, error: deleteError }] = useMutation(DELETE_EXPERIENCE, {
-    onCompleted: onClose,
-    refetchQueries: [{ query: GET_EXPERIENCE_BY_USER, variables: { userId } }],
-  })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -101,25 +96,14 @@ export default function ExperienceModal({
     }
   }
 
-  const handleDelete = () => {
-    if (experience && experience._id) {
-      deleteExperience({ variables: { experienceId: experience._id } })
-    }
-  }
-
-  const error = createError || updateError || deleteError
-  const loading = creating || updating || deleting
+  const error = createError || updateError
+  const loading = creating || updating
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>{experience ? "Edit Experience" : "Add Experience"}</DialogTitle>
-          {experience && experience._id && (
-            <Button variant="ghost" size="icon" onClick={handleDelete} disabled={deleting}>
-              <Trash2 className="w-5 h-5 text-red-500" />
-            </Button>
-          )}
         </DialogHeader>
         <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
           <Input
@@ -140,6 +124,7 @@ export default function ExperienceModal({
             value={startDate}
             onChange={e => setStartDate(e.target.value)}
             required
+            max={endDate || undefined}
           />
           <div className="flex items-center gap-2">
             <input
@@ -156,6 +141,7 @@ export default function ExperienceModal({
               placeholder="End Date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
+              min={startDate || undefined}
             />
           )}
           <Input
@@ -167,7 +153,9 @@ export default function ExperienceModal({
             placeholder="Description"
             value={description}
             onChange={e => setDescription(e.target.value)}
+            maxLength={300}
           />
+          <div className="text-xs text-muted-foreground text-right mb-2">{description.length}/300</div>
           {error && <div className="text-red-500 text-sm">{error.message}</div>}
           <div className="flex gap-2">
             <Button type="submit" disabled={loading}>

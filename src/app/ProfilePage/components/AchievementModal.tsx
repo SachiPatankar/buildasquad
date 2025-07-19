@@ -4,8 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_ACHIEVEMENT, UPDATE_ACHIEVEMENT, DELETE_ACHIEVEMENT, GET_ACHIEVEMENTS_BY_USER } from "@/graphql"
-import { Trash2 } from "lucide-react"
+import { CREATE_ACHIEVEMENT, UPDATE_ACHIEVEMENT, GET_ACHIEVEMENTS_BY_USER } from "@/graphql"
 import { useParams } from "react-router-dom"
 
 export type Achievement = {
@@ -50,10 +49,6 @@ export default function AchievementModal({
     onCompleted: onClose,
     refetchQueries: [{ query: GET_ACHIEVEMENTS_BY_USER, variables: { userId } }],
   })
-  const [deleteAchievement, { loading: deleting, error: deleteError }] = useMutation(DELETE_ACHIEVEMENT, {
-    onCompleted: onClose,
-    refetchQueries: [{ query: GET_ACHIEVEMENTS_BY_USER, variables: { userId } }],
-  })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,25 +63,14 @@ export default function AchievementModal({
     }
   }
 
-  const handleDelete = () => {
-    if (achievement && achievement._id) {
-      deleteAchievement({ variables: { achievementId: achievement._id } })
-    }
-  }
-
-  const error = createError || updateError || deleteError
-  const loading = creating || updating || deleting
+  const error = createError || updateError
+  const loading = creating || updating
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>{achievement ? "Edit Achievement" : "Add Achievement"}</DialogTitle>
-          {achievement && achievement._id && (
-            <Button variant="ghost" size="icon" onClick={handleDelete} disabled={deleting}>
-              <Trash2 className="w-5 h-5 text-red-500" />
-            </Button>
-          )}
         </DialogHeader>
         <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
           <Input
@@ -99,7 +83,9 @@ export default function AchievementModal({
             placeholder="Description (optional)"
             value={description}
             onChange={e => setDescription(e.target.value)}
+            maxLength={300}
           />
+          <div className="text-xs text-muted-foreground text-right mb-2">{description.length}/300</div>
           {error && <div className="text-red-500 text-sm">{error.message}</div>}
           <div className="flex gap-2">
             <Button type="submit" disabled={loading}>

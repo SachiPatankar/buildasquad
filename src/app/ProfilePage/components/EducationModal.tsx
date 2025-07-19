@@ -4,8 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_EDUCATION, UPDATE_EDUCATION, DELETE_EDUCATION, GET_EDUCATION_BY_USER } from "@/graphql"
-import { Trash2 } from "lucide-react"
+import { CREATE_EDUCATION, UPDATE_EDUCATION, GET_EDUCATION_BY_USER } from "@/graphql"
 import { useParams } from "react-router-dom"
 
 export type Education = {
@@ -78,10 +77,6 @@ export default function EducationModal({
     onCompleted: onClose,
     refetchQueries: [{ query: GET_EDUCATION_BY_USER, variables: { userId } }],
   })
-  const [deleteEducation, { loading: deleting, error: deleteError }] = useMutation(DELETE_EDUCATION, {
-    onCompleted: onClose,
-    refetchQueries: [{ query: GET_EDUCATION_BY_USER, variables: { userId } }],
-  })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -102,25 +97,14 @@ export default function EducationModal({
     }
   }
 
-  const handleDelete = () => {
-    if (education && education._id) {
-      deleteEducation({ variables: { educationId: education._id } })
-    }
-  }
-
-  const error = createError || updateError || deleteError
-  const loading = creating || updating || deleting
+  const error = createError || updateError
+  const loading = creating || updating
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>{education ? "Edit Education" : "Add Education"}</DialogTitle>
-          {education && education._id && (
-            <Button variant="ghost" size="icon" onClick={handleDelete} disabled={deleting}>
-              <Trash2 className="w-5 h-5 text-red-500" />
-            </Button>
-          )}
         </DialogHeader>
         <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
           <Input
@@ -152,6 +136,7 @@ export default function EducationModal({
             value={startDate}
             onChange={e => setStartDate(e.target.value)}
             required
+            max={endDate || undefined}
           />
           <div className="flex items-center gap-2">
             <input
@@ -168,13 +153,16 @@ export default function EducationModal({
               placeholder="End Date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
+              min={startDate || undefined}
             />
           )}
           <Textarea
             placeholder="Description (optional)"
             value={description}
             onChange={e => setDescription(e.target.value)}
+            maxLength={300}
           />
+          <div className="text-xs text-muted-foreground text-right mb-2">{description.length}/300</div>
           {error && <div className="text-red-500 text-sm">{error.message}</div>}
           <div className="flex gap-2">
             <Button type="submit" disabled={loading}>

@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import { useMutation } from "@apollo/client";
 import { UPDATE_USER } from "@/graphql";
+import { Github, Linkedin, Globe, Link as LinkIcon } from "lucide-react";
 
 export type UserInfo = {
   first_name: string;
@@ -72,6 +73,21 @@ export default function UserInfoModal({
     });
   };
 
+  const TITLE_MAX = 50;
+  const BIO_MAX = 200;
+  const LINKS_MAX = 4;
+
+  // Helper to get icon for a link
+  function getLinkIcon(url: string) {
+    if (/github\.com/i.test(url)) return <Github className="h-4 w-4 text-muted-foreground" />;
+    if (/linkedin\.com/i.test(url)) return <Linkedin className="h-4 w-4 text-muted-foreground" />;
+    if (/leetcode\.com/i.test(url)) return <span title="LeetCode" className="text-yellow-500">🟧</span>;
+    if (/codeforces\.com/i.test(url)) return <span title="Codeforces" className="text-blue-500">💙</span>;
+    if (/codechef\.com/i.test(url)) return <span title="CodeChef" className="">🍳</span>;
+    if (url) return <Globe className="h-4 w-4 text-muted-foreground" />;
+    return <LinkIcon className="h-4 w-4 text-muted-foreground" />;
+  }
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
@@ -106,8 +122,12 @@ export default function UserInfoModal({
               id="title"
               placeholder="Title (e.g. Software Engineer)"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={e => {
+                if (e.target.value.length <= TITLE_MAX) setTitle(e.target.value);
+              }}
+              maxLength={TITLE_MAX}
             />
+            <div className="text-xs text-muted-foreground text-right">{title.length}/{TITLE_MAX}</div>
           </div>
           <div>
             <label htmlFor="locationId" className="block mb-1 font-medium">Location ID</label>
@@ -124,13 +144,19 @@ export default function UserInfoModal({
               id="bio"
               placeholder="Bio (optional)"
               value={bio}
-              onChange={e => setBio(e.target.value)}
+              onChange={e => {
+                if (e.target.value.length <= BIO_MAX) setBio(e.target.value);
+              }}
+              maxLength={BIO_MAX}
             />
+            <div className="text-xs text-muted-foreground text-right">{bio.length}/{BIO_MAX}</div>
           </div>
           <div>
             <label className="block mb-1 font-medium">Links</label>
             {links.map((link, idx) => (
               <div key={idx} className="flex gap-2 mb-2 items-center">
+                {/* Icon for the link */}
+                <span>{getLinkIcon(link.url)}</span>
                 <Input
                   placeholder="Name"
                   value={link.name}
@@ -156,9 +182,10 @@ export default function UserInfoModal({
                 </Button>
               </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => setLinks([...links, { name: "", url: "" }])}>
+            <Button type="button" variant="outline" size="sm" onClick={() => setLinks([...links, { name: "", url: "" }])} disabled={links.length >= LINKS_MAX}>
               Add Link
             </Button>
+            <div className="text-xs text-muted-foreground text-right">{links.length}/{LINKS_MAX} links</div>
           </div>
           {error && <div className="text-red-500 text-sm">{error.message}</div>}
           <div className="flex gap-2">

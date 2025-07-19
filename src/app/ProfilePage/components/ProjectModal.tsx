@@ -4,8 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
-import { CREATE_PROJECT, UPDATE_PROJECT, DELETE_PROJECT, GET_PROJECTS_BY_USER } from "@/graphql"
-import { Trash2 } from "lucide-react"
+import { CREATE_PROJECT, UPDATE_PROJECT, GET_PROJECTS_BY_USER } from "@/graphql"
 import { useParams } from "react-router-dom"
 
 export type Project = {
@@ -84,10 +83,7 @@ export default function ProjectModal({
     onCompleted: onClose,
     refetchQueries: [{ query: GET_PROJECTS_BY_USER, variables: { userId } }],
   })
-  const [deleteProject, { loading: deleting, error: deleteError }] = useMutation(DELETE_PROJECT, {
-    onCompleted: onClose,
-    refetchQueries: [{ query: GET_PROJECTS_BY_USER, variables: { userId } }],
-  })
+  // Remove deleteProject mutation, handleDelete, and related logic
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -108,12 +104,6 @@ export default function ProjectModal({
     }
   }
 
-  const handleDelete = () => {
-    if (project && project._id) {
-      deleteProject({ variables: { projectId: project._id } })
-    }
-  }
-
   const handleAddTech = () => {
     if (techInput.trim() && !technologies.includes(techInput.trim())) {
       setTechnologies([...technologies, techInput.trim()])
@@ -125,19 +115,14 @@ export default function ProjectModal({
     setTechnologies(technologies.filter(t => t !== tech))
   }
 
-  const error = createError || updateError || deleteError
-  const loading = creating || updating || deleting
+  const error = createError || updateError
+  const loading = creating || updating
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>{project ? "Edit Project" : "Add Project"}</DialogTitle>
-          {project && project._id && (
-            <Button variant="ghost" size="icon" onClick={handleDelete} disabled={deleting}>
-              <Trash2 className="w-5 h-5 text-red-500" />
-            </Button>
-          )}
         </DialogHeader>
         <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
           <Input
@@ -194,6 +179,7 @@ export default function ProjectModal({
             placeholder="Start Date"
             value={startDate}
             onChange={e => setStartDate(e.target.value)}
+            max={endDate || undefined}
           />
           <div className="flex items-center gap-2">
             <input
@@ -210,6 +196,7 @@ export default function ProjectModal({
               placeholder="End Date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
+              min={startDate || undefined}
             />
           )}
           {error && <div className="text-red-500 text-sm">{error.message}</div>}
