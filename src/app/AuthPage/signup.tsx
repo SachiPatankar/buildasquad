@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator'
 import { Link, useNavigate } from 'react-router-dom'
 import { signupUser } from '@/api'
 import useAuthStore from '@/stores/userAuthStore'
+import { toast } from 'react-toastify'
 
 export default function SignupPage() {
   const navigate = useNavigate()
@@ -22,12 +23,16 @@ export default function SignupPage() {
     setError(undefined)
   
     if (password !== confirm) {
-      setError('Passwords do not match')
+      const msg = 'Passwords do not match'
+      setError(msg)
+      toast.error(msg)
       return
     }
   
     if (!firstName || !email || !password) {
-      setError('All fields are required')
+      const msg = 'All fields are required'
+      setError(msg)
+      toast.error(msg)
       return
     }
   
@@ -38,17 +43,20 @@ export default function SignupPage() {
         email,
         password,
       })
-    
-      const { accessToken, user } = response.data // Use accessToken and user from response
-    
+  
+      const { accessToken, user } = response.data
+  
       useAuthStore.getState().setAuth(accessToken, user)
-    
-      navigate('/') // Or wherever you want after signup
+  
+      toast.success('Signup successful! Redirecting...')
+      navigate('/projects')
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Signup failed'
       setError(msg)
+      toast.error(msg)
     }
   }
+  
   
 
   return (
