@@ -52,32 +52,29 @@ export function FilterSidebar({ type, filter, onFilterChange }: FilterSidebarPro
   const [newTitle, setNewTitle] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const projectTypes = [
-    "Academic",
-    "Startup",
-    "Hackathon",
-    "Open Source",
-    "Personal",
-    "Freelance"
-  ]
-
-  const workModes = ["Remote", "Hybrid", "In-person"]
-  const experienceLevels = ["Beginner", "Intermediate", "Advanced", "Not specified"]
+  const workModes = ["remote", "hybrid", "in person"]
+  const experienceLevels = ["beginner", "intermediate", "advanced"]
 
   // Add common skills for people filter
   const commonPeopleSkills = [
     "React", "Node.js", "Python", "Java", "UI/UX Design", "DevOps", "SQL", "JavaScript", "TypeScript", "AWS", "Docker", "Figma"
   ];
 
-  const toggleSelection = useCallback((item: string, selectedItems: string[], key: string) => {
-    const newItems = selectedItems.includes(item)
-      ? selectedItems.filter((i) => i !== item)
-      : [...selectedItems, item]
-    onFilterChange({
-      ...filter,
-      [key]: newItems
-    } as any)
-  }, [filter, onFilterChange])
+ const toggleSelection = useCallback((item: string, selectedItems: string[], key: string) => {
+  const normalizedItem = (key === "selectedWorkModes" || key === "selectedExperienceLevels")
+    ? item.toLowerCase()
+    : item;
+
+  const newItems = selectedItems.includes(normalizedItem)
+    ? selectedItems.filter((i) => i !== normalizedItem)
+    : [...selectedItems, normalizedItem];
+
+  onFilterChange({
+    ...filter,
+    [key]: newItems
+  } as any);
+}, [filter, onFilterChange]);
+
 
   // For people: add title
   const handleAddTitle = (e: React.FormEvent) => {
@@ -203,20 +200,6 @@ export function FilterSidebar({ type, filter, onFilterChange }: FilterSidebarPro
                   item={role}
                   isSelected={filter.selectedRoles.includes(role)}
                   onClick={() => toggleSelection(role, filter.selectedRoles, "selectedRoles")}
-                />
-              ))}
-            </div>
-          </div>
-          {/* Project Type */}
-          <div className="mb-6">
-            <h3 className="font-medium mb-2">Project Type</h3>
-            <div className="flex flex-wrap gap-2">
-              {projectTypes.map((typeVal) => (
-                <SelectableTag
-                  key={typeVal}
-                  item={typeVal}
-                  isSelected={filter.selectedProjectTypes.includes(typeVal)}
-                  onClick={() => toggleSelection(typeVal, filter.selectedProjectTypes, "selectedProjectTypes")}
                 />
               ))}
             </div>

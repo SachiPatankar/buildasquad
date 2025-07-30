@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client"
 import { SearchBar } from "@/app/HomePage/layout/search-bar"
 import { FilterSidebar } from "@/app/HomePage/layout/sidebar-filter"
 import { ProjectCard } from "@/app/HomePage/components/project-card"
-import { LOAD_POST_BY_FILTER, LOAD_POST_BY_RECOMMENDATION, SEARCH_PROJECTS } from "@/graphql"
+import { LOAD_POST_BY_FILTER, LOAD_POSTS, SEARCH_PROJECTS } from "@/graphql"
 
 interface FilterState {
   selectedSkills: string[]
@@ -50,7 +50,7 @@ export default function HomePage() {
   const filterActive = isFilterActive(filter);
   const useSearch = searchQuery && !filterActive;
   const { data, loading, fetchMore, refetch } = useQuery(
-    useSearch ? SEARCH_PROJECTS : filterActive ? LOAD_POST_BY_FILTER : LOAD_POST_BY_RECOMMENDATION,
+    useSearch ? SEARCH_PROJECTS : filterActive ? LOAD_POST_BY_FILTER : LOAD_POSTS,
     useSearch
       ? { variables: { search: searchQuery }, notifyOnNetworkStatusChange: true }
       : filterActive
@@ -75,7 +75,7 @@ export default function HomePage() {
       } else if (filterActive) {
         newProjects = data.loadPostByFilter ?? [];
       } else {
-        newProjects = data.loadByRecommendation ?? [];
+        newProjects = data.loadPosts ?? [];
       }
       if (page === 1) {
         setProjects(newProjects)
@@ -102,7 +102,7 @@ export default function HomePage() {
             }).then(fetchMoreResult => {
               const newProjects = filterActive
                 ? fetchMoreResult.data.loadPostByFilter ?? []
-                : fetchMoreResult.data.loadByRecommendation ?? [];
+                : fetchMoreResult.data.loadPosts ?? [];
               setProjects(prev =>
                 [...prev, ...newProjects].filter(
                   (item, idx, arr) => arr.findIndex(i => i._id === item._id) === idx
